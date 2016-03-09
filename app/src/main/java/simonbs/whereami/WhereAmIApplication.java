@@ -5,6 +5,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.estimote.sdk.Beacon;
@@ -38,8 +39,8 @@ public class WhereAmIApplication extends Application {
             @Override
             public void onServiceReady() {
                 // Monitor all configured regions
-                for (Room room : Configuration.Rooms) {
-                    Log.v("WhereAmIApplication", "Start monitoring room with identifier " + room.getIdentifier());
+                for (Room room : RoomsManager.getInstance().getRooms()) {
+                    Log.v("WhereAmIApplication", "Start monitoring region with identifier " + room.getIdentifier());
                     beaconManager.startMonitoring(room.toRegion());
                 }
             }
@@ -50,12 +51,25 @@ public class WhereAmIApplication extends Application {
             @Override
             public void onEnteredRegion(Region region, List<Beacon> list) {
                 Log.v("WhereAmIApplication", "Did enter region with identifier " + region.getIdentifier());
-                showNotification("Hello there!", "You are now in the " + region.getIdentifier() + " region!");
+                Room room = RoomsManager.getInstance().getRoomWithIdentifier(region.getIdentifier());
+
+                Intent intent = new Intent(Notifications.DidEnterRoom);
+                intent.putExtra(Notifications.Extras.Room, room);
+                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
             }
 
             @Override
             public void onExitedRegion(Region region) {
-                Log.v("WhereAmIApplication", "Did exit region with identifier " + region.getIdentifier());
+                Log.v("WhereAmIApplication", "Did leave region with identifier " + region.getIdentifier());
+                Room leftRoom = RoomsManager.getInstance().getRoomWithIdentifier(region.getIdentifier());
+                Room currentRoom =  RoomsManager.getInstance().getCurrentRoom();
+                if (currentRoom != null && leftRoom.getIdentifier() == currentRoom.getIdentifier()) {
+                    RoomsManager.getInstance().changeRoom(null);
+
+                    Intent intent = new Intent(Notifications.DidExitRoom);
+                    intent.putExtra(Notifications.Extras.Room, leftRoom);
+                    LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+                }
             }
         });
     }

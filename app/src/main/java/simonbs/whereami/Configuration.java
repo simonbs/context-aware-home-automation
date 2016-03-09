@@ -20,22 +20,4 @@ public class Configuration {
     public static final UUID BeaconMint3UUID = UUID.fromString("B9407F30-F5F8-466E-AFF9-25556B57FE6D");
     public static final Integer BeaconMint3Major = 31177;
     public static final Integer BeaconMint3Minor = 40430;
-
-    public static final Room[] Rooms = {
-            new Room("kitchen",
-                    "Kitchen",
-                    BeaconIce2UUID,
-                    BeaconIce2Major,
-                    BeaconIce2Minor),
-            new Room("desk",
-                    "Desk",
-                    BeaconBlueberry3UUID,
-                    BeaconBlueberry3Major,
-                    BeaconBlueberry3Minor),
-            new Room("living_room",
-                    "Living Room",
-                    BeaconMint3UUID,
-                    BeaconMint3Major,
-                    BeaconMint3Minor)
-    };
 }
