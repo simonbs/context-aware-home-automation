@@ -5,7 +5,7 @@ package simonbs.whereami;
  */
 public class Notifications {
     public static final String DidEnterRoom = "DidEnterRoom";
-    public static final String DidExitRoom = "DidExitRoom";
+    public static final String DidLeaveRoom = "DidLeaveRoom";
 
     public class Extras {
         public static final String Room = "Room";

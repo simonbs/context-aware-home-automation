@@ -20,6 +20,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         LocalBroadcastManager.getInstance(this).registerReceiver(didEnterRoomReceiver, new IntentFilter(Notifications.DidEnterRoom));
+        LocalBroadcastManager.getInstance(this).registerReceiver(didLeaveRoom, new IntentFilter(Notifications.DidLeaveRoom));
     }
 
     @Override
@@ -34,7 +35,15 @@ public class MainActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             Room room = intent.getParcelableExtra(Notifications.Extras.Room);
             TextView roomNameTextView = (TextView)findViewById(R.id.room_name);
-            roomNameTextView.setText(room.getName());
+            roomNameTextView.setText(room.name);
+        }
+    };
+
+    private BroadcastReceiver didLeaveRoom = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            TextView roomNameTextView = (TextView)findViewById(R.id.room_name);
+            roomNameTextView.setText(null);
         }
     };
 }
