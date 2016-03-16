@@ -1,4 +1,4 @@
-package simonbs.whereami;
+package aau.carma;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -24,7 +24,7 @@ public class Room implements Parcelable {
      * Beacons inside the room.
      * The beacons are used for determing the users position.
      */
-    final simonbs.whereami.Beacon[] beacons;
+    final aau.carma.Beacon[] beacons;
 
     /**
      * Creates a new room.
@@ -41,7 +41,7 @@ public class Room implements Parcelable {
     Room(Parcel in) {
         identifier = in.readString();
         name = in.readString();
-        beacons = (simonbs.whereami.Beacon[])in.readArray(simonbs.whereami.Beacon.class.getClassLoader());
+        beacons = (aau.carma.Beacon[])in.readArray(aau.carma.Beacon.class.getClassLoader());
     }
 
     @Override

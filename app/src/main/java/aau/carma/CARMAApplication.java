@@ -1,4 +1,4 @@
-package simonbs.whereami;
+package aau.carma;
 import android.app.Application;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -12,7 +12,7 @@ import com.estimote.sdk.EstimoteSDK;
 /**
  * Created by simonbs on 08/03/2016.
  */
-public class WhereAmIApplication extends Application {
+public class CARMAApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();

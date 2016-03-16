@@ -1,4 +1,4 @@
-package simonbs.whereami;
+package aau.carma;
 
 /**
  * Created by simonbs on 09/03/2016.

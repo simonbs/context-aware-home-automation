@@ -1,4 +1,4 @@
-package simonbs.whereami;
+package aau.carma;
 
 import android.content.Context;
 import android.content.Intent;
@@ -150,7 +150,7 @@ public class RoomsManager {
      */
     Room getRoom(String namespace, String instance) {
         for (Room room : rooms) {
-            for (simonbs.whereami.Beacon beacon : room.beacons) {
+            for (aau.carma.Beacon beacon : room.beacons) {
                 Boolean isSameNamespace = beacon.namespace.toLowerCase().equals(namespace.toLowerCase());
                 Boolean isSameInstance = beacon.instance.toLowerCase().equals(instance.toLowerCase());
                 if (isSameNamespace && isSameInstance) {

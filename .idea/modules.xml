@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/WhereAmI.iml" filepath="$PROJECT_DIR$/WhereAmI.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/context-aware-home-automation.iml" filepath="$PROJECT_DIR$/context-aware-home-automation.iml" />
     </modules>
   </component>
 </project>

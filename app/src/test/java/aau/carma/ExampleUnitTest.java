@@ -1,4 +1,4 @@
-package simonbs.whereami;
+package aau.carma;
 
 import org.junit.Test;
 
