@@ -25,31 +25,18 @@ public class RoomsManager {
      */
     public interface EventListener {
         /**
-         * Called when the user enters a room.
-         * @param room Room the user enters.
+         * Called when the manager finds the user to be in a room.
+         * This may be called multiple times without the user leaving
+         * the room.
+         * @param room Room the user is in.
          */
-        void onDidEnterRoom(Room room);
-
-        /**
-         * Called when the user leaves the current room.
-         * Note: If the user changes to a different room,
-         * onDidEnterRoom is called and this is not called.
-         * This is only called when the user leaves the room
-         * and we are not able to determine which room he is
-         * in in now.
-         */
-        void onDidLeaveRoom();
+        void onUserFoundInRoom(Room room);
     }
 
     /**
      * Rooms to monitor.
      */
     private ArrayList<Room> rooms;
-
-    /**
-     * The room the user is currently in.
-     */
-    private Room currentRoom;
 
     /**
      * Manages the beacons, i.e. scanning for new beacons.
@@ -65,12 +52,6 @@ public class RoomsManager {
      * Object listening for changes to the users position.
      */
     private EventListener listener;
-
-    /**
-     * The Eddystone beacon that determined the current position of the user,
-     * i.e. the one we "snapped" the user to.
-     */
-    private Eddystone anchoringEddystone;
 
     /**
      * Initializes a rooms manager.
@@ -90,6 +71,8 @@ public class RoomsManager {
      * @param context Context in which to perform the monitoring. Typically the application context.
      */
     public void startMonitoring(Context context, EventListener listener) {
+        Log.v(Configuration.Log, "RoomsManager did start monitoring");
+
         this.listener = listener;
         final RoomsManager roomsManager = this;
         beaconManager = new BeaconManager(context);
@@ -112,6 +95,8 @@ public class RoomsManager {
      * Stops monitoring for change in rooms.
      */
     public void stopMonitoring() {
+        Log.v(Configuration.Log, "RoomsManager did stop monitoring");
+
         beaconManager.setEddystoneListener(null);
         if (scanId != null) {
             beaconManager.stopEddystoneScanning(scanId);
@@ -150,20 +135,18 @@ public class RoomsManager {
     }
 
     /**
-     * Gets the current room.
-     * @return Current room, null if the user is not in a known room.
-     */
-    public Room getCurrentRoom() {
-        return currentRoom;
-    }
-
-    /**
      * Called when we discover a set of Eddystone beacons.
      * Note that we can discover a beacon several times.
      * Determines the anchoring beacon.
      * @param beacons Discovered beacons.
      */
     private void didDiscoverEddystoneBeacons(List<Eddystone> beacons) {
+        // Check if we found beacons at all.
+        if (beacons.isEmpty()) { return; }
+
+        // Don'd do anything if no one is interested in the data.
+        if (listener == null) { return; }
+
         // Find the eddystone with the highest RSSI.
         Collections.sort(beacons, new Comparator<Eddystone>() {
             @Override
@@ -172,98 +155,11 @@ public class RoomsManager {
             }
         });
 
-        // Store if we currently have an anchor.
-        Boolean hadAnchoredBeacon = anchoringEddystone != null;
-
-        // Check if we found beacons at all.
-        if (beacons.isEmpty()) {
-            if (hadAnchoredBeacon) {
-                // We found no beacons, but we just had one.
-                // We must have left the room in some way,
-                // i.e. we actually left it or we just lost connection
-                // for some reason.
-                didLeaveRoom();
-            }
-
-            return;
-        }
-
+        // Find the room
         Eddystone eddystone = beacons.get(0);
         Room room = getRoom(eddystone.namespace, eddystone.instance);
 
-        // Check if the beacon we are currently anchored to has disappeared.
-        if (anchoringEddystone != null) {
-            Boolean currentlyAnchoredEddistoneExists = beacons.contains(anchoringEddystone);
-            if (!currentlyAnchoredEddistoneExists) {
-                anchoringEddystone = null;
-            }
-        }
-
-        // We found an unknown beacon.
-        // Don't do anything if we don't have a room for this beacon.
-        if (room == null) {
-            Log.v(Configuration.Log, "Did not find a room for the Eddystone.");
-
-            if (hadAnchoredBeacon) {
-                // We found no rooms for the current set of beacons,
-                // but we had an anchoring beacon before, so we must
-                // have left the room in some way.
-                didLeaveRoom();
-            }
-
-            return;
-        }
-
-        // If we do not have an anchoring Eddystone,
-        // then consider this to be the one.
-        if (anchoringEddystone == null) {
-            Log.v(Configuration.Log, "Did find first anchoring Eddystone.");
-            anchoringEddystone = eddystone;
-            didEnterRoom(room);
-            return;
-        }
-
-        // Check if we're closer to this room than the current room,
-        // i.e. the RSSI value is higher than the beacon we're currently
-        // anchored to.
-        if (eddystone.rssi > anchoringEddystone.rssi) {
-            Log.v(Configuration.Log, "Did find better anchoring Eddystone.");
-            anchoringEddystone = eddystone;
-            // Change the room if we're not already in it.
-            if (room.identifier != currentRoom.identifier) {
-                didEnterRoom(room);
-            }
-        }
-    }
-
-    /**
-     * Called when the user changes his position, i.e. enters a new room.
-     * @param room The room the user entered.
-     */
-    private void didEnterRoom(Room room) {
-        // Don't do anything if it is the same room.
-        if (currentRoom != null && room.identifier == currentRoom.identifier) { return; }
-
-        Log.v(Configuration.Log, "Did enter room with identifier " + room.identifier);
-        currentRoom = room;
-
-        if (listener != null) {
-            listener.onDidEnterRoom(room);
-        }
-    }
-
-    /**
-     * Called when the user leaves the current room.
-     */
-    private void didLeaveRoom() {
-        // Don't do anything if we are not in a room
-        if (currentRoom == null) { return; }
-
-        Log.v(Configuration.Log, "Did leave room with identifier " + currentRoom.identifier);
-        currentRoom = null;
-
-        if (listener != null) {
-            listener.onDidLeaveRoom();
-        }
+        // Notify the listener
+        listener.onUserFoundInRoom(room);
     }
 }

@@ -60,7 +60,9 @@ public class DummyData {
         ArrayList<GestureConfiguration> allConfigurations = getAllGestureConfigurations();
         ArrayList<GestureConfiguration> result = new ArrayList<>();
         for (GestureConfiguration configuration : allConfigurations) {
-            result.add(configuration);
+            if (configuration.roomId == roomIdentifier) {
+                result.add(configuration);
+            }
         }
 
         return result;

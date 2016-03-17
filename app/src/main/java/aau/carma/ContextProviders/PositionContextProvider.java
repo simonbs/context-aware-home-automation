@@ -83,13 +83,8 @@ public class PositionContextProvider implements ContextProvider {
         roomsManager.configureWithRooms(rooms);
         roomsManager.startMonitoring(context, new RoomsManager.EventListener() {
             @Override
-            public void onDidEnterRoom(Room room) {
-                didEnterRoom(room);
-            }
-
-            @Override
-            public void onDidLeaveRoom() {
-                didLeaveRoom();
+            public void onUserFoundInRoom(Room room) {
+                didFindUserToBeInRoom(room);
             }
         });
 
@@ -97,20 +92,13 @@ public class PositionContextProvider implements ContextProvider {
     }
 
     /**
-     * Called when the user enters a room.
+     * Called when the user is found to be in a room.
      * @param room Room the user entered.
      */
-    private void didEnterRoom(Room room) {
-        Log.v(Configuration.Log, "Did enter room with name " + room.name);
-
+    private void didFindUserToBeInRoom(Room room) {
         EnteredRoomObservation observation = new EnteredRoomObservation(System.currentTimeMillis(), room);
         enteredRoomObservations.add(observation);
         removeOldEnteredRoomObservations();
-        calculateProbabilities();
-
-        for (ContextOutcome outcome : outcomes) {
-            Log.v(Configuration.Log, outcome.id + ": " + outcome.probability);
-        }
     }
 
     /**
@@ -118,7 +106,7 @@ public class PositionContextProvider implements ContextProvider {
      * The time is specified by the enteredRoomObservationsTimeToLive property.
      */
     private void removeOldEnteredRoomObservations() {
-        float maxAgeTimestamp = System.currentTimeMillis() - enteredRoomObservationsTimeToLive;
+        long maxAgeTimestamp = System.currentTimeMillis() - enteredRoomObservationsTimeToLive * 1000;
         ArrayList<EnteredRoomObservation> result = new ArrayList<>();
         for (EnteredRoomObservation enteredRoomObservation : enteredRoomObservations) {
             if (enteredRoomObservation.timestamp > maxAgeTimestamp) {
@@ -157,7 +145,7 @@ public class PositionContextProvider implements ContextProvider {
             ArrayList<GestureConfiguration> gestureConfigurations = DummyData.gestureConfigurationsForRoomWithIdentifier(roomIdentifier);
             // Add a probability for each action in the room.
             for (GestureConfiguration gestureConfiguration : gestureConfigurations) {
-                float probability = observationsCount / totalObservationsCount;
+                double probability = (double)observationsCount / (double)totalObservationsCount;
                 outcomes.add(new ContextOutcome(gestureConfiguration.actionId, probability));
             }
         }
@@ -166,9 +154,13 @@ public class PositionContextProvider implements ContextProvider {
     }
 
     /**
-     * Called when the user leaves the current room.
+     * Logs the current outcomes. For debugging purposes.
      */
-    private void didLeaveRoom() { }
+    private void logCurrentOutcomes() {
+        for (ContextOutcome outcome : outcomes) {
+            Log.v(Configuration.Log, outcome.id + ": " + outcome.probability);
+        }
+    }
 
     @Override
     public double getWeight() {
@@ -178,6 +170,7 @@ public class PositionContextProvider implements ContextProvider {
     @Override
     public void getContext(ContextProviderListener listener) {
         calculateProbabilities();
+        logCurrentOutcomes();
         listener.onContextReady(outcomes);
     }
 
