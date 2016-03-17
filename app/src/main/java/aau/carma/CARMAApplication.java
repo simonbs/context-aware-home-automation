@@ -6,8 +6,11 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 import com.estimote.sdk.EstimoteSDK;
+
+import aau.carma.ContextEngine.ContextRecognizer;
 
 /**
  * Created by simonbs on 08/03/2016.
@@ -20,47 +23,22 @@ public class CARMAApplication extends Application {
         EstimoteSDK.initialize(getApplicationContext(), Configuration.EstimoteAppId, Configuration.EstimoteAppToken);
         EstimoteSDK.enableDebugLogging(true);
 
-        configureRoomsManager();
+        configureContextRecognizer();
     }
 
-    private void configureRoomsManager() {
-        RoomsManager.getInstance().configureWithRooms(new Room[]{
-                new Room("kitchen",
-                        "Kitchen",
-                        new Beacon[]{
-                                new Beacon(Configuration.BeaconIce2Namespace, Configuration.BeaconIce2Instance)
-                        }),
-                new Room("desk",
-                        "Desk",
-                        new Beacon[]{
-                                new Beacon(Configuration.BeaconBlueberry3Namespace, Configuration.BeaconBlueberry3Instance)
-                        }),
-                new Room("living_room",
-                        "Living Room",
-                        new Beacon[]{
-                                new Beacon(Configuration.BeaconMint3Namespace, Configuration.BeaconMint3Instance)
-                        }),
-                new Room("bathroom",
-                        "Bathroom",
-                        new Beacon[]{
-                                new Beacon(Configuration.BeaconIce3Namespace, Configuration.BeaconIce3Instance)
-                        })
-        });
+    /**
+     * Configures the shared context recognizer.
+     */
+    private void configureContextRecognizer() {
+        Log.v(Configuration.Log, "Will configure context recognizer");
 
-        RoomsManager.getInstance().startMonitoring(getApplicationContext(), new RoomsManager.EventListener() {
-            @Override
-            public void onDidEnterRoom(Room room) {
-                Intent intent = new Intent(Notifications.DidEnterRoom);
-                intent.putExtra(Notifications.Extras.Room, room);
-                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
-            }
+        try {
+            CARMAContextRecognizer.getInstance().addPositionContextProvider(getApplicationContext(), DummyData.getAllRooms());
+        } catch (ContextRecognizer.IsRecognizingException e) {
+            Log.e(Configuration.Log, "The shared context reecognizer could not be configured because the recognizer is currently recognizing.");
+        }
 
-            @Override
-            public void onDidLeaveRoom() {
-                Intent intent = new Intent(Notifications.DidLeaveRoom);
-                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
-            }
-        });
+        Log.v(Configuration.Log, "Did configure context recognizer");
     }
 
     public void showNotification(String title, String message) {

@@ -10,13 +10,13 @@ import com.estimote.sdk.BeaconManager;
 import com.estimote.sdk.Region;
 import com.estimote.sdk.eddystone.Eddystone;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 /**
  * Monitors a set of rooms.
- * Created by simonbs on 09/03/2016.
  */
 public class RoomsManager {
     /**
@@ -34,7 +34,7 @@ public class RoomsManager {
          * Called when the user leaves the current room.
          * Note: If the user changes to a different room,
          * onDidEnterRoom is called and this is not called.
-         * This is conly called when the user leaves the room
+         * This is only called when the user leaves the room
          * and we are not able to determine which room he is
          * in in now.
          */
@@ -42,22 +42,9 @@ public class RoomsManager {
     }
 
     /**
-     * Shared instance of the manager.
-     */
-    private static RoomsManager ourInstance = new RoomsManager();
-
-    /**
-     * Shared instance of the manager.
-     * @return The shared instance of the manager.
-     */
-    public static RoomsManager getInstance() {
-        return ourInstance;
-    }
-
-    /**
      * Rooms to monitor.
      */
-    private Room[] rooms;
+    private ArrayList<Room> rooms;
 
     /**
      * The room the user is currently in.
@@ -88,13 +75,13 @@ public class RoomsManager {
     /**
      * Initializes a rooms manager.
      */
-    private RoomsManager() { }
+    public RoomsManager() { }
 
     /**
      * Configure the manager with a set of rooms to monitor..
      * @param rooms Set of rooms.
      */
-    void configureWithRooms(Room[] rooms) {
+    public void configureWithRooms(ArrayList<Room> rooms) {
         this.rooms = rooms;
     }
 
@@ -102,7 +89,7 @@ public class RoomsManager {
      * Starts monitoring the configured rooms.
      * @param context Context in which to perform the monitoring. Typically the application context.
      */
-    void startMonitoring(Context context, EventListener listener) {
+    public void startMonitoring(Context context, EventListener listener) {
         this.listener = listener;
         final RoomsManager roomsManager = this;
         beaconManager = new BeaconManager(context);
@@ -124,7 +111,7 @@ public class RoomsManager {
     /**
      * Stops monitoring for change in rooms.
      */
-    void stopMonitoring() {
+    public void stopMonitoring() {
         beaconManager.setEddystoneListener(null);
         if (scanId != null) {
             beaconManager.stopEddystoneScanning(scanId);
@@ -138,7 +125,7 @@ public class RoomsManager {
      * Get all rooms.
      * @return All rooms.
      */
-    Room[] getRooms() {
+    public ArrayList<Room> getRooms() {
         return rooms;
     }
 
@@ -148,7 +135,7 @@ public class RoomsManager {
      * @param instance Instanceof the beacon.
      * @return Room with the specified details, null if not found.
      */
-    Room getRoom(String namespace, String instance) {
+    public Room getRoom(String namespace, String instance) {
         for (Room room : rooms) {
             for (aau.carma.Beacon beacon : room.beacons) {
                 Boolean isSameNamespace = beacon.namespace.toLowerCase().equals(namespace.toLowerCase());
@@ -166,7 +153,7 @@ public class RoomsManager {
      * Gets the current room.
      * @return Current room, null if the user is not in a known room.
      */
-    Room getCurrentRoom() {
+    public Room getCurrentRoom() {
         return currentRoom;
     }
 
@@ -190,7 +177,7 @@ public class RoomsManager {
 
         // Check if we found beacons at all.
         if (beacons.isEmpty()) {
-            if (hadAnchoredBeacon ){
+            if (hadAnchoredBeacon) {
                 // We found no beacons, but we just had one.
                 // We must have left the room in some way,
                 // i.e. we actually left it or we just lost connection

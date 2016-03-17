@@ -44,14 +44,14 @@ public class ContextRecognizer {
         /**
          * Outcomes of the context.
          */
-        private ContextOutcome[] outcomes;
+        private ArrayList<ContextOutcome> outcomes;
 
         /**
          * Creates a representation of a context provided by one of the context providers.
          * @param weight Weight of the context.
          * @param outcomes Outcomes of the context, each having a probability.
          */
-        ProvidedContext(double weight, ContextOutcome[] outcomes) {
+        ProvidedContext(double weight, ArrayList<ContextOutcome> outcomes) {
             this.weight = weight;
             this.outcomes = outcomes;
         }
@@ -68,7 +68,7 @@ public class ContextRecognizer {
          * Outcomes of the context.
          * @return Outcomes.
          */
-        public ContextOutcome[] getOutcomes() {
+        public ArrayList<ContextOutcome> getOutcomes() {
             return outcomes;
         }
     }
@@ -177,7 +177,7 @@ public class ContextRecognizer {
 
             entry.getValue().getContext(new ContextProviderListener() {
                 @Override
-                public void onContextReady(ContextOutcome[] outcomes) {
+                public void onContextReady(ArrayList<ContextOutcome> outcomes) {
                     ProvidedContext providedContext = new ProvidedContext(contextProvider.getWeight(), outcomes);
                     providedContexts.add(providedContext);
                     pendingContextProviders.remove(uuid);

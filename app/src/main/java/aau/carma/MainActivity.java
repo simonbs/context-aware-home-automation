@@ -27,14 +27,7 @@ public class MainActivity extends AppCompatActivity implements ContextRecognizer
         LocalBroadcastManager.getInstance(this).registerReceiver(didEnterRoomReceiver, new IntentFilter(Notifications.DidEnterRoom));
         LocalBroadcastManager.getInstance(this).registerReceiver(didLeaveRoom, new IntentFilter(Notifications.DidLeaveRoom));
 
-        ContextRecognizer contextRecognizer = new ContextRecognizer();
-        try {
-            contextRecognizer.addProvider(new PositionContextProvider());
-            contextRecognizer.addProvider(new GestureContextProvider());
-            contextRecognizer.start(this);
-        } catch (ContextRecognizer.IsRecognizingException e) {
-            Log.v(Configuration.Log, "Cannot add a provider to the context recognizer while it is started.");
-        }
+
     }
 
     @Override

@@ -6,7 +6,7 @@ import android.os.Parcelable;
 /**
  * Created by simonbs on 10/03/2016.
  */
-public class Beacon implements Parcelable {
+public class Beacon {
     /**
      * Namespace of the Eddystone beacon.
      * Identifies a group of beacons.
@@ -27,32 +27,6 @@ public class Beacon implements Parcelable {
     Beacon(String namespace, String instance) {
         this.namespace = namespace;
         this.instance = instance;
-    }
-
-    Beacon(Parcel in) {
-        namespace = in.readString();
-        instance = in.readString();
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(namespace);
-        dest.writeString(instance);
-    }
-
-    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
-        public Room createFromParcel(Parcel in) {
-            return new Room(in);
-        }
-
-        public Room[] newArray(int size) {
-            return new Room[size];
-        }
-    };
-
-    @Override
-    public int describeContents() {
-        return 0;
     }
 
     @Override

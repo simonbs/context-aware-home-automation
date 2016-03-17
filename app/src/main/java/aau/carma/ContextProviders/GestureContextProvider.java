@@ -1,8 +1,11 @@
 package aau.carma.ContextProviders;
 
+import java.util.ArrayList;
+
 import aau.carma.ContextEngine.ContextOutcome;
 import aau.carma.ContextEngine.ContextProvider;
 import aau.carma.ContextEngine.ContextProviderListener;
+import aau.carma.RoomsManager;
 
 /**
  * Provides the gesture context.
@@ -15,12 +18,7 @@ public class GestureContextProvider implements ContextProvider {
 
     @Override
     public void getContext(ContextProviderListener listener) {
-        listener.onContextReady(new ContextOutcome[] {
-                new ContextOutcome(1, 0.1),
-                new ContextOutcome(2, 0.6),
-                new ContextOutcome(3, 0.2),
-                new ContextOutcome(4, 0.1),
-        });
+        listener.onContextReady(new ArrayList<ContextOutcome>());
     }
 
     @Override

@@ -4,27 +4,28 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import com.estimote.sdk.Region;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 /**
  * Created by simonbs on 09/03/2016.
  */
-public class Room implements Parcelable {
+public class Room {
     /**
      * Identifier of the room.
      */
-    final String identifier;
+    public final String identifier;
 
     /**
      * Name of the room.
      */
-    final String name;
+    public final String name;
 
     /**
      * Beacons inside the room.
      * The beacons are used for determing the users position.
      */
-    final aau.carma.Beacon[] beacons;
+    public final ArrayList<Beacon> beacons;
 
     /**
      * Creates a new room.
@@ -32,37 +33,9 @@ public class Room implements Parcelable {
      * @param name Name of the room.
      * @param beacons Beacons inside the room.
      */
-    Room(String identifier, String name, Beacon[] beacons) {
+    public Room(String identifier, String name, ArrayList<Beacon> beacons) {
         this.identifier = identifier;
         this.name = name;
         this.beacons = beacons;
-    }
-
-    Room(Parcel in) {
-        identifier = in.readString();
-        name = in.readString();
-        beacons = (aau.carma.Beacon[])in.readArray(aau.carma.Beacon.class.getClassLoader());
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(identifier);
-        dest.writeString(name);
-        dest.writeArray(beacons);
-    }
-
-    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
-        public Room createFromParcel(Parcel in) {
-            return new Room(in);
-        }
-
-        public Room[] newArray(int size) {
-            return new Room[size];
-        }
-    };
-
-    @Override
-    public int describeContents() {
-        return 0;
     }
 }
