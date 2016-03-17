@@ -1,6 +1,8 @@
 package aau.carma.ContextEngine;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Represents a possible outcome recognized of running the context engine.
@@ -44,6 +46,34 @@ public class ContextOutcome {
         ArrayList<ContextOutcome> result = new ArrayList<>();
         for (ContextOutcome outcome : outcomes) {
             result.add(new ContextOutcome(outcome.id, outcome.probability / totalProbability));
+        }
+
+        return result;
+    }
+
+    /**
+     * Sums a set of outcomes, removing all duplicates and adding their probabilities together.
+     * Please note that the outcomes are not normalized. Use the normalizeOutcomes function
+     * to normalize the outcomes.
+     * @param outcomes Outcomes to sum.
+     * @return Summed outcomes.
+     */
+    public static ArrayList<ContextOutcome> sumOutcomes(ArrayList<ContextOutcome> outcomes) {
+        HashMap<String, Double> probabilityMap = new HashMap<>();
+        for (ContextOutcome outcome : outcomes) {
+            if (probabilityMap.containsKey(outcome.id)) {
+                Double newProbability = probabilityMap.get(outcome.id) + outcome.probability;
+                probabilityMap.put(outcome.id, newProbability);
+            } else {
+                probabilityMap.put(outcome.id, outcome.probability);
+            }
+        }
+
+        ArrayList<ContextOutcome> result = new ArrayList<>();
+        for (Map.Entry<String, Double> entry : probabilityMap.entrySet()) {
+            String id = entry.getKey();
+            Double probability = entry.getValue();
+            result.add(new ContextOutcome(id, probability));
         }
 
         return result;

@@ -1,7 +1,9 @@
 package aau.carma.ContextEngine;
 
+import android.content.Context;
 import android.os.Handler;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,12 +41,12 @@ public class ContextRecognizer {
         /**
          * Weight of the context.
          */
-        private double weight;
+        public final double weight;
 
         /**
          * Outcomes of the context.
          */
-        private ArrayList<ContextOutcome> outcomes;
+        public final ArrayList<ContextOutcome> outcomes;
 
         /**
          * Creates a representation of a context provided by one of the context providers.
@@ -57,19 +59,17 @@ public class ContextRecognizer {
         }
 
         /**
-         * Weight of the context.
-         * @return Weight.
+         * Calculates the weighted outcomes based on the weight provided
+         * by the weight property.
+         * @return Weighted outcomes.
          */
-        public double getWeight() {
-            return weight;
-        }
+        public ArrayList<ContextOutcome> calculateWeightedOutcomes() {
+            ArrayList<ContextOutcome> result = new ArrayList<>();
+            for (ContextOutcome outcome : outcomes) {
+                result.add(new ContextOutcome(outcome.id, outcome.probability * weight));
+            }
 
-        /**
-         * Outcomes of the context.
-         * @return Outcomes.
-         */
-        public ArrayList<ContextOutcome> getOutcomes() {
-            return outcomes;
+            return result;
         }
     }
 
@@ -102,7 +102,7 @@ public class ContextRecognizer {
     /**
      * Contexts provided by the context providers.
      */
-    private ArrayList<ProvidedContext> providedContexts = new ArrayList<ProvidedContext>();
+    private ArrayList<ProvidedContext> providedContexts = new ArrayList<>();
 
     /**
      * Timer started when the gesture recognizer starts recognizing.
@@ -163,8 +163,18 @@ public class ContextRecognizer {
         recognizing = true;
         this.listener = listener;
         providedContexts.clear();
-        startRegisteredContextProviders();
-        startTimeoutTimer();
+
+        if (contextProviders.size() > 0) {
+            // We have context providers registered. Start recognizing.
+            startTimeoutTimer();
+            startRegisteredContextProviders();
+        } else {
+            // We do not have any context providers, so just tell the
+            // listener that there are zero outcomes.
+            if (listener != null) {
+                listener.onContextReady(new ArrayList<ContextOutcome>());
+            }
+        }
     }
 
     /**
@@ -211,7 +221,16 @@ public class ContextRecognizer {
     }
 
     /**
-     * Cancels recognizing the context.
+     * Cancels the timeout timer.
+     */
+    private void cancelTimeoutTimer() {
+        if (timeoutHandler != null) {
+            timeoutHandler.removeCallbacksAndMessages(null);
+        }
+    }
+
+    /**
+     * Cancels recognizing the contex   t.
      */
     public void cancel() throws IsNotRecognizingException {
         if (!recognizing) {
@@ -269,13 +288,30 @@ public class ContextRecognizer {
      * Called when recognition completes.
      */
     private void onRecognitionCompleted() {
+        recognizing = false;
 
+        cancelTimeoutTimer();
 
+        ArrayList<ContextOutcome> flattenedOutcomes = flattenedOutcomes(providedContexts);
+        ArrayList<ContextOutcome> summedOutcomes = ContextOutcome.sumOutcomes(flattenedOutcomes);
+        ArrayList<ContextOutcome> normalizedOutcomes = ContextOutcome.normalizeOutcomes(summedOutcomes);
 
         if (listener != null) {
-            listener.onContextReady(new ContextOutcome[] {
-
-            });
+            listener.onContextReady(normalizedOutcomes);
         }
+    }
+
+    /**
+     * Flattens the array of outcomes in all provided contexts available.
+     * @param providedContexts Provided contexts to take weighted outcomes from.
+     * @return All outcomes.
+     */
+    private ArrayList<ContextOutcome> flattenedOutcomes(ArrayList<ProvidedContext> providedContexts) {
+        ArrayList<ContextOutcome> result = new ArrayList<>();
+        for (ProvidedContext providedContext : providedContexts) {
+            result.addAll(providedContext.calculateWeightedOutcomes());
+        }
+
+        return result;
     }
 }

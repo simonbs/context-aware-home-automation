@@ -1,5 +1,7 @@
 package aau.carma.ContextEngine;
 
+import java.util.ArrayList;
+
 /**
  * Implemented by objects interested in receiving events when a context recognizer completes.
  */
@@ -9,7 +11,7 @@ public interface ContextRecognizerListener {
      * The recognizer provides a set of possible outcomes each with probabilities.
      * @param entities Entities with assigned probabilities.
      */
-    void onContextReady(ContextOutcome[] outcomes);
+    void onContextReady(ArrayList<ContextOutcome> outcomes);
 
     /**
      * Called by the context recognizer when recognizing the context fails.
