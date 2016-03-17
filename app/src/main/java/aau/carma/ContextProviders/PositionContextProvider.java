@@ -99,6 +99,9 @@ public class PositionContextProvider implements ContextProvider {
         EnteredRoomObservation observation = new EnteredRoomObservation(System.currentTimeMillis(), room);
         enteredRoomObservations.add(observation);
         removeOldEnteredRoomObservations();
+
+        calculateProbabilities();
+        logCurrentOutcomes();
     }
 
     /**
@@ -150,7 +153,7 @@ public class PositionContextProvider implements ContextProvider {
             }
         }
 
-        this.outcomes = outcomes;
+        this.outcomes = ContextOutcome.normalizeOutcomes(outcomes);
     }
 
     /**
