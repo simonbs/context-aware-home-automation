@@ -173,7 +173,7 @@ public class MainActivity extends AppCompatActivity implements ContextRecognizer
         if (isRecording){
             isRecording = false;
             sensorManager.unregisterListener(sensorEventListener);
-            ThreeDMatch match = gestureRecognizer.recognize(tempStroke);
+            CARMAContextRecognizer.getInstance().getGestureContextProvider().calculateProbabilities(gestureRecognizer.getAllMatches(tempStroke));
         } else {
             isRecording = true;
             tempStroke = new ThreeDLabeledStroke(DEFAULT_LABEL);
