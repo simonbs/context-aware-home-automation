@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">CARMA</string>
+    <string name="add_gesture_button_text">Add new gesture</string>
+    <string name="recognize_gesture_button_text">Recognize Gesture</string>
 </resources>
