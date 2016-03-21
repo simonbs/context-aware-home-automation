@@ -177,6 +177,42 @@ public class ThreeDOneCentRecognizer extends ThreeDTemplateBasedRecognizer{
     }
 
     /**
+     * Compares a stroke with all training templates and returns a list with all matches.
+     * @param stroke The stroke to compare to training templates
+     * @return
+     */
+    public ArrayList<ThreeDMatch> getAllMatches(ThreeDStroke stroke){
+        ArrayList<ThreeDMatch> matches = new ArrayList<>();
+
+        /** Convert the input stroke into a one dimensional time-series */
+        stroke = resample(stroke, this.n);
+        ArrayList<Double> candidateSeries = new ThreeDOneDimensionalRepresentation(stroke).getSeries();
+
+        for(ThreeDNNRTemplate trainingTemplate : this.trainingTemplates){
+            /** Convert the template into a one dimensional time-series */
+            ArrayList<Double> trainSeries = trainingTemplate.getSeries();
+
+            /** Compute the distance between the input stroke and the training template */
+            double distance = l2(candidateSeries, trainSeries);
+            ThreeDMatch match = new ThreeDMatch(trainingTemplate.getLs(), distance, trainingTemplate.getLabel());
+            if (matches.size() == 0) {
+                matches.add(match);
+                continue;
+            }
+            for (int i = 0; i < matches.size(); i++){
+                if (distance <= matches.get(i).getScore()){
+                    matches.add(i, match);
+                    break;
+                } else if (i == matches.size()-1){
+                    matches.add(match);
+                }
+            }
+        }
+
+        return matches;
+    }
+
+    /**
      * Computes the L2 distance between the two time series.
      * @param s
      * @param t
