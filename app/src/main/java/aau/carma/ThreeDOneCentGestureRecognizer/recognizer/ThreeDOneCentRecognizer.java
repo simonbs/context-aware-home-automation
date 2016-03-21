@@ -213,6 +213,21 @@ public class ThreeDOneCentRecognizer extends ThreeDTemplateBasedRecognizer{
     }
 
     /**
+     * Loads training templates from database
+     */
+    public void loadTemplates(){
+        ArrayList<ThreeDNNRTemplate> templates = new ArrayList<>();
+        try {
+            templates = templatesDataSource.getAllTemplates();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        if (templates != null && !templates.isEmpty()){
+            this.trainingTemplates = templates;
+        }
+    }
+
+    /**
      * Computes the L2 distance between the two time series.
      * @param s
      * @param t
