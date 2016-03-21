@@ -1,7 +1,5 @@
 package aau.carma;
 
-import android.gesture.Gesture;
-
 /**
  * A configuration which defines which action is valid
  * in a given room when a gesture is triggered.
@@ -13,7 +11,7 @@ public class GestureConfiguration {
     public final String roomId;
 
     /**
-     * Idenitifer for the gesture that triggers the action.
+     * Identifier for the gesture that triggers the action.
      */
     public final String gestureId;
 

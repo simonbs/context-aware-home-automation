@@ -15,6 +15,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import aau.carma.Utilities.Optional;
+
 /**
  * Monitors a set of rooms.
  */
@@ -120,18 +122,18 @@ public class RoomsManager {
      * @param instance Instanceof the beacon.
      * @return Room with the specified details, null if not found.
      */
-    public Room getRoom(String namespace, String instance) {
+    public Optional<Room> getRoom(String namespace, String instance) {
         for (Room room : rooms) {
             for (aau.carma.Beacon beacon : room.beacons) {
                 Boolean isSameNamespace = beacon.namespace.toLowerCase().equals(namespace.toLowerCase());
                 Boolean isSameInstance = beacon.instance.toLowerCase().equals(instance.toLowerCase());
                 if (isSameNamespace && isSameInstance) {
-                    return room;
+                    return new Optional(room);
                 }
             }
         }
 
-        return null;
+        return new Optional<>();
     }
 
     /**
@@ -157,9 +159,11 @@ public class RoomsManager {
 
         // Find the room
         Eddystone eddystone = beacons.get(0);
-        Room room = getRoom(eddystone.namespace, eddystone.instance);
+        Optional<Room> room = getRoom(eddystone.namespace, eddystone.instance);
 
         // Notify the listener
-        listener.onUserFoundInRoom(room);
+        if (room.isPresent()) {
+            listener.onUserFoundInRoom(room.value);
+        }
     }
 }

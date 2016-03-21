@@ -20,6 +20,10 @@ import aau.carma.ContextEngine.ContextRecognizer;
 import aau.carma.ContextEngine.ContextRecognizerListener;
 import aau.carma.ContextProviders.GestureContextProvider;
 import aau.carma.ContextProviders.PositionContextProvider;
+import aau.carma.OpenHABClient.Item;
+import aau.carma.OpenHABClient.OpenHABClient;
+import aau.carma.RESTClient.Result;
+import aau.carma.Utilities.Consumer;
 
 public class MainActivity extends AppCompatActivity implements ContextRecognizerListener {
     @Override
@@ -34,7 +38,7 @@ public class MainActivity extends AppCompatActivity implements ContextRecognizer
 
         SystemRequirementsChecker.checkWithDefaultDialogs(this);
 
-        // Recognize context after some seconds
+        // Recognize context after some seconds. For demo purposes only.
         Runnable timeoutRunnable = new Runnable() {
             @Override
             public void run() {
@@ -44,6 +48,24 @@ public class MainActivity extends AppCompatActivity implements ContextRecognizer
 
         Handler recognizeHandler = new Handler();
         recognizeHandler.postDelayed(timeoutRunnable, (long) (20 * 1000));
+
+        // Load items. For demo purposes only.
+        OpenHABClient client = new OpenHABClient();
+        client.loadItems(new Consumer<Result<ArrayList<Item>>, Void>() {
+            @Override
+            public Void consume(Result<ArrayList<Item>> result) {
+                if (result.isError()) {
+                    Log.e(Configuration.Log, "Could not load items: " + result.error.value);
+                    return null;
+                }
+
+                for (Item item : result.value.value) {
+                    Log.v(Configuration.Log, item.name);
+                }
+
+                return null;
+            }
+        });
     }
 
     /**

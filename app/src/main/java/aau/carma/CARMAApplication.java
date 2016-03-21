@@ -5,12 +5,12 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.estimote.sdk.EstimoteSDK;
 
 import aau.carma.ContextEngine.ContextRecognizer;
+import aau.carma.RESTClient.RequestQueue;
 
 /**
  * Created by simonbs on 08/03/2016.
@@ -24,6 +24,14 @@ public class CARMAApplication extends Application {
         EstimoteSDK.enableDebugLogging(true);
 
         configureContextRecognizer();
+        configureOpenHABClient();
+    }
+
+    /**
+     * Configures the openHAB client.
+     */
+    private void configureOpenHABClient() {
+        RequestQueue.getInstance().configure(getApplicationContext());
     }
 
     /**
@@ -35,7 +43,7 @@ public class CARMAApplication extends Application {
         try {
             CARMAContextRecognizer.getInstance().addPositionContextProvider(getApplicationContext(), DummyData.getAllRooms());
         } catch (ContextRecognizer.IsRecognizingException e) {
-            Log.e(Configuration.Log, "The shared context reecognizer could not be configured because the recognizer is currently recognizing.");
+            Log.e(Configuration.Log, "The shared context recognizer could not be configured because the recognizer is currently recognizing.");
         }
 
         Log.v(Configuration.Log, "Did configure context recognizer");

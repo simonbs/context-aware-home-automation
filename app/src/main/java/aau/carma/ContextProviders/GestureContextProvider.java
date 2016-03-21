@@ -22,7 +22,5 @@ public class GestureContextProvider implements ContextProvider {
     }
 
     @Override
-    public void cancel() {
-
-    }
+    public void cancel() { }
 }
