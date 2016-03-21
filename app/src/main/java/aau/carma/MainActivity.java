@@ -13,6 +13,9 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
@@ -33,6 +36,7 @@ import aau.carma.ThreeDOneCentGestureRecognizer.datatype.ThreeDPoint;
 import aau.carma.ThreeDOneCentGestureRecognizer.recognizer.ThreeDMatch;
 import aau.carma.ThreeDOneCentGestureRecognizer.recognizer.ThreeDOneCentRecognizer;
 import aau.carma.Utilities.Consumer;
+import android.support.v7.widget.Toolbar;
 
 public class MainActivity extends AppCompatActivity implements ContextRecognizerListener {
     /** Accelerometer sensor*/
@@ -43,26 +47,55 @@ public class MainActivity extends AppCompatActivity implements ContextRecognizer
     private ThreeDOneCentRecognizer gestureRecognizer;
     /** Default gesture label*/
     private static final String DEFAULT_LABEL = "DefaultLabel";
+    static final int ADD_NEW_GESTURES_REQUEST = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        setSupportActionBar(myToolbar);
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
         gestureRecognizer = new ThreeDOneCentRecognizer(this);
-        findViewById(R.id.add_gesture).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                TrainGesture(DEFAULT_LABEL);
-            }
-        });
         findViewById(R.id.recognize_gesture).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 RecognizeGesture();
             }
         });
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.add_gesture_menu_item:
+                // User chose the "add gesture" item, show the add gesture UI...
+                Intent intent = new Intent(this, AddGestureActivity.class);
+                startActivityForResult(intent, ADD_NEW_GESTURES_REQUEST);
+                return true;
+
+            default:
+                // If we got here, the user's action was not recognized.
+                // Invoke the superclass to handle it.
+                return super.onOptionsItemSelected(item);
+
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // Check which request we're responding to
+        if (requestCode == ADD_NEW_GESTURES_REQUEST) {
+            gestureRecognizer.loadTemplates();
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.options, menu);
+        return true;
     }
 
     @Override
@@ -149,22 +182,6 @@ public class MainActivity extends AppCompatActivity implements ContextRecognizer
         public void onAccuracyChanged(Sensor sensor, int accuracy) {
         }
     };
-
-    /**
-     * Starts recording accelerometer data and stores it as a training template for the gesture recognizer.
-     * @param gestureLabel The name of the gesture
-     */
-    private void TrainGesture(String gestureLabel){
-        if (isRecording){
-            isRecording = false;
-            sensorManager.unregisterListener(sensorEventListener);
-            gestureRecognizer.AddTrainingStroke(new ThreeDLabeledStroke(tempStroke.getLabel(), tempStroke.getPoints()));
-        } else {
-            isRecording = true;
-            tempStroke = new ThreeDLabeledStroke(gestureLabel);
-            sensorManager.registerListener(sensorEventListener, accelerometerSensor, SensorManager.SENSOR_DELAY_FASTEST);
-        }
-    }
 
     /**
      * Starts recording accelerometer data and compares it with the available training templates.

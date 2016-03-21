@@ -2,4 +2,8 @@
     <string name="app_name">CARMA</string>
     <string name="add_gesture_button_text">Add new gesture</string>
     <string name="recognize_gesture_button_text">Recognize Gesture</string>
+    <string name="gesture_name_input_hint">name of gesture</string>
+    <string name="gesture_name_title">Gesture Name</string>
+    <string name="record_gesture_button">Record</string>
+    <string name="add_gesture_activity_title">Add New Gesture</string>
 </resources>
