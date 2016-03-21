@@ -30,15 +30,21 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package aau.carma.ThreeDOneCentGestureRecognizer.recognizer;
 
+import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
+
+import org.json.JSONException;
+
 import java.util.ArrayList;
 
 import aau.carma.ThreeDOneCentGestureRecognizer.datatype.ThreeDNNRTemplate;
 import aau.carma.ThreeDOneCentGestureRecognizer.datatype.ThreeDLabeledStroke;
 import aau.carma.ThreeDOneCentGestureRecognizer.datatype.ThreeDPoint;
 import aau.carma.ThreeDOneCentGestureRecognizer.datatype.ThreeDStroke;
+import aau.carma.ThreeDOneCentGestureRecognizer.util.ThreeDTemplatesDataSource;
 import aau.carma.ThreeDOneCentGestureRecognizer.util.ThreeDOneDimensionalRepresentation;
 
-/** 
+/**
  * This class implements a simple nearest neighbor search described in our SBIM 2012 paper. Converts strokes
  * to a simple 1D representation and then finds the matching template using a simple 1NN search.
  * @author jhero
@@ -55,6 +61,12 @@ public class ThreeDOneCentRecognizer extends ThreeDTemplateBasedRecognizer{
     /** The templates that constitute the recognizer's "training" data*/
     private ArrayList<ThreeDNNRTemplate> trainingTemplates;
 
+    /** The DAO (Data Access Object) */
+    private ThreeDTemplatesDataSource templatesDataSource;
+
+    /** The default resample size */
+    private static final int RESAMPLE_AMOUNT = 64;
+
     /**
      * Templatizes and stores a stroke fro recognition.
      * @param stroke - Stroke that will constitute a training template
@@ -64,16 +76,39 @@ public class ThreeDOneCentRecognizer extends ThreeDTemplateBasedRecognizer{
         ThreeDNNRTemplate template = new ThreeDNNRTemplate(resampledStroke.getLabel(), new ThreeDOneDimensionalRepresentation(resampledStroke), resampledStroke);
         trainingTemplates.add(template);
 
+        try {
+            templatesDataSource.saveTemplate(template);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
         return template;
     }
 
     /**
-     * Creates a new recognizer with no training strokes.
+     * Creates a new recognizer with the default resample size and loads stored templates if any exist.
+     * @param context
+     */
+    public ThreeDOneCentRecognizer(Context context){
+        this(context, RESAMPLE_AMOUNT);
+    }
+
+    /**
+     * Creates a new recognizer with a given resample size and loads stored templates if any exist.
+     * @param context
      * @param n - resample size for template strokes
      */
-    public ThreeDOneCentRecognizer(int n){
+    public ThreeDOneCentRecognizer(Context context, int n){
         this.n = n;
-        this.trainingTemplates = new ArrayList<ThreeDNNRTemplate>();
+        templatesDataSource = new ThreeDTemplatesDataSource(context);
+        templatesDataSource.open();
+        ArrayList<ThreeDNNRTemplate> templates = new ArrayList<>();
+        try {
+            templates = templatesDataSource.getAllTemplates();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        this.trainingTemplates = templates;
     }
 
     /**
