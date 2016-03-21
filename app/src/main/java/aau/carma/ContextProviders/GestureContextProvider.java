@@ -22,7 +22,7 @@ public class GestureContextProvider implements ContextProvider {
     /**
      * Current set of outcomes.
      */
-    private ArrayList<ContextOutcome> outcomes;
+    private ArrayList<ContextOutcome> outcomes = new ArrayList<>();
 
     /**
      * Configures the provider
