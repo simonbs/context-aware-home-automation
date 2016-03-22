@@ -25,7 +25,8 @@ public class Thing {
             String link = json.getString("link");
             String label = json.getString("label");
             Thing.Configuration configuration = new Thing.Configuration.Builder().build(json.getJSONObject("configuration"));
-            return new Thing(uid, thingTypeUid, link, label, configuration);
+            Thing.StatusInfo statusInfo = new Thing.StatusInfo.Builder().build(json.getJSONObject("statusInfo"));
+            return new Thing(uid, thingTypeUid, link, label, configuration, statusInfo);
         }
     }
 
@@ -77,6 +78,38 @@ public class Thing {
     }
 
     /**
+     * Encapsulates the status of the thing.
+     */
+    public static class StatusInfo {
+        /**
+         * Builds entities of type Thing.StatusInfo.
+         */
+        protected static class Builder implements EntityBuilder<Thing.StatusInfo> {
+            @Override
+            public Thing.StatusInfo build(JSONObject json) throws JSONException {
+                String status = json.getString("status");
+                String statusDetail = json.getString("statusDetail");
+                return new Thing.StatusInfo(status, statusDetail);
+            }
+        }
+
+        /**
+         * Status of the thing.
+         */
+        private final String status;
+
+        /**
+         * Detailed status.
+         */
+        private final String statusDetail;
+
+        private StatusInfo(String status, String statusDetail) {
+            this.status = status;
+            this.statusDetail = statusDetail;
+        }
+    }
+
+    /**
      * Unique identifier of the thing.
      */
     public final String uid;
@@ -101,11 +134,17 @@ public class Thing {
      */
     public final Thing.Configuration configuration;
 
-    private Thing(String uid, String thingTypeUid, String link, String label, Configuration configuration) {
+    /**
+     * Status of the thing.
+     */
+    public final Thing.StatusInfo statusInfo;
+
+    private Thing(String uid, String thingTypeUid, String link, String label, Thing.Configuration configuration, Thing.StatusInfo statusInfo) {
         this.uid = uid;
         this.thingTypeUid = thingTypeUid;
         this.link = link;
         this.label = label;
         this.configuration = configuration;
+        this.statusInfo = statusInfo;
     }
 }
