@@ -25,6 +25,7 @@ import aau.carma.ContextEngine.ContextRecognizerListener;
 import aau.carma.Library.BooleanResult;
 import aau.carma.Library.Logger;
 import aau.carma.Library.Result;
+import aau.carma.Database.DatabaseHelper;
 import aau.carma.OpenHABClient.OpenHABClient;
 import aau.carma.RESTClient.BooleanResultListener;
 import aau.carma.RESTClient.ResultListener;
@@ -94,7 +95,7 @@ public class MainActivity extends AppCompatActivity implements ContextRecognizer
                     String[] configurationInfo = data.getStringArrayExtra(Integer.toString(i));
                     GestureConfiguration newConfiguration = new GestureConfiguration(configurationInfo[0], configurationInfo[1], configurationInfo[2]);
                     // Save newConfiguration to DB
-                    Log.v(Configuration.Log, "Configuration received.");
+                    DatabaseHelper.getInstance(this).saveGestureConfiguration(newConfiguration);
                 }
             }
         }
