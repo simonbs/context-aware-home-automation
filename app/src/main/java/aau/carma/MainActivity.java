@@ -19,12 +19,7 @@ import com.estimote.sdk.SystemRequirementsChecker;
 import java.util.ArrayList;
 
 import aau.carma.ContextEngine.ContextOutcome;
-import aau.carma.ContextEngine.ContextRecognizer;
 import aau.carma.ContextEngine.ContextRecognizerListener;
-import aau.carma.OpenHABClient.OpenHABClient;
-import aau.carma.OpenHABClient.Thing;
-import aau.carma.RESTClient.Result;
-import aau.carma.RESTClient.ResultListener;
 import aau.carma.ThreeDOneCentGestureRecognizer.datatype.ThreeDLabeledStroke;
 import aau.carma.ThreeDOneCentGestureRecognizer.datatype.ThreeDPoint;
 import aau.carma.ThreeDOneCentGestureRecognizer.recognizer.ThreeDOneCentRecognizer;
@@ -53,7 +48,7 @@ public class MainActivity extends AppCompatActivity implements ContextRecognizer
         findViewById(R.id.recognize_gesture).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                RecognizeGesture();
+                recognizeGesture();
             }
         });
     }
@@ -94,48 +89,6 @@ public class MainActivity extends AppCompatActivity implements ContextRecognizer
         super.onResume();
 
         SystemRequirementsChecker.checkWithDefaultDialogs(this);
-
-//        // Recognize context after some seconds. For demo purposes only.
-//        Runnable timeoutRunnable = new Runnable() {
-//            @Override
-//            public void run() {
-//                recognizeContext();
-//            }
-//        };
-//
-//        Handler recognizeHandler = new Handler();
-//        recognizeHandler.postDelayed(timeoutRunnable, (long) (20 * 1000));
-
-        // Load items. For demo purposes only.
-        OpenHABClient client = new OpenHABClient();
-        client.loadThings(new ResultListener<ArrayList<Thing>>() {
-            @Override
-            public void onResult(Result<ArrayList<Thing>> result) {
-                Log.v(Configuration.Log, "Got result.");
-                if (result.isError()) {
-                    Log.e(Configuration.Log, "Could not load things: " + result.error.value);
-                    return;
-                }
-
-                Log.v(Configuration.Log, "Got " + result.value.value.size() + " things.");
-                for (Thing thing : result.value.value) {
-                    Log.v(Configuration.Log, thing.label);
-                }
-            }
-        });
-    }
-
-    /**
-     * Starts the context recognizer.
-     */
-    private void recognizeContext() {
-        Log.v(Configuration.Log, "Start recognizing context");
-
-        try {
-            CARMAContextRecognizer.getInstance().start(this);
-        } catch (ContextRecognizer.IsRecognizingException e) {
-            Log.e(Configuration.Log, "The context recognizer could not be started because it is already started.");
-        }
     }
 
     @Override
@@ -177,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements ContextRecognizer
     /**
      * Starts recording accelerometer data and compares it with the available training templates.
      */
-    private void RecognizeGesture(){
+    private void recognizeGesture() {
         if (isRecording){
             isRecording = false;
             sensorManager.unregisterListener(sensorEventListener);
