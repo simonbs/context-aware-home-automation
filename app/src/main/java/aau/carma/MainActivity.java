@@ -123,8 +123,7 @@ public class MainActivity extends AppCompatActivity implements ContextRecognizer
         }
 
         @Override
-        public void onAccuracyChanged(Sensor sensor, int accuracy) {
-        }
+        public void onAccuracyChanged(Sensor sensor, int accuracy) { }
     };
 
     /**

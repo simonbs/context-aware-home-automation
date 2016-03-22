@@ -1,11 +1,7 @@
-package aau.carma.RESTClient;
-
-import com.android.volley.VolleyError;
-
-import aau.carma.Library.Optional;
+package aau.carma.Library;
 
 /**
- * Result returned by the openHAB client when a request has been completed.
+ * Encapsulates a result that can either be a value or an error.
  */
 public class Result<T> {
     /**
@@ -16,13 +12,13 @@ public class Result<T> {
     /**
      * Error of the result.
      */
-    public final Optional<VolleyError> error;
+    public final Optional<Exception> error;
 
     /**
      * Initialize a result with a value.
      * @param value Value to initialize result with.
      */
-    Result(T value) {
+    public Result(T value) {
         this.value = new Optional<>(value);
         this.error = new Optional<>();
     }
@@ -31,7 +27,7 @@ public class Result<T> {
      * Initialize the result with an error.
      * @param error Error to initialize result with.
      */
-    Result(VolleyError error) {
+    public Result(Exception error) {
         this.value = new Optional<>();
         this.error = new Optional<>(error);
     }
@@ -50,3 +46,4 @@ public class Result<T> {
         return error.isPresent();
     }
 }
+

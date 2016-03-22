@@ -38,15 +38,15 @@ public class CARMAApplication extends Application {
      * Configures the shared context recognizer.
      */
     private void configureContextRecognizer() {
-        Log.v(Configuration.Log, "Will configure context recognizer");
-
-        try {
-//            CARMAContextRecognizer.getInstance().addPositionContextProvider(getApplicationContext(), DummyData.getAllRooms());
-            CARMAContextRecognizer.getInstance().addGestureContextProvider(getApplicationContext());
-        } catch (ContextRecognizer.IsRecognizingException e) {
-            Log.e(Configuration.Log, "The shared context recognizer could not be configured because the recognizer is currently recognizing.");
-        }
-
-        Log.v(Configuration.Log, "Did configure context recognizer");
+//        Log.v(Configuration.Log, "Will configure context recognizer");
+//
+//        try {
+////            CARMAContextRecognizer.getInstance().addPositionContextProvider(getApplicationContext(), DummyData.getAllRooms());
+//            CARMAContextRecognizer.getInstance().addGestureContextProvider(getApplicationContext());
+//        } catch (ContextRecognizer.IsRecognizingException e) {
+//            Log.e(Configuration.Log, "The shared context recognizer could not be configured because the recognizer is currently recognizing.");
+//        }
+//
+//        Log.v(Configuration.Log, "Did configure context recognizer");
     }
 }

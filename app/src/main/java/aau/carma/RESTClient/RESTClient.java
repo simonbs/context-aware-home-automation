@@ -19,6 +19,7 @@ import java.util.Map;
 import aau.carma.Configuration;
 import aau.carma.Library.Consumer;
 import aau.carma.Library.Optional;
+import aau.carma.Library.Result;
 
 /**
  * Enables communication with the a REST API.
