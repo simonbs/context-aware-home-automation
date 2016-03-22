@@ -6,9 +6,8 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import aau.carma.Configuration;
+import aau.carma.Library.Optional;
 import aau.carma.RESTClient.EntityBuilder;
-import aau.carma.Utilities.Optional;
 
 /**
  * Represents a Thing in openHAB.

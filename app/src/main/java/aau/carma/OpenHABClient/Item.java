@@ -3,8 +3,8 @@ package aau.carma.OpenHABClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import aau.carma.Library.Optional;
 import aau.carma.RESTClient.EntityBuilder;
-import aau.carma.Utilities.Optional;
 
 /**
  * Represents an Item in openHAB.

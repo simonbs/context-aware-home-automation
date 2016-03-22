@@ -1,11 +1,9 @@
 package aau.carma.ContextProviders;
 
 import android.content.Context;
-import android.gesture.Gesture;
 import android.util.Log;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,8 +13,7 @@ import aau.carma.ContextEngine.ContextProvider;
 import aau.carma.ContextEngine.ContextProviderListener;
 import aau.carma.DummyData;
 import aau.carma.GestureConfiguration;
-import aau.carma.Room;
-import aau.carma.RoomsManager;
+import aau.carma.Library.Room;
 
 /**
  * Provides the position context.
@@ -50,7 +47,7 @@ public class PositionContextProvider implements ContextProvider {
     /**
      * Listens for changes to the users position.
      */
-    private RoomsManager roomsManager;
+    private PositionManager positionManager;
 
     /**
      * All room observations registered within the previous amount of seconds
@@ -79,16 +76,16 @@ public class PositionContextProvider implements ContextProvider {
      * @param rooms Rooms to listen for the users position in.
      */
     public void configure(Context context, ArrayList<Room> rooms) {
-        roomsManager = new RoomsManager();
-        roomsManager.configureWithRooms(rooms);
-        roomsManager.startMonitoring(context, new RoomsManager.EventListener() {
+        positionManager = new PositionManager();
+        positionManager.configureWithRooms(rooms);
+        positionManager.startMonitoring(context, new PositionManager.EventListener() {
             @Override
             public void onUserFoundInRoom(Room room) {
                 didFindUserToBeInRoom(room);
             }
         });
 
-        Log.v(Configuration.Log, "Did configure RoomsManager");
+        Log.v(Configuration.Log, "Did configure PositionManager");
     }
 
     /**

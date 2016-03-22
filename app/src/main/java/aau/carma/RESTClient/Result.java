@@ -2,7 +2,7 @@ package aau.carma.RESTClient;
 
 import com.android.volley.VolleyError;
 
-import aau.carma.Utilities.Optional;
+import aau.carma.Library.Optional;
 
 /**
  * Result returned by the openHAB client when a request has been completed.

@@ -1,23 +1,13 @@
 package aau.carma.OpenHABClient;
 
-import android.util.Log;
-
 import com.android.volley.Request;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 import aau.carma.Configuration;
 import aau.carma.RESTClient.RESTClient;
-import aau.carma.RESTClient.Result;
 import aau.carma.RESTClient.ResultListener;
-import aau.carma.Utilities.Consumer;
-import aau.carma.Utilities.Optional;
 
 /**
  * Client for communicating with the openHAB REST API.

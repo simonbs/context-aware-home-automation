@@ -1,30 +1,27 @@
-package aau.carma;
-
-import android.os.Parcel;
-import android.os.Parcelable;
+package aau.carma.Library;
 
 /**
- * Created by simonbs on 10/03/2016.
+ * Represents a beacon registered in openHAB.
  */
 public class Beacon {
     /**
      * Namespace of the Eddystone beacon.
      * Identifies a group of beacons.
      */
-    final String namespace;
+    public final String namespace;
 
     /**
      * Instance of the Eddystone beacon.
      * Identifies a specific beacon.
      */
-    final String instance;
+    public final String instance;
 
     /**
      * Creates an Eddystone beacon.
      * @param namespace Namespace of the Eddystone beacon. Identifies a group of beacons.
      * @param instance Instance of the Eddystone beacon. Identifies a specific beacon.
      */
-    Beacon(String namespace, String instance) {
+    public Beacon(String namespace, String instance) {
         this.namespace = namespace;
         this.instance = instance;
     }

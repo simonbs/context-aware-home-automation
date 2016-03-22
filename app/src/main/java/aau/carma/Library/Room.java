@@ -1,14 +1,9 @@
-package aau.carma;
-
-import android.os.Parcel;
-import android.os.Parcelable;
-import com.estimote.sdk.Region;
+package aau.carma.Library;
 
 import java.util.ArrayList;
-import java.util.UUID;
 
 /**
- * Created by simonbs on 09/03/2016.
+ * Represents a room registered in openHAB.
  */
 public class Room {
     /**
@@ -25,7 +20,7 @@ public class Room {
      * Beacons inside the room.
      * The beacons are used for determing the users position.
      */
-    public final ArrayList<Beacon> beacons;
+    public final ArrayList<aau.carma.Library.Beacon> beacons;
 
     /**
      * Creates a new room.
@@ -33,7 +28,7 @@ public class Room {
      * @param name Name of the room.
      * @param beacons Beacons inside the room.
      */
-    public Room(String identifier, String name, ArrayList<Beacon> beacons) {
+    public Room(String identifier, String name, ArrayList<aau.carma.Library.Beacon> beacons) {
         this.identifier = identifier;
         this.name = name;
         this.beacons = beacons;

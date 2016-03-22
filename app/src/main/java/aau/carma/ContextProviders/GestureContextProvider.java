@@ -1,6 +1,5 @@
 package aau.carma.ContextProviders;
 
-import android.content.Context;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -11,7 +10,6 @@ import aau.carma.ContextEngine.ContextProvider;
 import aau.carma.ContextEngine.ContextProviderListener;
 import aau.carma.DummyData;
 import aau.carma.GestureConfiguration;
-import aau.carma.RoomsManager;
 import aau.carma.ThreeDOneCentGestureRecognizer.recognizer.ThreeDMatch;
 
 /**

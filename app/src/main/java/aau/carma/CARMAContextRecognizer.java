@@ -9,6 +9,7 @@ import java.util.UUID;
 import aau.carma.ContextEngine.ContextRecognizer;
 import aau.carma.ContextProviders.GestureContextProvider;
 import aau.carma.ContextProviders.PositionContextProvider;
+import aau.carma.Library.Room;
 
 
 /**

@@ -1,4 +1,4 @@
-package aau.carma.Utilities;
+package aau.carma.Library;
 
 /**
  * Consumes a value, optionally returns another.

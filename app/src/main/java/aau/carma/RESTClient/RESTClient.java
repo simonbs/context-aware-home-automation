@@ -17,9 +17,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import aau.carma.Configuration;
-import aau.carma.OpenHABClient.*;
-import aau.carma.Utilities.Consumer;
-import aau.carma.Utilities.Optional;
+import aau.carma.Library.Consumer;
+import aau.carma.Library.Optional;
 
 /**
  * Enables communication with the a REST API.

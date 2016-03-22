@@ -1,13 +1,9 @@
-package aau.carma;
+package aau.carma.ContextProviders;
 
 import android.content.Context;
-import android.content.Intent;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import com.estimote.sdk.Beacon;
 import com.estimote.sdk.BeaconManager;
-import com.estimote.sdk.Region;
 import com.estimote.sdk.eddystone.Eddystone;
 
 import java.util.ArrayList;
@@ -15,12 +11,14 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import aau.carma.Utilities.Optional;
+import aau.carma.Configuration;
+import aau.carma.Library.Optional;
+import aau.carma.Library.Room;
 
 /**
  * Monitors a set of rooms.
  */
-public class RoomsManager {
+public class PositionManager {
     /**
      * Interface to conform to in order to receive events about changes
      * to the users position.
@@ -51,6 +49,12 @@ public class RoomsManager {
     private String scanId;
 
     /**
+     * Contet we started monitoring in.
+     * Typically the application context.
+     */
+    private Context context;
+
+    /**
      * Object listening for changes to the users position.
      */
     private EventListener listener;
@@ -58,7 +62,7 @@ public class RoomsManager {
     /**
      * Initializes a rooms manager.
      */
-    public RoomsManager() { }
+    public PositionManager() { }
 
     /**
      * Configure the manager with a set of rooms to monitor..
@@ -73,20 +77,30 @@ public class RoomsManager {
      * @param context Context in which to perform the monitoring. Typically the application context.
      */
     public void startMonitoring(Context context, EventListener listener) {
-        Log.v(Configuration.Log, "RoomsManager did start monitoring");
-
+        Log.v(Configuration.Log, "PositionManager did start monitoring");
+        this.context = context;
         this.listener = listener;
-        final RoomsManager roomsManager = this;
+        startBeaconManager();
+    }
+
+    /**
+     * Starts the beacon manager and thereby starts
+     * scanning for nearby beacons.
+     */
+    private void startBeaconManager() {
+        Log.v(Configuration.Log, "PositionManager did start BeaconManager");
+
+        final PositionManager positionManager = this;
         beaconManager = new BeaconManager(context);
         beaconManager.connect(new BeaconManager.ServiceReadyCallback() {
             @Override
             public void onServiceReady() {
                 // Monitor all configured regions
-                roomsManager.scanId = beaconManager.startEddystoneScanning();
+                positionManager.scanId = beaconManager.startEddystoneScanning();
                 beaconManager.setEddystoneListener(new BeaconManager.EddystoneListener() {
                     @Override
                     public void onEddystonesFound(List<Eddystone> list) {
-                        roomsManager.didDiscoverEddystoneBeacons(list);
+                        positionManager.didDiscoverEddystoneBeacons(list);
                     }
                 });
             }
@@ -97,7 +111,7 @@ public class RoomsManager {
      * Stops monitoring for change in rooms.
      */
     public void stopMonitoring() {
-        Log.v(Configuration.Log, "RoomsManager did stop monitoring");
+        Log.v(Configuration.Log, "PositionManager did stop monitoring");
 
         beaconManager.setEddystoneListener(null);
         if (scanId != null) {
@@ -124,7 +138,7 @@ public class RoomsManager {
      */
     public Optional<Room> getRoom(String namespace, String instance) {
         for (Room room : rooms) {
-            for (aau.carma.Beacon beacon : room.beacons) {
+            for (aau.carma.Library.Beacon beacon : room.beacons) {
                 Boolean isSameNamespace = beacon.namespace.toLowerCase().equals(namespace.toLowerCase());
                 Boolean isSameInstance = beacon.instance.toLowerCase().equals(instance.toLowerCase());
                 if (isSameNamespace && isSameInstance) {

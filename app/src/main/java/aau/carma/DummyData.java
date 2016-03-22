@@ -4,6 +4,9 @@ import android.gesture.Gesture;
 
 import java.util.ArrayList;
 
+import aau.carma.Library.Beacon;
+import aau.carma.Library.Room;
+
 /**
  * Contains dummy data until we have our databases configured.
  */
