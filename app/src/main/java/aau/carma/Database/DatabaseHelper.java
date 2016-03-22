@@ -1,8 +1,12 @@
 package aau.carma.Database;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+
+import aau.carma.GestureConfiguration;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String TABLE_GESTURE_CONFIGURATIONS = "gestureConfigurations";
@@ -19,9 +23,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + " text not null);";
 
     private static DatabaseHelper instance;
+    private SQLiteDatabase database;
 
     private DatabaseHelper(Context context){
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        database = getWritableDatabase();
     }
 
     public static DatabaseHelper getInstance(Context context) {
@@ -40,5 +46,53 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase database, int oldVersion, int newVersion) {
         database.execSQL("DROP TABLE IF EXISTS " + TABLE_GESTURE_CONFIGURATIONS);
         onCreate(database);
+    }
+
+    /**
+     * Takes a {@link GestureConfiguration} and stores it in the database
+     * @param configuration The configuration to be saved
+     * @return
+     */
+    public GestureConfiguration saveGestureConfiguration(GestureConfiguration configuration) {
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_CONFIGURATION, gestureConfigurationToString(configuration));
+        long insertId =  database.insert(TABLE_GESTURE_CONFIGURATIONS, null, values);
+        String[] columns = {COLUMN_ID, COLUMN_CONFIGURATION};
+        Cursor cursor = database.query(TABLE_GESTURE_CONFIGURATIONS,
+                columns,
+                COLUMN_ID + " = " + insertId,
+                null, null, null, null);
+        cursor.moveToFirst();
+        GestureConfiguration result = cursorToGestureConfiguration(cursor);
+        cursor.close();
+        return result;
+    }
+
+    /**
+     * Takes a {@link GestureConfiguration} and transforms it into a comma-separated {@link String}
+     * @param configuration The {@link GestureConfiguration} to be transformed
+     * @return A comma-separated {@link String} representation of the {@link GestureConfiguration}
+     */
+    private String gestureConfigurationToString(GestureConfiguration configuration) {
+        return configuration.roomId + "," + configuration.actionId + "," + configuration.gestureId;
+    }
+
+    /**
+     * Takes a comma-separated {@link String} and transforms it into a {@Link GestureConfiguration}
+     * @param configuration A comma-separated {@Link String} representation of a GestureConfiguration
+     * @return A new {@Link GestureConfiguration} object
+     */
+    private GestureConfiguration stringToGestureConfiguration(String configuration) {
+        String[] conf = configuration.split(",");
+        return new GestureConfiguration(conf[0], conf[1], conf[2]);
+    }
+
+    /**
+     * Takes a {@Link Cursor} and extracts a {@Link GestureConfiguration} from it
+     * @param cursor
+     * @return
+     */
+    private GestureConfiguration cursorToGestureConfiguration(Cursor cursor) {
+        return stringToGestureConfiguration(cursor.getString(1));
     }
 }
