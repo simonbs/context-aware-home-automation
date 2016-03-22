@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import aau.carma.Configuration;
+import aau.carma.OpenHABClient.*;
 import aau.carma.Utilities.Consumer;
 import aau.carma.Utilities.Optional;
 
@@ -42,7 +43,7 @@ public class RESTClient {
      * @param method Method to use for the request.
      * @param path Path to sen the request to.
      */
-    public <T> void performJSONObjectRequest(int method, String path, HashMap<String, String> queryParams, final Consumer<JSONObject, Optional<T>> mapper, final Consumer<Result<T>, Void> done) {
+    public <T> void performJSONObjectRequest(int method, String path, HashMap<String, String> queryParams, final Consumer<JSONObject, Optional<T>> mapper, final ResultListener<T> done) {
         String url = urlWithPath(path, queryParams);
         if (isLoggingEnabled()) {
             Log.v(Configuration.Log, url);
@@ -53,16 +54,16 @@ public class RESTClient {
             public void onResponse(JSONObject response) {
                 Optional<T> obj = mapper.consume(response);
                 if (obj.isPresent()) {
-                    done.consume(new Result<T>(obj.value));
+                    done.onResult(new Result<T>(obj.value));
                 } else {
                     VolleyError error = new VolleyError(new Throwable("Could not map object from JSON."));
-                    done.consume(new Result<T>(error));
+                    done.onResult(new Result<T>(error));
                 }
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                done.consume(new Result<T>(error));
+                done.onResult(new Result<T>(error));
             }
         });
 
@@ -74,15 +75,16 @@ public class RESTClient {
      * @param httpMethod Method to use for the request.
      * @param path Path to sen the request to.
      */
-    public <T> void performJSONArrayRequest(int method, String path, HashMap<String, String> queryParams, final Consumer<JSONObject, Optional<T>> mapper, final Consumer<Result<ArrayList<T>>, Void> done) {
-        String url = urlWithPath(path, queryParams);
+    public <T> void performJSONArrayRequest(int method, String path, HashMap<String, String> queryParams, final Consumer<JSONObject, Optional<T>> mapper, final ResultListener<ArrayList<T>> done) {
+        final String url = urlWithPath(path, queryParams);
         if (isLoggingEnabled()) {
-            Log.v(Configuration.Log, url);
+            Log.v(Configuration.Log, "Send request: " + url);
         }
 
         Request request = new JsonArrayRequest(method, url, null, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
+                Log.v(Configuration.Log, "Got response: " + url);
                 ArrayList<T> result = new ArrayList<>();
                 for (int i = 0; i < response.length(); i++) {
                     try {
@@ -95,12 +97,12 @@ public class RESTClient {
                     }
                 }
 
-                done.consume(new Result<>(result));
+                done.onResult(new Result<>(result));
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                done.consume(new Result<ArrayList<T>>(error));
+                done.onResult(new Result<ArrayList<T>>(error));
             }
         });
 
@@ -142,8 +144,60 @@ public class RESTClient {
     }
 
     /**
+     * Loads entities and maps them using the entity builder.
+     * @param method HTTP method to use for the request.
+     * @param path Path to load entities from.
+     * @param params Query params to send with the request.
+     * @param entityBuilder Builder used for mapping the entities.
+     * @param done Called when the request finishes, either because of success or failure.
+     * @param <T> Type of the entity to map to.
+     */
+    protected <T> void loadEntities(int method, String path, HashMap<String, String> params, final EntityBuilder<T> entityBuilder, ResultListener<ArrayList<T>> done) {
+        performJSONArrayRequest(method, path, params, new Consumer<JSONObject, Optional<T>>() {
+            @Override
+            public Optional<T> consume(JSONObject value) {
+                try {
+                    T entity = entityBuilder.build(value);
+                    return new Optional<>(entity);
+                } catch (JSONException e) {
+                    Log.e(Configuration.Log, "Unable to map object: " + value);
+                    Log.e(Configuration.Log, e.toString());
+                }
+
+                return new Optional<>();
+            }
+        }, done);
+    }
+
+    /**
+     * Loads an entity and maps them using the entity builder.
+     * @param method HTTP method to use for the request.
+     * @param path Path to load entity from.
+     * @param params Query params to send with the request.
+     * @param entityBuilder Builder used for mapping the entity.
+     * @param done Called when the request finishes, either because of success or failure.
+     * @param <T> Type of the entity to map to.
+     */
+    protected <T> void loadEntity(int method, String path, HashMap<String, String> params, final EntityBuilder<T> entityBuilder,  ResultListener<T> done) {
+        performJSONObjectRequest(method, path, params, new Consumer<JSONObject, Optional<T>>() {
+            @Override
+            public Optional<T> consume(JSONObject value) {
+                try {
+                    T entity = entityBuilder.build(value);
+                    return new Optional<>(entity);
+                } catch (JSONException e) {
+                    Log.e(Configuration.Log, "Unable to map object: " + value);
+                    Log.e(Configuration.Log, e.toString());
+                }
+
+                return new Optional<>();
+            }
+        }, done);
+    }
+
+    /**
      * Whether or not verbose logging is enabled.
-     * Can be overriden by subclasses to enable logging.
+     * Can be overridden by subclasses to enable logging.
      * @return Whether or not verbose logging is enabled.
      */
     public boolean isLoggingEnabled() {

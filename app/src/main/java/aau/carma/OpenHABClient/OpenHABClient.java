@@ -7,12 +7,15 @@ import com.android.volley.Request;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 import aau.carma.Configuration;
 import aau.carma.RESTClient.RESTClient;
 import aau.carma.RESTClient.Result;
+import aau.carma.RESTClient.ResultListener;
 import aau.carma.Utilities.Consumer;
 import aau.carma.Utilities.Optional;
 
@@ -31,23 +34,18 @@ public class OpenHABClient extends RESTClient {
      * Loads all items from the openHAB instance.
      * @param done Called when the items are loaded or when we failed loading the items.
      */
-    public void loadItems(Consumer<Result<ArrayList<Item>>, Void> done) {
+    public void loadItems(ResultListener<ArrayList<Item>> done) {
         HashMap<String, String> params = new HashMap<>();
         params.put("recursive", "false");
-        performJSONArrayRequest(Request.Method.GET, "items", params, new Consumer<JSONObject, Optional<Item>>() {
-            @Override
-            public Optional<Item> consume(JSONObject value) {
-                try {
-                    Item item = new Item(value);
-                    return new Optional<>(item);
-                } catch (JSONException e) {
-                    Log.e(Configuration.Log, "Unable to map object: " + value);
-                    Log.e(Configuration.Log, e.toString());
-                }
+        loadEntities(Request.Method.GET, "items", params, new Item.Builder(), done);
+    }
 
-                return new Optional<>();
-            }
-        }, done);
+    /**
+     * Loads all things from the openHAB instance.
+     * @param done Called when the things are loaded or when we failed loading the things.
+     */
+    public void loadThings(ResultListener<ArrayList<Thing>> done) {
+        loadEntities(Request.Method.GET, "things", null, new Thing.Builder(), done);
     }
 
     @Override

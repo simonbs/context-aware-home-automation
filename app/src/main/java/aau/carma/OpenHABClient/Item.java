@@ -3,13 +3,29 @@ package aau.carma.OpenHABClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import aau.carma.RESTClient.EntityBuilder;
 import aau.carma.Utilities.Optional;
 
 /**
  * Represents an Item in openHAB.
  * https://github.com/openhab/openhab/wiki/Explanation-of-items
  */
-public class Item extends MappableObject {
+public class Item {
+    /**
+     * Builds entities of type Item.
+     */
+    protected static class Builder implements EntityBuilder<Item> {
+        @Override
+        public Item build(JSONObject json) throws JSONException {
+            String link = json.getString("link");
+            String name = json.getString("name");
+            String label = json.getString("label");
+            String rawState = json.getString("state");
+            Optional<String> state = (rawState == "NULL") ? new Optional<String>() : new Optional<>(rawState);
+            return new Item(link, name, label, state);
+        }
+    }
+
     /**
      * The items link. Useful for interacting with the item.
      */
@@ -25,23 +41,15 @@ public class Item extends MappableObject {
      */
     public final String label;
 
-
     /**
      * The items state.
      */
     public final Optional<String> state;
 
-    /**
-     * Initialize an Item from a JSON representation.
-     * @param json JSON representation of the object.
-     * @throws JSONException Thrown when unable to map the object.
-     */
-    Item(JSONObject json) throws JSONException {
-        super(json);
-        link = json.getString("link");
-        name = json.getString("name");
-        label = json.getString("label");
-        String state = json.getString("state");
-        this.state = (state == "NULL") ? new Optional<String>() : new Optional<>(state);
+    private Item(String link, String name, String label, Optional<String> state) {
+        this.link = link;
+        this.name = name;
+        this.label = label;
+        this.state = state;
     }
 }

@@ -30,7 +30,9 @@ import aau.carma.ContextProviders.GestureContextProvider;
 import aau.carma.ContextProviders.PositionContextProvider;
 import aau.carma.OpenHABClient.Item;
 import aau.carma.OpenHABClient.OpenHABClient;
+import aau.carma.OpenHABClient.Thing;
 import aau.carma.RESTClient.Result;
+import aau.carma.RESTClient.ResultListener;
 import aau.carma.ThreeDOneCentGestureRecognizer.datatype.ThreeDLabeledStroke;
 import aau.carma.ThreeDOneCentGestureRecognizer.datatype.ThreeDPoint;
 import aau.carma.ThreeDOneCentGestureRecognizer.recognizer.ThreeDMatch;
@@ -79,7 +81,6 @@ public class MainActivity extends AppCompatActivity implements ContextRecognizer
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.
                 return super.onOptionsItemSelected(item);
-
         }
     }
 
@@ -104,32 +105,32 @@ public class MainActivity extends AppCompatActivity implements ContextRecognizer
 
         SystemRequirementsChecker.checkWithDefaultDialogs(this);
 
-        // Recognize context after some seconds. For demo purposes only.
-        Runnable timeoutRunnable = new Runnable() {
-            @Override
-            public void run() {
-                recognizeContext();
-            }
-        };
-
-        Handler recognizeHandler = new Handler();
-        recognizeHandler.postDelayed(timeoutRunnable, (long) (20 * 1000));
+//        // Recognize context after some seconds. For demo purposes only.
+//        Runnable timeoutRunnable = new Runnable() {
+//            @Override
+//            public void run() {
+//                recognizeContext();
+//            }
+//        };
+//
+//        Handler recognizeHandler = new Handler();
+//        recognizeHandler.postDelayed(timeoutRunnable, (long) (20 * 1000));
 
         // Load items. For demo purposes only.
         OpenHABClient client = new OpenHABClient();
-        client.loadItems(new Consumer<Result<ArrayList<Item>>, Void>() {
+        client.loadThings(new ResultListener<ArrayList<Thing>>() {
             @Override
-            public Void consume(Result<ArrayList<Item>> result) {
+            public void onResult(Result<ArrayList<Thing>> result) {
+                Log.v(Configuration.Log, "Got result.");
                 if (result.isError()) {
-                    Log.e(Configuration.Log, "Could not load items: " + result.error.value);
-                    return null;
+                    Log.e(Configuration.Log, "Could not load things: " + result.error.value);
+                    return;
                 }
 
-                for (Item item : result.value.value) {
-                    Log.v(Configuration.Log, item.name);
+                Log.v(Configuration.Log, "Got " + result.value.value.size() + " things.");
+                for (Thing thing : result.value.value) {
+                    Log.v(Configuration.Log, thing.label);
                 }
-
-                return null;
             }
         });
     }

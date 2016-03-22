@@ -1,12 +1,15 @@
 package aau.carma.RESTClient;
 
 /**
- * Objects conforming to the protocol are notified when
- * the REST client has a result or an error.
+ * Objects conforming to the interface are informed
+ * when the REST client has a result
  */
-public interface ResultListener {
+public interface ResultListener<T> {
     /**
-     * Called when there is a result.
+     * Called when the REST client has result ready,
+     * that being either a success and an entity or
+     * an error.
+     * @param result Result from the REST client.
      */
-    <T> void onResult(Result<T> result);
+    void onResult(Result<T> result);
 }
