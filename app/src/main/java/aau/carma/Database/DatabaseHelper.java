@@ -11,7 +11,12 @@ import aau.carma.GestureConfiguration;
 public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String TABLE_GESTURE_CONFIGURATIONS = "gestureConfigurations";
     public static final String COLUMN_ID = "_id";
+
+    /**
+     * {@Link GestureConfiguration} specific constants
+     */
     public static final String COLUMN_CONFIGURATION = "configuration";
+    private static final String[] ALL_CONFIGURATION_COLUMNS = {COLUMN_ID, COLUMN_CONFIGURATION};
 
     private static final String DATABASE_NAME = "carma.db";
     private static final int DATABASE_VERSION = 1;
@@ -57,9 +62,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put(COLUMN_CONFIGURATION, gestureConfigurationToString(configuration));
         long insertId =  database.insert(TABLE_GESTURE_CONFIGURATIONS, null, values);
-        String[] columns = {COLUMN_ID, COLUMN_CONFIGURATION};
         Cursor cursor = database.query(TABLE_GESTURE_CONFIGURATIONS,
-                columns,
+                ALL_CONFIGURATION_COLUMNS,
                 COLUMN_ID + " = " + insertId,
                 null, null, null, null);
         cursor.moveToFirst();
