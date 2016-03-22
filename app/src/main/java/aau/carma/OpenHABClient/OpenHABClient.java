@@ -27,6 +27,10 @@ public class OpenHABClient extends RESTClient {
         super(Configuration.openHABBaseURL);
     }
 
+    /**
+     * Loads all items from the openHAB instance.
+     * @param done Called when the items are loaded or when we failed loading the items.
+     */
     public void loadItems(Consumer<Result<ArrayList<Item>>, Void> done) {
         HashMap<String, String> params = new HashMap<>();
         params.put("recursive", "false");
@@ -41,7 +45,7 @@ public class OpenHABClient extends RESTClient {
                     Log.e(Configuration.Log, e.toString());
                 }
 
-                return new Optional<Item>();
+                return new Optional<>();
             }
         }, done);
     }

@@ -8,7 +8,7 @@ import java.util.UUID;
 public class Configuration {
     public static final String Log = "CARMAApp";
 
-    public static final String openHABBaseURL = "http://2c6f3fcb.ngrok.io/rest";
+    public static final String openHABBaseURL = "http://809d7a3c.ngrok.io/rest";
 
     public static final String EstimoteAppId = "whereami-96k";
     public static final String EstimoteAppToken = "0c545e845da025fe91061318dea910ff";

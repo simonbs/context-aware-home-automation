@@ -1,11 +1,8 @@
 package aau.carma.OpenHABClient;
 
-import android.util.Log;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import aau.carma.Configuration;
 import aau.carma.Utilities.Optional;
 
 /**
