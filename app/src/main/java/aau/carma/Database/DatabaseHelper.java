@@ -6,6 +6,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.util.ArrayList;
+
 import aau.carma.GestureConfiguration;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
@@ -70,6 +72,25 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         GestureConfiguration result = cursorToGestureConfiguration(cursor);
         cursor.close();
         return result;
+    }
+
+    /**
+     * Queries the database for all {@Link GestureConfiguration}s
+     * @return all {@Link GestureConfiguration}s stored in the database
+     */
+    public ArrayList<GestureConfiguration> getAllGestureConfiguration() {
+        ArrayList<GestureConfiguration> gestureConfigurations = new ArrayList<>();
+        Cursor cursor = database.query(TABLE_GESTURE_CONFIGURATIONS,
+               ALL_CONFIGURATION_COLUMNS , null, null, null, null, null);
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            GestureConfiguration configuration = cursorToGestureConfiguration(cursor);
+            gestureConfigurations.add(configuration);
+            cursor.moveToNext();
+        }
+        cursor.close();
+
+        return gestureConfigurations;
     }
 
     /**
