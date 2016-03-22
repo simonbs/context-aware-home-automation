@@ -21,6 +21,12 @@
 
         <activity android:name=".AddGestureActivity"
             android:parentActivityName=".MainActivity" />
+
+        <activity android:name=".SelectGestureActivity"
+                  android:parentActivityName=".MainActivity"/>
+
+        <activity android:name=".SelectRoomAndActionActivity"
+                  android:parentActivityName=".SelectGestureActivity"/>
     </application>
 
 </manifest>

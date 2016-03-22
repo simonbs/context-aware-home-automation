@@ -8,4 +8,6 @@
     <string name="add_gesture_activity_title">Add New Gesture</string>
     <string name="setup_error_message">Could not load the necessary information from openHAB.</string>
     <string name="setup_retry">Try again</string>
+    <string name="select_gesture_title">Select Gesture</string>
+    <string name="done_binding_button_text">Done</string>
 </resources>

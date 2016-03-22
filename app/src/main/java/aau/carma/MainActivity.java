@@ -7,6 +7,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -42,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements ContextRecognizer
     /** Default gesture label*/
     private static final String DEFAULT_LABEL = "DefaultLabel";
     static final int ADD_NEW_GESTURES_REQUEST = 1;
+    static final int BIND_GESTURES_REQUEST = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,13 +64,16 @@ public class MainActivity extends AppCompatActivity implements ContextRecognizer
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Intent intent;
         switch (item.getItemId()) {
             case R.id.add_gesture_menu_item:
                 // User chose the "add gesture" item, show the add gesture UI...
-                Intent intent = new Intent(this, AddGestureActivity.class);
+                intent = new Intent(this, AddGestureActivity.class);
                 startActivityForResult(intent, ADD_NEW_GESTURES_REQUEST);
                 return true;
-
+            case R.id.bind_gesture_menu_item:
+                intent = new Intent(this, SelectGestureActivity.class);
+                startActivityForResult(intent, BIND_GESTURES_REQUEST);
             default:
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.
@@ -81,6 +86,17 @@ public class MainActivity extends AppCompatActivity implements ContextRecognizer
         // Check which request we're responding to
         if (requestCode == ADD_NEW_GESTURES_REQUEST) {
             gestureRecognizer.loadTemplates();
+        }
+        if (requestCode == BIND_GESTURES_REQUEST) {
+            if (resultCode == RESULT_OK) {
+                int configurationsCount = data.getIntExtra(SelectRoomAndActionActivity.CONFIGURATION_COUNT, 0);
+                for (int i = 0; i < configurationsCount; i++) {
+                    String[] configurationInfo = data.getStringArrayExtra(Integer.toString(i));
+                    GestureConfiguration newConfiguration = new GestureConfiguration(configurationInfo[0], configurationInfo[1], configurationInfo[2]);
+                    // Save newConfiguration to DB
+                    Log.v(Configuration.Log, "Configuration received.");
+                }
+            }
         }
     }
 
