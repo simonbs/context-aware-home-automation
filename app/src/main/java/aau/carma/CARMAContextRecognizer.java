@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 import aau.carma.ContextEngine.ContextRecognizer;
+import aau.carma.ContextProviders.GestureContextProvider;
 import aau.carma.ContextProviders.PositionContextProvider;
 
 
@@ -58,10 +59,39 @@ public class CARMAContextRecognizer extends ContextRecognizer {
     }
 
     /**
+     * UUID for the position context provider.
+     */
+    private UUID gestureContextProviderUUID;
+
+    /**
+     * Adds and configures the gesture context provider.
+     * @param context Context to recognize gestures in. Typically the application context.
+     */
+    public void addGestureContextProvider(Context context) throws IsRecognizingException{
+        if (gestureContextProviderUUID != null) {
+            removeProvider(gestureContextProviderUUID);
+            gestureContextProviderUUID = null;
+        }
+
+        GestureContextProvider contextProvider = new GestureContextProvider();
+        gestureContextProviderUUID = addProvider(contextProvider);
+
+        Log.v(Configuration.Log, "Did configure gesture context provider");
+    }
+
+    /**
      * Gets the registered position context provider.
      * @return Registered position context provider.
      */
     public PositionContextProvider getPositionContextProvider() {
         return (PositionContextProvider)getProvider(positionContextProviderUUID);
+    }
+
+    /**
+     * Gets the registered gesture context provider
+     * @return Registered gesture context provider
+     */
+    public GestureContextProvider getGestureContextProvider() {
+        return (GestureContextProvider)getProvider(gestureContextProviderUUID);
     }
 }
