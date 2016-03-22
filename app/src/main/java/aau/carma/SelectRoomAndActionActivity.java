@@ -14,6 +14,8 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 
+import aau.carma.Library.Room;
+
 public class SelectRoomAndActionActivity extends AppCompatActivity {
 
     public static String CONFIGURATION_COUNT = "configurationCount";
