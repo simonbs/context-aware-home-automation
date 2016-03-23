@@ -2,6 +2,7 @@ package aau.carma;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -20,6 +21,12 @@ import java.util.ArrayList;
 
 import aau.carma.ContextEngine.ContextOutcome;
 import aau.carma.ContextEngine.ContextRecognizerListener;
+import aau.carma.Library.BooleanResult;
+import aau.carma.Library.Logger;
+import aau.carma.Library.Result;
+import aau.carma.OpenHABClient.OpenHABClient;
+import aau.carma.RESTClient.BooleanResultListener;
+import aau.carma.RESTClient.ResultListener;
 import aau.carma.ThreeDOneCentGestureRecognizer.datatype.ThreeDLabeledStroke;
 import aau.carma.ThreeDOneCentGestureRecognizer.datatype.ThreeDPoint;
 import aau.carma.ThreeDOneCentGestureRecognizer.recognizer.ThreeDOneCentRecognizer;
@@ -89,30 +96,38 @@ public class MainActivity extends AppCompatActivity implements ContextRecognizer
         super.onResume();
 
         SystemRequirementsChecker.checkWithDefaultDialogs(this);
+
+        OpenHABClient client = new OpenHABClient();
+        client.updateItemState("Spotify_Next", "ON", new BooleanResultListener() {
+            @Override
+            public void onResult(BooleanResult result) {
+                Logger.verbose("" + result.isSuccess());
+            }
+        });
     }
 
     @Override
     public void onContextReady(ArrayList<ContextOutcome> outcomes) {
-        Log.v(Configuration.Log, "- - - - - - - - - - - - - - - - - -");
-        Log.v(Configuration.Log, "Context is ready:");
+        Logger.verbose("- - - - - - - - - - - - - - - - - -");
+        Logger.verbose("Context is ready:");
 
         if (outcomes.size() > 0) {
             for (ContextOutcome outcome : outcomes) {
-                Log.v(Configuration.Log, outcome.id + ": " + outcome.probability);
+                Logger.verbose(outcome.id + ": " + outcome.probability);
             }
         }
 
-        Log.v(Configuration.Log, "- - - - - - - - - - - - - - - - - -");
+        Logger.verbose("- - - - - - - - - - - - - - - - - -");
     }
 
     @Override
     public void onFailedRecognizingContext() {
-        Log.v(Configuration.Log, "Recognizing the context has failed");
+        Logger.verbose("Recognizing the context has failed");
     }
 
     @Override
     public void onContextRecognitionTimeout() {
-        Log.v(Configuration.Log, "Recognizing the context has timed out");
+        Logger.verbose("Recognizing the context has timed out");
     }
 
     final SensorEventListener sensorEventListener = new SensorEventListener() {

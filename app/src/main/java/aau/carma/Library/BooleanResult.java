@@ -1,14 +1,10 @@
 package aau.carma.Library;
 
 /**
- * Encapsulates a result that can either be a value or an error.
+ * Encapsulates a result that can either be a success or failure
+ * but cannot have a value.
  */
-public class Result<T> {
-    /**
-     * Value of the result.
-     */
-    public final Optional<T> value;
-
+public class BooleanResult {
     /**
      * Error of the result.
      */
@@ -18,33 +14,30 @@ public class Result<T> {
      * Creates a result that represents a success.
      * @return Success result.
      */
-    public static <T> Result Success(T value) {
-        return new Result(value);
+    public static BooleanResult Success() {
+        return new BooleanResult();
     }
 
     /**
      * Creates a result that represents a failure.
      * @return Failure result.
      */
-    public static Result Failure(Exception error) {
-        return new Result<>(error);
+    public static BooleanResult Failure(Exception error) {
+        return new BooleanResult(error);
     }
 
     /**
-     * Initialize a result with a value.
-     * @param value Value to initialize result with.
+     * Initializes a boolean result that represents a success.
      */
-    private Result(T value) {
-        this.value = new Optional<>(value);
+    private BooleanResult() {
         this.error = new Optional<>();
     }
 
     /**
-     * Initialize the result with an error.
-     * @param error Error to initialize result with.
+     * Initializes a boolean result that represents a failure.
+     * @param error Encapsulated error.
      */
-    private Result(Exception error) {
-        this.value = new Optional<>();
+    private BooleanResult(Exception error) {
         this.error = new Optional<>(error);
     }
 
@@ -62,4 +55,3 @@ public class Result<T> {
         return error.isPresent();
     }
 }
-

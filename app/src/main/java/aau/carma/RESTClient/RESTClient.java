@@ -2,11 +2,13 @@ package aau.carma.RESTClient;
 
 import android.util.Log;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -40,30 +42,32 @@ public class RESTClient {
 
     /**
      * Perform a JSON object request.
-     * @param method Method to use for the request.
      * @param path Path to sen the request to.
+     * @param queryParams Query parameters to send with the request.
+     * @param mapper Function that maps the response to objects.
+     * @param done Function called when the request finishes.
      */
-    public <T> void performJSONObjectRequest(int method, String path, HashMap<String, String> queryParams, final Consumer<JSONObject, Optional<T>> mapper, final ResultListener<T> done) {
-        String url = urlWithPath(path, queryParams);
-        if (isLoggingEnabled()) {
-            Log.v(Configuration.Log, url);
-        }
-
-        Request request = new JsonObjectRequest(method, url, null, new Response.Listener<JSONObject>() {
+    public <T> void getJSONObject(String path, HashMap<String, String> queryParams, final Consumer<JSONObject, Optional<T>> mapper, final ResultListener<T> done) {
+        final String url = urlWithPath(path, queryParams);
+        log("[Started] GET <JSONObjectRequest>: " + url);
+        Request request = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
+                Log.v(Configuration.Log, "[Finished] GET <JSONObjectRequest>: " + url);
                 Optional<T> obj = mapper.consume(response);
                 if (obj.isPresent()) {
-                    done.onResult(new Result<T>(obj.value));
+                    done.onResult(Result.Success(obj.value));
                 } else {
                     VolleyError error = new VolleyError(new Throwable("Could not map object from JSON."));
-                    done.onResult(new Result<T>(error));
+                    done.onResult(Result.Failure(error));
                 }
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                done.onResult(new Result<T>(error));
+                logError("[Failed] GET <JSONObjectRequest>: " + url);
+                logError(error.toString());
+                done.onResult(Result.Failure(error));
             }
         });
 
@@ -72,19 +76,18 @@ public class RESTClient {
 
     /**
      * Perform a JSON array request.
-     * @param httpMethod Method to use for the request.
-     * @param path Path to sen the request to.
+     * @param path Path to send the request to.
+     * @param queryParams Query parameters to send with the request.
+     * @param mapper Function that maps the response to objects.
+     * @param done Function called when the request finishes.
      */
-    public <T> void performJSONArrayRequest(int method, String path, HashMap<String, String> queryParams, final Consumer<JSONObject, Optional<T>> mapper, final ResultListener<ArrayList<T>> done) {
+    public <T> void getJSONArray(String path, HashMap<String, String> queryParams, final Consumer<JSONObject, Optional<T>> mapper, final ResultListener<ArrayList<T>> done) {
         final String url = urlWithPath(path, queryParams);
-        if (isLoggingEnabled()) {
-            Log.v(Configuration.Log, "Send request: " + url);
-        }
-
-        Request request = new JsonArrayRequest(method, url, null, new Response.Listener<JSONArray>() {
+        log("[Started] GET <JSONArray>: " + url);
+        Request request = new JsonArrayRequest(Request.Method.GET, url, null, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
-                Log.v(Configuration.Log, "Got response: " + url);
+                log("[Finished] GET <JSONArrayRequest>: " + url);
                 ArrayList<T> result = new ArrayList<>();
                 for (int i = 0; i < response.length(); i++) {
                     try {
@@ -93,16 +96,19 @@ public class RESTClient {
                             result.add(obj.value);
                         }
                     } catch (JSONException e) {
-                        Log.e(Configuration.Log, "Could not get JSON object at index " + i);
+                        logError("Could not get JSON object at index " + i);
+                        logError(e.toString());
                     }
                 }
 
-                done.onResult(new Result<>(result));
+                done.onResult(Result.Success(result));
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                done.onResult(new Result<ArrayList<T>>(error));
+                logError("[Failed] GET <JSONArrayRequest>: " + url);
+                logError(error.toString());
+                done.onResult(Result.Failure(error));
             }
         });
 
@@ -110,8 +116,46 @@ public class RESTClient {
     }
 
     /**
+     * Performs a POST request and expects a string in return.
+     * @param path Path to send the request to.
+     * @param body Body to send with the request.
+     * @param done Function called when the request finishes.
+     */
+    public void postStringRequest(String path, final String body, final ResultListener<String> done) {
+        final String url = urlWithPath(path, null);
+        log("[Started] POST <StringRequest>: " + url);
+        final Request request = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                log("[Finished] POST <StringRequest>: " + url);
+                done.onResult(Result.Success(response));
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                logError("[Failed] POST <StringRequest>: " + url);
+                logError(error.toString());
+                done.onResult(Result.Failure(error));
+            }
+        }) {
+            @Override
+            public byte[] getBody() throws AuthFailureError {
+                return body.getBytes();
+            }
+
+            @Override
+            public String getBodyContentType() {
+                return "text/plain";
+            }
+        };
+
+        RequestQueue.getInstance().addToRequestQueue(request);
+    }
+
+    /**
      * Creates a URL with the specified path.
      * @param path Path to create URL for.
+     * @param queryParams Set of parameters to append to the URL as query parameters.
      * @return URL.
      */
     private String urlWithPath(String path, HashMap<String, String> queryParams) {
@@ -153,15 +197,15 @@ public class RESTClient {
      * @param <T> Type of the entity to map to.
      */
     protected <T> void loadEntities(int method, String path, HashMap<String, String> params, final EntityBuilder<T> entityBuilder, ResultListener<ArrayList<T>> done) {
-        performJSONArrayRequest(method, path, params, new Consumer<JSONObject, Optional<T>>() {
+        getJSONArray(path, params, new Consumer<JSONObject, Optional<T>>() {
             @Override
             public Optional<T> consume(JSONObject value) {
                 try {
                     T entity = entityBuilder.build(value);
                     return new Optional<>(entity);
                 } catch (JSONException e) {
-                    Log.e(Configuration.Log, "Unable to map object: " + value);
-                    Log.e(Configuration.Log, e.toString());
+                    logError("Unable to map object: " + value);
+                    logError(e.toString());
                 }
 
                 return new Optional<>();
@@ -179,15 +223,15 @@ public class RESTClient {
      * @param <T> Type of the entity to map to.
      */
     protected <T> void loadEntity(int method, String path, HashMap<String, String> params, final EntityBuilder<T> entityBuilder,  ResultListener<T> done) {
-        performJSONObjectRequest(method, path, params, new Consumer<JSONObject, Optional<T>>() {
+        getJSONObject(path, params, new Consumer<JSONObject, Optional<T>>() {
             @Override
             public Optional<T> consume(JSONObject value) {
                 try {
                     T entity = entityBuilder.build(value);
                     return new Optional<>(entity);
                 } catch (JSONException e) {
-                    Log.e(Configuration.Log, "Unable to map object: " + value);
-                    Log.e(Configuration.Log, e.toString());
+                    logError("Unable to map object: " + value);
+                    log(e.toString());
                 }
 
                 return new Optional<>();
@@ -202,5 +246,25 @@ public class RESTClient {
      */
     public boolean isLoggingEnabled() {
         return false;
+    }
+
+    /**
+     * Logs a message, if logging is enabled.
+     * @param message Message to log.
+     */
+    private void log(String message) {
+        if (isLoggingEnabled()) {
+            Log.v(Configuration.Log, message);
+        }
+    }
+
+    /**
+     * Logs an error message, if logging is enabled.
+     * @param message Error message to log.
+     */
+    private void logError(String message) {
+        if (isLoggingEnabled()) {
+            Log.e(Configuration.Log, message);
+        }
     }
 }

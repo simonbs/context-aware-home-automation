@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import aau.carma.Configuration;
+import aau.carma.Library.BooleanResult;
+import aau.carma.Library.Result;
+import aau.carma.RESTClient.BooleanResultListener;
 import aau.carma.RESTClient.RESTClient;
 import aau.carma.RESTClient.ResultListener;
 
@@ -36,6 +39,20 @@ public class OpenHABClient extends RESTClient {
      */
     public void loadThings(ResultListener<ArrayList<Thing>> done) {
         loadEntities(Request.Method.GET, "things", null, new Thing.Builder(), done);
+    }
+
+    public void updateItemState(String itemName, String newState, final BooleanResultListener done)  {
+        String path = "items/" + itemName;
+        postStringRequest(path, newState, new ResultListener<String>() {
+            @Override
+            public void onResult(Result<String> result) {
+                if (result.isSuccess()) {
+                    done.onResult(BooleanResult.Success());
+                } else {
+                    done.onResult(BooleanResult.Failure(result.error.value));
+                }
+            }
+        });
     }
 
     @Override

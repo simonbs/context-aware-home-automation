@@ -155,7 +155,7 @@ public class RoomsManager {
         // Notify the listener.
         if (listener.isPresent()) {
             Log.v(Configuration.Log, "Inform listener.");
-            listener.value.onUpdate(new Result(rooms.getValue()));
+            listener.value.onUpdate(Result.Success(rooms.getValue()));
         }
     }
 
@@ -165,7 +165,7 @@ public class RoomsManager {
      */
     private void didFailUpdate(Exception error) {
         if (listener.isPresent()) {
-            listener.value.onUpdate(new Result<ArrayList<Room>>(error));
+            listener.value.onUpdate(Result.Failure(error));
         }
     }
 }
