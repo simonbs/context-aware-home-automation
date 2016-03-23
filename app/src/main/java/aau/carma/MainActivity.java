@@ -96,14 +96,6 @@ public class MainActivity extends AppCompatActivity implements ContextRecognizer
         super.onResume();
 
         SystemRequirementsChecker.checkWithDefaultDialogs(this);
-
-        OpenHABClient client = new OpenHABClient();
-        client.updateItemState("Spotify_Next", "ON", new BooleanResultListener() {
-            @Override
-            public void onResult(BooleanResult result) {
-                Logger.verbose("" + result.isSuccess());
-            }
-        });
     }
 
     @Override
