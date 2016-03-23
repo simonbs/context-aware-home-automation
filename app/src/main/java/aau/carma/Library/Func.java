@@ -4,12 +4,23 @@ import com.android.internal.util.Predicate;
 
 import java.util.ArrayList;
 
-import aau.carma.OpenHABClient.Thing;
-
 /**
  * Helper methods for Javas horrible imperative approach.
  */
 public class Func {
+    /**
+     * Objects conforming to this protocol can perform a reduce.
+     */
+    public interface ReduceFunc<T, U> {
+        /**
+         * Function to reduce.
+         * @param element Element to perform reduction on.
+         * @param current Current reduced element.
+         * @return A new current reduced element.
+         */
+        U reduce(T element, U current);
+    }
+
     /**
      * Filters an array list.
      * @param list Array list to filter.
@@ -45,6 +56,24 @@ public class Func {
             if (mappedObj.isPresent()) {
                 result.add(mappedObj.value);
             }
+        }
+
+        return result;
+    }
+
+    /**
+     * Reduce a list.
+     * @param list List to reduce.
+     * @param initial Initial value of the reduced result.
+     * @param func Function to reduce.
+     * @param <T> Type of element to reduce.
+     * @param <U> Type of reduced element.
+     * @return Reduced value.
+     */
+    public static <T, U> U reduce(ArrayList<T> list, U initial, ReduceFunc<T, U> func) {
+        U result = initial;
+        for (T element : list) {
+            result = func.reduce(element, result);
         }
 
         return result;

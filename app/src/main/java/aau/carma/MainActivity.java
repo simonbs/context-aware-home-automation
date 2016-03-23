@@ -2,6 +2,7 @@ package aau.carma;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -20,7 +21,14 @@ import java.util.ArrayList;
 
 import aau.carma.ContextEngine.ContextOutcome;
 import aau.carma.ContextEngine.ContextRecognizerListener;
+import aau.carma.Library.Action;
+import aau.carma.Library.ActionsManager;
+import aau.carma.Library.BooleanResult;
 import aau.carma.Library.Logger;
+import aau.carma.Library.Result;
+import aau.carma.OpenHABClient.OpenHABClient;
+import aau.carma.RESTClient.BooleanResultListener;
+import aau.carma.RESTClient.ResultListener;
 import aau.carma.ThreeDOneCentGestureRecognizer.datatype.ThreeDLabeledStroke;
 import aau.carma.ThreeDOneCentGestureRecognizer.datatype.ThreeDPoint;
 import aau.carma.ThreeDOneCentGestureRecognizer.recognizer.ThreeDOneCentRecognizer;
@@ -97,6 +105,24 @@ public class MainActivity extends AppCompatActivity implements ContextRecognizer
         super.onResume();
 
         SystemRequirementsChecker.checkWithDefaultDialogs(this);
+
+        // Demo
+        ActionsManager actionsManager = new ActionsManager();
+        actionsManager.loadAllActions(new ActionsManager.ActionsListener() {
+            @Override
+            public void onActionsLoaded(Result<ArrayList<Action>> result) {
+                if (result.isSuccess()) {
+                    // Print all actions for demo purposes
+                    Logger.verbose("All available actions in the system:");
+                    for (Action action : result.value.value) {
+                        Logger.verbose(" - [" + action.itemName + "] " + action.itemLabel + ": " + action.newState);
+                    }
+                } else {
+                    Logger.error("Failed loading all actions.");
+                    Logger.error(result.error.value.toString());
+                }
+            }
+        });
     }
 
     @Override

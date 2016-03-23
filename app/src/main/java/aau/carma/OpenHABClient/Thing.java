@@ -14,6 +14,60 @@ import aau.carma.RESTClient.EntityBuilder;
  */
 public class Thing {
     /**
+     * Thing type in openHAB.
+     */
+    public enum Type {
+        /**
+         * A room.
+         */
+        Room,
+
+        /**
+         * A beacon.
+         */
+        Beacon;
+
+        /**
+         * Raw value for a room.
+         */
+        private static String RawValueRoom = "carma:room";
+
+        /**
+         * Raw value for a beacon.
+         */
+        private static String RawValueBeacon = "carma:beacon";
+
+        /**
+         * Gets the proper type from the raw value.
+         * @param rawValue Raw value to convert to a type.
+         * @return Type converted from raw type, null if unable to perform conversion.
+         */
+        public static Optional<Type> fromRawValue(String rawValue) {
+            if (rawValue.equals(RawValueRoom)) {
+                return new Optional<>(Room);
+            } else if (rawValue.equals(RawValueBeacon)) {
+                return new Optional<>(Beacon);
+            }
+
+            return new Optional<>();
+        }
+
+        /**
+         * Retrieves the raw string value type, i.e.
+         * the one used in openHAB.
+         * @return Raw thing type.
+         */
+        public String getRawValue() {
+            switch (this) {
+                case Room: return RawValueRoom;
+                case Beacon: return RawValueBeacon;
+            }
+
+            return null;
+        }
+    }
+
+    /**
      * Builds entities of type Thing.
      */
     protected static class Builder implements EntityBuilder<Thing> {

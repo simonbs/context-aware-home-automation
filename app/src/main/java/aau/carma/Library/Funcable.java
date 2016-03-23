@@ -50,4 +50,14 @@ public class Funcable<T> {
     public <U> Funcable<U> flatMap(Consumer<T, Optional<U>> func) {
         return new Funcable(Func.flatMap(list, func));
     }
+
+    /**
+     * Reduce the elements in the backing list.
+     * @param func Function to perform the reduction.
+     * @param <U> Type of new elements.
+     * @return Funcable with the array list of the reduced object.
+     */
+    public <U> Funcable<U> reduce(Func.ReduceFunc<T, ArrayList<U>> func) {
+        return new Funcable(Func.reduce(list, new ArrayList<U>(), func));
+    }
 }

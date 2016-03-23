@@ -92,7 +92,7 @@ public class RoomsManager {
         Funcable<Thing> roomThings = new Funcable(things).filter(new Predicate<Thing>() {
             @Override
             public boolean apply(Thing thing) {
-                return thing.thingTypeUid.equals(ThingTypes.Room.rawValue());
+                return thing.thingTypeUid.equals(Thing.Type.Room.getRawValue());
             }
         });
 
@@ -100,7 +100,7 @@ public class RoomsManager {
        final Funcable<Thing> beaconThings = new Funcable(things).filter(new Predicate<Thing>() {
             @Override
             public boolean apply(Thing thing) {
-                return thing.thingTypeUid.equals(ThingTypes.Beacon.rawValue());
+                return thing.thingTypeUid.equals(Thing.Type.Beacon.getRawValue());
             }
         });
 
