@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity implements ContextRecognizer
                 startActivityForResult(intent, ADD_NEW_GESTURES_REQUEST);
                 return true;
             case R.id.bind_gesture_menu_item:
-                intent = new Intent(this, SelectGestureActivity.class);
+                intent = new Intent(this, GestureConfigurationOptionsActivity.class);
                 startActivityForResult(intent, BIND_GESTURES_REQUEST);
             default:
                 // If we got here, the user's action was not recognized.
@@ -90,13 +90,6 @@ public class MainActivity extends AppCompatActivity implements ContextRecognizer
         }
         if (requestCode == BIND_GESTURES_REQUEST) {
             if (resultCode == RESULT_OK) {
-                int configurationsCount = data.getIntExtra(SelectRoomAndActionActivity.CONFIGURATION_COUNT, 0);
-                for (int i = 0; i < configurationsCount; i++) {
-                    String[] configurationInfo = data.getStringArrayExtra(Integer.toString(i));
-                    GestureConfiguration newConfiguration = new GestureConfiguration(configurationInfo[0], configurationInfo[1], configurationInfo[2]);
-                    // Save newConfiguration to DB
-                    DatabaseHelper.getInstance(this).saveGestureConfiguration(newConfiguration);
-                }
             }
         }
     }

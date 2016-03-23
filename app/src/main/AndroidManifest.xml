@@ -19,8 +19,11 @@
 
         <activity android:name=".MainActivity" />
 
+        <activity android:name=".GestureConfigurationOptionsActivity"
+                  android:parentActivityName=".MainActivity"/>
+
         <activity android:name=".AddGestureActivity"
-            android:parentActivityName=".MainActivity" />
+                  android:parentActivityName=".MainActivity" />
 
         <activity android:name=".SelectGestureActivity"
                   android:parentActivityName=".MainActivity"/>
