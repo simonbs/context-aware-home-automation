@@ -27,7 +27,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String[] ALL_ACTION_COLUMNS = {COLUMN_ID, COLUMN_ITEM_NAME, COLUMN_ITEM_LABEL, COLUMN_NEW_STATE};
     private static final String CREATE_ACTIONS_TABLE = "create table "
             + TABLE_ACTIONS + "(" + COLUMN_ID
-            + " text primary key, " + COLUMN_ITEM_NAME
+            + " integer primary key autoincrement, " + COLUMN_ITEM_NAME
             + " text not null, " + COLUMN_ITEM_LABEL
             + " text not null, " + COLUMN_NEW_STATE
             + " text not null);";
