@@ -47,6 +47,24 @@ public class DummyData {
         return rooms;
     }
 
+    public static ArrayList<String> getAllGestures() {
+        ArrayList<String> gestures = new ArrayList<>();
+        gestures.add(GestureIdentifierCircle);
+        gestures.add(GestureIdentifierV);
+
+        return gestures;
+    }
+
+    public static ArrayList<String> getAllActions() {
+        ArrayList<String> actions = new ArrayList<>();
+        actions.add(ActionIdentifierNextSong);
+        actions.add(ActionIdentifierPreviousSong);
+        actions.add(ActionIdentifierTurnLampOff);
+        actions.add(ActionIdentifierTurnLampOn);
+
+        return actions;
+    }
+
     public static ArrayList<GestureConfiguration> getAllGestureConfigurations() {
         ArrayList<GestureConfiguration> configurations = new ArrayList<>();
 

@@ -2,14 +2,13 @@ package aau.carma;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -21,16 +20,10 @@ import java.util.ArrayList;
 
 import aau.carma.ContextEngine.ContextOutcome;
 import aau.carma.ContextEngine.ContextRecognizerListener;
-import aau.carma.Library.BooleanResult;
 import aau.carma.Library.Logger;
-import aau.carma.Library.Result;
-import aau.carma.OpenHABClient.OpenHABClient;
-import aau.carma.RESTClient.BooleanResultListener;
-import aau.carma.RESTClient.ResultListener;
 import aau.carma.ThreeDOneCentGestureRecognizer.datatype.ThreeDLabeledStroke;
 import aau.carma.ThreeDOneCentGestureRecognizer.datatype.ThreeDPoint;
 import aau.carma.ThreeDOneCentGestureRecognizer.recognizer.ThreeDOneCentRecognizer;
-import android.support.v7.widget.Toolbar;
 
 public class MainActivity extends AppCompatActivity implements ContextRecognizerListener {
     /** Accelerometer sensor*/
@@ -42,6 +35,7 @@ public class MainActivity extends AppCompatActivity implements ContextRecognizer
     /** Default gesture label*/
     private static final String DEFAULT_LABEL = "DefaultLabel";
     static final int ADD_NEW_GESTURES_REQUEST = 1;
+    static final int BIND_GESTURES_REQUEST = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,13 +56,16 @@ public class MainActivity extends AppCompatActivity implements ContextRecognizer
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Intent intent;
         switch (item.getItemId()) {
             case R.id.add_gesture_menu_item:
                 // User chose the "add gesture" item, show the add gesture UI...
-                Intent intent = new Intent(this, AddGestureActivity.class);
+                intent = new Intent(this, AddGestureActivity.class);
                 startActivityForResult(intent, ADD_NEW_GESTURES_REQUEST);
                 return true;
-
+            case R.id.bind_gesture_menu_item:
+                intent = new Intent(this, GestureConfigurationOptionsActivity.class);
+                startActivityForResult(intent, BIND_GESTURES_REQUEST);
             default:
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.
@@ -81,6 +78,10 @@ public class MainActivity extends AppCompatActivity implements ContextRecognizer
         // Check which request we're responding to
         if (requestCode == ADD_NEW_GESTURES_REQUEST) {
             gestureRecognizer.loadTemplates();
+        }
+        if (requestCode == BIND_GESTURES_REQUEST) {
+            if (resultCode == RESULT_OK) {
+            }
         }
     }
 

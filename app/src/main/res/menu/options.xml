@@ -5,4 +5,9 @@
           android:title="Add New Gesture"
           android:icon="@android:drawable/ic_input_add"
           app:showAsAction="never"/>
+    <item android:id="@+id/bind_gesture_menu_item"
+          android:title="Configure Gestures"
+          android:icon="@android:drawable/ic_menu_manage"
+          app:showAsAction="never"
+        />
 </menu>
