@@ -21,6 +21,31 @@ public class ActionsManager {
         void onActionsLoaded(Result<ArrayList<Action>> result);
     }
 
+    private static ActionsManager instance = new ActionsManager();
+
+    /**
+     * Shared instance of the manager.
+     * @return Shared instance of ActionsManager.
+     */
+    public static ActionsManager getInstance(){
+        return instance;
+    }
+
+    private ActionsManager(){}
+
+    /**
+     * Currently loaded actions
+     */
+    private Optional<ArrayList<Action>> actions = new Optional<>();
+
+    /**
+     * Gets the currently loaded actions.
+     * @return Currently loaded actions.
+     */
+    public Optional<ArrayList<Action>> getActions() {
+        return this.actions;
+    }
+
     /**
      * Loads all supported actions in the system.
      * @param listener Listener to notify when the actions have been loaded or an error occurs.
@@ -71,6 +96,9 @@ public class ActionsManager {
                 return current;
             }
         });
+
+        // Store the actions for later user
+        actions = new Optional<ArrayList<Action>>(allActions.getValue());
 
         listener.onActionsLoaded(Result.Success(allActions.getValue()));
     }
