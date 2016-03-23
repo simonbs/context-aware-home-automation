@@ -107,7 +107,6 @@ public class GestureConfigurationOptionsActivity extends AppCompatActivity{
                     adapter.add(DatabaseHelper.getInstance(this).saveGestureConfiguration(newConfiguration));
                 }
                 setResult(RESULT_OK);
-                finish();
             }
         }
     }
