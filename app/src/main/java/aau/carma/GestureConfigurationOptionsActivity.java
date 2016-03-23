@@ -20,12 +20,14 @@ public class GestureConfigurationOptionsActivity extends AppCompatActivity{
 
     public static final int CREATE_NEW_GESTURE_CONFIGURATIONS_REQUEST = 0;
 
+    private GestureConfigurationListViewItemAdapter adapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_configuration);
         ListView configurationsListView = (ListView) findViewById(R.id.gesture_configurations_listView);
-        GestureConfigurationListViewItemAdapter adapter = new GestureConfigurationListViewItemAdapter(this, DatabaseHelper.getInstance(this).getAllGestureConfiguration());
+        adapter = new GestureConfigurationListViewItemAdapter(this, DatabaseHelper.getInstance(this).getAllGestureConfiguration());
         configurationsListView.setAdapter(adapter);
         ImageButton addConfigurationButton = (ImageButton) findViewById(R.id.add_configuration_button);
         if (addConfigurationButton != null) {
@@ -102,7 +104,7 @@ public class GestureConfigurationOptionsActivity extends AppCompatActivity{
                     String[] configurationInfo = data.getStringArrayExtra(Integer.toString(i));
                     GestureConfiguration newConfiguration = new GestureConfiguration(configurationInfo[0], configurationInfo[1], configurationInfo[2]);
                     // Save newConfiguration to DB
-                    DatabaseHelper.getInstance(this).saveGestureConfiguration(newConfiguration);
+                    adapter.add(DatabaseHelper.getInstance(this).saveGestureConfiguration(newConfiguration));
                 }
                 setResult(RESULT_OK);
                 finish();
