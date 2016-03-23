@@ -1,17 +1,12 @@
 package aau.carma.Library;
 
-import android.util.Log;
-
 import com.android.internal.util.Predicate;
 
 import java.util.ArrayList;
-import java.util.logging.ConsoleHandler;
 
-import aau.carma.Configuration;
 import aau.carma.OpenHABClient.OpenHABClient;
 import aau.carma.OpenHABClient.Thing;
 import aau.carma.RESTClient.ResultListener;
-import aau.carma.ThingTypes;
 
 /**
  * Loads and manages the set of available rooms.
