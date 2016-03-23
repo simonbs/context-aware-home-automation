@@ -10,4 +10,6 @@
     <string name="setup_retry">Try again</string>
     <string name="select_gesture_title">Select Gesture</string>
     <string name="done_binding_button_text">Done</string>
+    <string name="action_binding_title">Actions</string>
+    <string name="room_binding_title">Rooms</string>
 </resources>
