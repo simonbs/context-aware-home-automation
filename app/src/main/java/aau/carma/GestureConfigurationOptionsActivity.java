@@ -65,7 +65,8 @@ public class GestureConfigurationOptionsActivity extends AppCompatActivity{
             roomTextView.setText(" at " + configuration.roomId);
             gestureTextView.setText("(" + configuration.gestureId + ")");
 
-            ImageButton removeConfigurationButton = (ImageButton) findViewById(R.id.remove_configuration_button);
+            ImageButton removeConfigurationButton = (ImageButton) convertView.findViewById(R.id.remove_configuration_button);
+
             if (removeConfigurationButton != null){
                 removeConfigurationButton.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -77,10 +78,14 @@ public class GestureConfigurationOptionsActivity extends AppCompatActivity{
 
             return convertView;
         }
-    }
 
-    private void removeGestureConfiguration(GestureConfiguration configuration) {
-        // Remove configuration from DB and update view
+        private void removeGestureConfiguration(GestureConfiguration configuration) {
+            // Remove configuration from DB and update view
+            if (DatabaseHelper.getInstance(context).removeGestureConfiguration(configuration)) {
+                configurations.remove(configuration);
+                notifyDataSetChanged();
+            }
+        }
     }
 
     private void addNewGestureConfigurations() {
