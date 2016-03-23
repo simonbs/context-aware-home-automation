@@ -105,24 +105,6 @@ public class MainActivity extends AppCompatActivity implements ContextRecognizer
         super.onResume();
 
         SystemRequirementsChecker.checkWithDefaultDialogs(this);
-
-        // Demo
-        ActionsManager actionsManager = new ActionsManager();
-        actionsManager.loadAllActions(new ActionsManager.ActionsListener() {
-            @Override
-            public void onActionsLoaded(Result<ArrayList<Action>> result) {
-                if (result.isSuccess()) {
-                    // Print all actions for demo purposes
-                    Logger.verbose("All available actions in the system:");
-                    for (Action action : result.value.value) {
-                        Logger.verbose(" - [" + action.itemName + "] " + action.itemLabel + ": " + action.newState);
-                    }
-                } else {
-                    Logger.error("Failed loading all actions.");
-                    Logger.error(result.error.value.toString());
-                }
-            }
-        });
     }
 
     @Override
