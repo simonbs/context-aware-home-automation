@@ -8,13 +8,29 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import java.util.ArrayList;
 
+import aau.carma.Library.Action;
 import aau.carma.GestureConfiguration;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "carma.db";
     private static final int DATABASE_VERSION = 1;
     public static final String TABLE_GESTURE_CONFIGURATIONS = "gestureConfigurations";
+    public static final String TABLE_ACTIONS = "actions";
     public static final String COLUMN_ID = "_id";
+
+    /**
+     * {@link Action} specific constants
+     */
+    public static final String COLUMN_ITEM_NAME = "itemName";
+    public static final String COLUMN_ITEM_LABEL = "itemLabel";
+    public static final String COLUMN_NEW_STATE = "newState";
+    private static final String[] ALL_ACTION_COLUMNS = {COLUMN_ID, COLUMN_ITEM_NAME, COLUMN_ITEM_LABEL, COLUMN_NEW_STATE};
+    private static final String CREATE_ACTIONS_TABLE = "create table "
+            + TABLE_ACTIONS + "(" + COLUMN_ID
+            + " text primary key, " + COLUMN_ITEM_NAME
+            + " text not null, " + COLUMN_ITEM_LABEL
+            + " text not null, " + COLUMN_NEW_STATE
+            + " text not null);";
 
     /**
      * {@link GestureConfiguration} specific constants
@@ -45,11 +61,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase database) {
         database.execSQL(CREATE_GESTURE_CONFIGURATIONS_TABLE);
+        database.execSQL(CREATE_ACTIONS_TABLE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase database, int oldVersion, int newVersion) {
         database.execSQL("DROP TABLE IF EXISTS " + TABLE_GESTURE_CONFIGURATIONS);
+        database.execSQL("DROP TABLE IF EXISTS " + TABLE_ACTIONS);
         onCreate(database);
     }
 
