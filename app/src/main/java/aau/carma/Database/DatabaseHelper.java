@@ -148,4 +148,81 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private GestureConfiguration cursorToGestureConfiguration(Cursor cursor) {
         return stringToGestureConfiguration(cursor.getString(1));
     }
+
+    /**
+     * Takes an {@link Action} and stores it in the database
+     * @param action The {@link Action} to be saved
+     * @return
+     */
+    public Action saveAction(Action action) {
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_ITEM_NAME, action.itemName);
+        values.put(COLUMN_ITEM_LABEL, action.itemLabel);
+        values.put(COLUMN_NEW_STATE, action.newState);
+        
+        long insertId =  database.insert(TABLE_ACTIONS, null, values);
+        Cursor cursor = database.query(TABLE_ACTIONS,
+                ALL_ACTION_COLUMNS,
+                COLUMN_ID + " = " + insertId,
+                null, null, null, null);
+        cursor.moveToFirst();
+        Action result = cursorToAction(cursor);
+        cursor.close();
+        return result;
+    }
+
+    /**
+     * Takes an {@link Action} and attempts to remove it from the database
+     * @param action The {@link Action} to remove
+     * @return Whether or not the removal was successful
+     */
+    public boolean removeAction(Action action) {
+        int deleteCount = database.delete(TABLE_ACTIONS,
+                COLUMN_ITEM_NAME + " = ? AND"
+                        + COLUMN_ITEM_LABEL + " = ? AND"
+                        + COLUMN_NEW_STATE + " = ?",
+                new String[]{action.itemName, action.itemLabel, action.newState});
+        return deleteCount != 0;
+    }
+
+    /**
+     * Returns all {@link Action}s stored in the database
+     * @return An {@link ArrayList} containing all {@link Action} objects in DB
+     */
+    public ArrayList<Action> getAllActions() {
+        ArrayList<Action> actions = new ArrayList<>();
+        Cursor cursor = database.query(TABLE_ACTIONS,
+                ALL_ACTION_COLUMNS, null, null, null, null, null);
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            Action action= cursorToAction(cursor);
+            actions.add(action);
+            cursor.moveToNext();
+        }
+        cursor.close();
+
+        return actions;
+    }
+
+    /**
+     * Takes a {@link Cursor} and returns an {@link Action}
+     * @param cursor The {@link Cursor} to extract an {@link Action} from
+     * @return
+     */
+    private Action cursorToAction(Cursor cursor) {
+        return new Action(getStringFromColumnName(cursor, COLUMN_ITEM_NAME),
+                          getStringFromColumnName(cursor, COLUMN_ITEM_LABEL),
+                          getStringFromColumnName(cursor, COLUMN_NEW_STATE));
+    }
+
+
+    /**
+     * Takes a {@link Cursor} and the name of a column and returns the {@link String} at the index of that column
+     * @param cursor The {@link Cursor} to extract the {@link String} from
+     * @param column The name of the column
+     * @return The {@link String} from the given column
+     */
+    private String getStringFromColumnName(Cursor cursor, String column) {
+        return cursor.getString(cursor.getColumnIndex(column));
+    }
 }
