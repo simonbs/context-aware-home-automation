@@ -11,20 +11,18 @@ import java.util.ArrayList;
 import aau.carma.GestureConfiguration;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
+    private static final String DATABASE_NAME = "carma.db";
+    private static final int DATABASE_VERSION = 1;
     public static final String TABLE_GESTURE_CONFIGURATIONS = "gestureConfigurations";
     public static final String COLUMN_ID = "_id";
 
     /**
-     * {@Link GestureConfiguration} specific constants
+     * {@link GestureConfiguration} specific constants
      */
     public static final String COLUMN_CONFIGURATION = "configuration";
     private static final String[] ALL_CONFIGURATION_COLUMNS = {COLUMN_ID, COLUMN_CONFIGURATION};
 
-    private static final String DATABASE_NAME = "carma.db";
-    private static final int DATABASE_VERSION = 1;
-
-    // Database creation sql statement
-    private static final String DATABASE_CREATE = "create table "
+    private static final String CREATE_GESTURE_CONFIGURATIONS_TABLE = "create table "
             + TABLE_GESTURE_CONFIGURATIONS + "(" + COLUMN_ID
             + " integer primary key autoincrement, " + COLUMN_CONFIGURATION
             + " text not null);";
@@ -46,7 +44,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase database) {
-        database.execSQL(DATABASE_CREATE);
+        database.execSQL(CREATE_GESTURE_CONFIGURATIONS_TABLE);
     }
 
     @Override
