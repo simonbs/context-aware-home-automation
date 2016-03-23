@@ -85,8 +85,8 @@ public class SelectRoomAndActionActivity extends AppCompatActivity {
         doneBindingButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (newConfigurations == null || newConfigurations.isEmpty()){
-                    setResult(RESULT_OK);
+                if (newConfigurations != null || !newConfigurations.isEmpty()){
+                    setResult(RESULT_CANCELED);
                 } else {
                     Bundle bundle = new Bundle();
                     bundle.putInt(CONFIGURATION_COUNT, newConfigurations.size());
