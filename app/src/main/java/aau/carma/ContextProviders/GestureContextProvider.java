@@ -10,6 +10,7 @@ import aau.carma.ContextEngine.ContextProvider;
 import aau.carma.ContextEngine.ContextProviderListener;
 import aau.carma.DummyData;
 import aau.carma.GestureConfiguration;
+import aau.carma.Library.Logger;
 import aau.carma.ThreeDOneCentGestureRecognizer.recognizer.ThreeDMatch;
 
 /**
@@ -69,7 +70,7 @@ public class GestureContextProvider implements ContextProvider {
      */
     private void logCurrentOutcomes() {
         for (ContextOutcome outcome : outcomes) {
-            Log.v(Configuration.Log, outcome.id + ": " + outcome.probability);
+            Logger.verbose(outcome.id + ": " + outcome.probability);
         }
     }
 }

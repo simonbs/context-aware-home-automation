@@ -93,8 +93,6 @@ public class RoomsManager {
      * @param things Things retrieved from the update.
      */
     private void didUpdate(ArrayList<Thing> things) {
-        Log.v(Configuration.Log, "Did update");
-
         // Find things with the room type.
         Funcable<Thing> roomThings = new Funcable(things).filter(new Predicate<Thing>() {
             @Override
@@ -154,7 +152,6 @@ public class RoomsManager {
 
         // Notify the listener.
         if (listener.isPresent()) {
-            Log.v(Configuration.Log, "Inform listener.");
             listener.value.onUpdate(Result.Success(rooms.getValue()));
         }
     }

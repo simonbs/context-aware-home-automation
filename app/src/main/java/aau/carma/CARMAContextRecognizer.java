@@ -9,6 +9,7 @@ import java.util.UUID;
 import aau.carma.ContextEngine.ContextRecognizer;
 import aau.carma.ContextProviders.GestureContextProvider;
 import aau.carma.ContextProviders.PositionContextProvider;
+import aau.carma.Library.Logger;
 import aau.carma.Library.Room;
 
 
@@ -56,7 +57,7 @@ public class CARMAContextRecognizer extends ContextRecognizer {
         contextProvider.configure(context, rooms);
         positionContextProviderUUID = addProvider(contextProvider);
 
-        Log.v(Configuration.Log, "Did configure position context provider");
+        Logger.verbose("Did configure position context provider");
     }
 
     /**
@@ -77,7 +78,7 @@ public class CARMAContextRecognizer extends ContextRecognizer {
         GestureContextProvider contextProvider = new GestureContextProvider();
         gestureContextProviderUUID = addProvider(contextProvider);
 
-        Log.v(Configuration.Log, "Did configure gesture context provider");
+        Logger.verbose("Did configure gesture context provider");
     }
 
     /**

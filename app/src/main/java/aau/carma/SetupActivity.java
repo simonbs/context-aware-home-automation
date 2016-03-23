@@ -14,6 +14,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import aau.carma.Library.Beacon;
+import aau.carma.Library.Logger;
 import aau.carma.Library.Result;
 import aau.carma.Library.Room;
 import aau.carma.Library.RoomsManager;
@@ -46,10 +47,11 @@ public class SetupActivity extends AppCompatActivity {
             @Override
             public void onUpdate(Result<ArrayList<Room>> result) {
                 if (result.isSuccess()) {
+                    Logger.verbose("Retrieved room and becaon configuration from openHAB:");
                     for (Room room : result.value.value) {
-                        Log.v(Configuration.Log, room.name);
+                        Logger.verbose("- " + room.name);
                         for (Beacon beacon : room.beacons) {
-                            Log.v(Configuration.Log, " - " + beacon.namespace + " : " + beacon.instance);
+                            Logger.verbose("  - " + beacon.namespace + " : " + beacon.instance);
                         }
                     }
 

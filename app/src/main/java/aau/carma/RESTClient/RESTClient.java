@@ -53,7 +53,7 @@ public class RESTClient {
         Request request = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                Log.v(Configuration.Log, "[Finished] GET <JSONObjectRequest>: " + url);
+                log("[Finished] GET <JSONObjectRequest>: " + url);
                 Optional<T> obj = mapper.consume(response);
                 if (obj.isPresent()) {
                     done.onResult(Result.Success(obj.value));

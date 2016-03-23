@@ -12,6 +12,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import aau.carma.Configuration;
+import aau.carma.Library.Logger;
 import aau.carma.Library.Optional;
 import aau.carma.Library.Room;
 
@@ -77,7 +78,7 @@ public class PositionManager {
      * @param context Context in which to perform the monitoring. Typically the application context.
      */
     public void startMonitoring(Context context, EventListener listener) {
-        Log.v(Configuration.Log, "PositionManager did start monitoring");
+        Logger.verbose("PositionManager did start monitoring");
         this.context = context;
         this.listener = listener;
         startBeaconManager();
@@ -88,7 +89,7 @@ public class PositionManager {
      * scanning for nearby beacons.
      */
     private void startBeaconManager() {
-        Log.v(Configuration.Log, "PositionManager did start BeaconManager");
+        Logger.verbose("PositionManager did start BeaconManager");
 
         final PositionManager positionManager = this;
         beaconManager = new BeaconManager(context);
@@ -111,7 +112,7 @@ public class PositionManager {
      * Stops monitoring for change in rooms.
      */
     public void stopMonitoring() {
-        Log.v(Configuration.Log, "PositionManager did stop monitoring");
+        Logger.verbose("PositionManager did stop monitoring");
 
         beaconManager.setEddystoneListener(null);
         if (scanId != null) {
