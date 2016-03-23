@@ -13,6 +13,8 @@ import android.widget.ProgressBar;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 
+import aau.carma.Library.Action;
+import aau.carma.Library.ActionsManager;
 import aau.carma.Library.Beacon;
 import aau.carma.Library.Logger;
 import aau.carma.Library.Result;
@@ -54,7 +56,16 @@ public class SetupActivity extends AppCompatActivity {
                             Logger.verbose("  - " + beacon.namespace + " : " + beacon.instance);
                         }
                     }
+                } else {
+                    didFailSetup(result.error.value);
+                }
+            }
+        });
 
+        ActionsManager.getInstance().loadAllActions(new ActionsManager.ActionsListener() {
+            @Override
+            public void onActionsLoaded(Result<ArrayList<Action>> result) {
+                if (result.isSuccess()) {
                     didSetup();
                 } else {
                     didFailSetup(result.error.value);
