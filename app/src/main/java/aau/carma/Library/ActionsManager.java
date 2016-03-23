@@ -13,11 +13,6 @@ import aau.carma.RESTClient.ResultListener;
  * Manages the set of actions in the system.
  */
 public class ActionsManager {
-    private static ArrayList<Item.Type> SupportedItemTypes = new ArrayList<>(Arrays.asList(new Item.Type[]{
-            Item.Type.SwitchItem,
-            Item.Type.DimmerItem
-    }));
-
     /**
      * Objects conforming to the interface are notified when
      * actions has been loaded.
@@ -50,18 +45,10 @@ public class ActionsManager {
      * @param items Items loaded.
      */
     private void didLoadItems(ActionsListener listener, ArrayList<Item> items) {
-        // Find all items we support.
-        Funcable<Item> supportedItems = new Funcable<>(items).filter(new Predicate<Item>() {
-            @Override
-            public boolean apply(Item item) {
-                return SupportedItemTypes.contains(item.type);
-            }
-        });
-
         // Create an array of arrays of actions, i.e. [[Action]].
         // [Action] is an array of actions for each items. As we have several items,
         // we also have an outer array.
-        Funcable<ArrayList<Action>> actionsForItems = supportedItems.flatMap(new Consumer<Item, Optional<ArrayList<Action>>>() {
+        Funcable<ArrayList<Action>> actionsForItems = new Funcable(items).flatMap(new Consumer<Item, Optional<ArrayList<Action>>>() {
             @Override
             public Optional<ArrayList<Action>> consume(final Item item) {
                 // Map each state to an action for the item.
