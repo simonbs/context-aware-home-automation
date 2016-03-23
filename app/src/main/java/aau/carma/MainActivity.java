@@ -2,15 +2,13 @@ package aau.carma;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -22,17 +20,10 @@ import java.util.ArrayList;
 
 import aau.carma.ContextEngine.ContextOutcome;
 import aau.carma.ContextEngine.ContextRecognizerListener;
-import aau.carma.Library.BooleanResult;
 import aau.carma.Library.Logger;
-import aau.carma.Library.Result;
-import aau.carma.Database.DatabaseHelper;
-import aau.carma.OpenHABClient.OpenHABClient;
-import aau.carma.RESTClient.BooleanResultListener;
-import aau.carma.RESTClient.ResultListener;
 import aau.carma.ThreeDOneCentGestureRecognizer.datatype.ThreeDLabeledStroke;
 import aau.carma.ThreeDOneCentGestureRecognizer.datatype.ThreeDPoint;
 import aau.carma.ThreeDOneCentGestureRecognizer.recognizer.ThreeDOneCentRecognizer;
-import android.support.v7.widget.Toolbar;
 
 public class MainActivity extends AppCompatActivity implements ContextRecognizerListener {
     /** Accelerometer sensor*/
