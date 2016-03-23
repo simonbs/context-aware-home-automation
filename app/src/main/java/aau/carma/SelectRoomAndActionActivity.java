@@ -14,6 +14,9 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 
+import aau.carma.Library.Action;
+import aau.carma.Library.ActionsManager;
+import aau.carma.Library.Optional;
 import aau.carma.Library.Room;
 
 public class SelectRoomAndActionActivity extends AppCompatActivity {
@@ -41,7 +44,16 @@ public class SelectRoomAndActionActivity extends AppCompatActivity {
             roomsAdapter.add(room.name);
         }
         roomsListView.setAdapter(roomsAdapter);
-        actionsListView.setAdapter(new ArrayAdapter<String>(this, R.layout.simple_listview_item, DummyData.getAllActions()));
+
+        ArrayAdapter<String> actionArrayAdapter = new ArrayAdapter<>(this, R.layout.simple_listview_item);
+        Optional<ArrayList<Action>> actions = ActionsManager.getInstance().getActions();
+        if (actions.isPresent()) {
+            for (Action action : actions.value) {
+                actionArrayAdapter.add(action.itemLabel + " : " + action.newState);
+            }
+            actionsListView.setAdapter(actionArrayAdapter);
+        }
+
         roomsListView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
         actionsListView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
         roomsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
