@@ -47,7 +47,7 @@ public class SetupActivity extends AppCompatActivity {
             @Override
             public void onUpdate(Result<ArrayList<Room>> result) {
                 if (result.isSuccess()) {
-                    Logger.verbose("Retrieved room and becaon configuration from openHAB:");
+                    Logger.verbose("Retrieved room and beacon configuration from openHAB:");
                     for (Room room : result.value.value) {
                         Logger.verbose("- " + room.name);
                         for (Beacon beacon : room.beacons) {
