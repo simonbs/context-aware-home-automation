@@ -94,6 +94,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     /**
+     * Removes a {@Link GestureConfiguration} from the database
+     * @param configuration The {@Link GestureConfiguration} to be removed
+     * @return A {@Link boolean} indicating whether the row was removed
+     */
+    public boolean removeGestureConfiguration(GestureConfiguration configuration) {
+        int deleteCount = database.delete(TABLE_GESTURE_CONFIGURATIONS,
+                COLUMN_CONFIGURATION + " = \"" + gestureConfigurationToString(configuration) + "\"",
+                null);
+        return deleteCount != 0;
+    }
+
+    /**
      * Takes a {@link GestureConfiguration} and transforms it into a comma-separated {@link String}
      * @param configuration The {@link GestureConfiguration} to be transformed
      * @return A comma-separated {@link String} representation of the {@link GestureConfiguration}
