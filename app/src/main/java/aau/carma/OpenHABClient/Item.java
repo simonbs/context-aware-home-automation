@@ -83,7 +83,7 @@ public class Item {
                     list.add("OFF");
                     list.add("INCREASE");
                     list.add("DECREASE");
-                    for (Integer val = 10; val <= 100; val += step) {
+                    for (Integer val = 10; val <= 90; val += step) {
                         list.add(val.toString());
                     }
                     break;
