@@ -205,6 +205,25 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     /**
+     * Queries the database for an {@link Action} with the given identifier
+     * @param id identifier for the {@link Action}
+     * @return The {@link Action} if any was found, null otherwise
+     */
+    public Action getAction(int id) {
+        Cursor cursor = database.query(TABLE_ACTIONS,
+                ALL_ACTION_COLUMNS, COLUMN_ID + " = " + id,
+                null,
+                null, null, null);
+        cursor.moveToFirst();
+        if (cursor.getCount() == 0) {
+            return null;
+        }
+        Action action = cursorToAction(cursor);
+        cursor.close();
+        return action;
+    }
+
+    /**
      * Takes a {@link Cursor} and returns an {@link Action}
      * @param cursor The {@link Cursor} to extract an {@link Action} from
      * @return
@@ -212,9 +231,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private Action cursorToAction(Cursor cursor) {
         return new Action(getStringFromColumnName(cursor, COLUMN_ITEM_NAME),
                           getStringFromColumnName(cursor, COLUMN_ITEM_LABEL),
-                          getStringFromColumnName(cursor, COLUMN_NEW_STATE));
+                          getStringFromColumnName(cursor, COLUMN_NEW_STATE),
+                          Integer.toString(getIntFromColumnName(cursor, COLUMN_ID)));
     }
-
 
     /**
      * Takes a {@link Cursor} and the name of a column and returns the {@link String} at the index of that column
@@ -224,5 +243,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      */
     private String getStringFromColumnName(Cursor cursor, String column) {
         return cursor.getString(cursor.getColumnIndex(column));
+    }
+
+    /**
+     * Takes a {@link Cursor} and the name of a column and returns the {@link int} at the index of that column
+     * @param cursor The {@link Cursor} to extract the {@link int} from
+     * @param column The name of the column
+     * @return The {@link int} from the given column
+     */
+    private int getIntFromColumnName(Cursor cursor, String column) {
+        return cursor.getInt(cursor.getColumnIndex(column));
     }
 }
