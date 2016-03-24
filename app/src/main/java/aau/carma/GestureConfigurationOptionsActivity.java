@@ -15,6 +15,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import aau.carma.Database.DatabaseHelper;
+import aau.carma.Library.Action;
 
 public class GestureConfigurationOptionsActivity extends AppCompatActivity{
 
@@ -63,7 +64,7 @@ public class GestureConfigurationOptionsActivity extends AppCompatActivity{
             TextView gestureTextView = (TextView) convertView.findViewById(R.id.gesture_textView);
             final GestureConfiguration configuration = configurations.get(position);
 
-            actionTextView.setText(configuration.actionId);
+            actionTextView.setText(DatabaseHelper.getInstance(context).getAction(Integer.parseInt(configuration.actionId)).itemLabel);
             roomTextView.setText(" at " + configuration.roomId);
             gestureTextView.setText("(" + configuration.gestureId + ")");
 
@@ -102,7 +103,10 @@ public class GestureConfigurationOptionsActivity extends AppCompatActivity{
                 int configurationsCount = data.getIntExtra(SelectRoomAndActionActivity.CONFIGURATION_COUNT, 0);
                 for (int i = 0; i < configurationsCount; i++) {
                     String[] configurationInfo = data.getStringArrayExtra(Integer.toString(i));
-                    GestureConfiguration newConfiguration = new GestureConfiguration(configurationInfo[0], configurationInfo[1], configurationInfo[2]);
+
+                    Action action = DatabaseHelper.getInstance(this).saveAction(new Action(configurationInfo[1], configurationInfo[2], configurationInfo[3]));
+
+                    GestureConfiguration newConfiguration = new GestureConfiguration(configurationInfo[0], action.id, configurationInfo[4]);
                     // Save newConfiguration to DB
                     adapter.add(DatabaseHelper.getInstance(this).saveGestureConfiguration(newConfiguration));
                 }
