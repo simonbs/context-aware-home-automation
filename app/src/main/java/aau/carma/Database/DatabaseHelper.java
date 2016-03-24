@@ -13,7 +13,7 @@ import aau.carma.GestureConfiguration;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "carma.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
     public static final String TABLE_GESTURE_CONFIGURATIONS = "gestureConfigurations";
     public static final String TABLE_ACTIONS = "actions";
     public static final String COLUMN_ID = "_id";
@@ -35,13 +35,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     /**
      * {@link GestureConfiguration} specific constants
      */
-    public static final String COLUMN_CONFIGURATION = "configuration";
-    private static final String[] ALL_CONFIGURATION_COLUMNS = {COLUMN_ID, COLUMN_CONFIGURATION};
+    public static final String COLUMN_ROOM_ID = "roomId";
+    public static final String COLUMN_ACTION_ID = "actionId";
+    public static final String COLUMN_GESTURE_ID = "gestureId";
+    private static final String[] ALL_CONFIGURATION_COLUMNS = {COLUMN_ID, COLUMN_ROOM_ID, COLUMN_ACTION_ID, COLUMN_GESTURE_ID};
 
     private static final String CREATE_GESTURE_CONFIGURATIONS_TABLE = "create table "
-            + TABLE_GESTURE_CONFIGURATIONS + "(" + COLUMN_ID
-            + " integer primary key autoincrement, " + COLUMN_CONFIGURATION
-            + " text not null);";
+            + TABLE_GESTURE_CONFIGURATIONS + "("
+            + COLUMN_ID + " integer primary key autoincrement, "
+            + COLUMN_ROOM_ID + " text not null"
+            + COLUMN_ACTION_ID + " integer, foreign key (" + COLUMN_ACTION_ID + ") references " + TABLE_ACTIONS  + "(" + COLUMN_ID + ")"
+            + COLUMN_GESTURE_ID + "text not null);";
 
     private static DatabaseHelper instance;
     private SQLiteDatabase database;
@@ -78,7 +82,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      */
     public GestureConfiguration saveGestureConfiguration(GestureConfiguration configuration) {
         ContentValues values = new ContentValues();
-        values.put(COLUMN_CONFIGURATION, gestureConfigurationToString(configuration));
+        values.put(COLUMN_ROOM_ID, configuration.roomId);
+        values.put(COLUMN_ACTION_ID, Integer.parseInt(configuration.actionId));
+        values.put(COLUMN_GESTURE_ID, configuration.gestureId);
         long insertId =  database.insert(TABLE_GESTURE_CONFIGURATIONS, null, values);
         Cursor cursor = database.query(TABLE_GESTURE_CONFIGURATIONS,
                 ALL_CONFIGURATION_COLUMNS,
@@ -116,28 +122,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      */
     public boolean removeGestureConfiguration(GestureConfiguration configuration) {
         int deleteCount = database.delete(TABLE_GESTURE_CONFIGURATIONS,
-                COLUMN_CONFIGURATION + " = \"" + gestureConfigurationToString(configuration) + "\"",
-                null);
+                "? = ? and ? = ? and ? = ?",
+                new String[]{COLUMN_ROOM_ID, configuration.roomId,
+                            COLUMN_ACTION_ID, configuration.actionId,
+                            COLUMN_GESTURE_ID, configuration.gestureId});
         return deleteCount != 0;
-    }
-
-    /**
-     * Takes a {@link GestureConfiguration} and transforms it into a comma-separated {@link String}
-     * @param configuration The {@link GestureConfiguration} to be transformed
-     * @return A comma-separated {@link String} representation of the {@link GestureConfiguration}
-     */
-    private String gestureConfigurationToString(GestureConfiguration configuration) {
-        return configuration.roomId + "," + configuration.actionId + "," + configuration.gestureId;
-    }
-
-    /**
-     * Takes a comma-separated {@link String} and transforms it into a {@Link GestureConfiguration}
-     * @param configuration A comma-separated {@Link String} representation of a GestureConfiguration
-     * @return A new {@Link GestureConfiguration} object
-     */
-    private GestureConfiguration stringToGestureConfiguration(String configuration) {
-        String[] conf = configuration.split(",");
-        return new GestureConfiguration(conf[0], conf[1], conf[2]);
     }
 
     /**
@@ -146,7 +135,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      * @return
      */
     private GestureConfiguration cursorToGestureConfiguration(Cursor cursor) {
-        return stringToGestureConfiguration(cursor.getString(1));
+        return new GestureConfiguration(getStringFromColumnName(cursor, COLUMN_ROOM_ID),
+                                        Integer.toString(getIntFromColumnName(cursor, COLUMN_ACTION_ID)),
+                                        getStringFromColumnName(cursor, COLUMN_GESTURE_ID));
     }
 
     /**
