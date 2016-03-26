@@ -20,7 +20,7 @@ public class Funcable<T> {
      * Initializes a funcable with a backing array list.
      * @param list Backing array list.
      */
-    Funcable(ArrayList<T> list) {
+    public Funcable(ArrayList<T> list) {
         this.list = list;
     }
 
