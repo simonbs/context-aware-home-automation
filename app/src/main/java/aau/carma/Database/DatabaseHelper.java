@@ -43,9 +43,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String CREATE_GESTURE_CONFIGURATIONS_TABLE = "create table "
             + TABLE_GESTURE_CONFIGURATIONS + "("
             + COLUMN_ID + " integer primary key autoincrement, "
-            + COLUMN_ROOM_ID + " text not null"
-            + COLUMN_ACTION_ID + " integer, foreign key (" + COLUMN_ACTION_ID + ") references " + TABLE_ACTIONS  + "(" + COLUMN_ID + ")"
-            + COLUMN_GESTURE_ID + "text not null);";
+            + COLUMN_ROOM_ID + " text not null, "
+            + COLUMN_GESTURE_ID + " text not null, "
+            + COLUMN_ACTION_ID + " integer, foreign key (" + COLUMN_ACTION_ID + ") references " + TABLE_ACTIONS  + "(" + COLUMN_ID + "));";
 
     private static DatabaseHelper instance;
     private SQLiteDatabase database;
