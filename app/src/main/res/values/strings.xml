@@ -4,7 +4,8 @@
     <string name="recognize_gesture_button_text">Recognize Gesture</string>
     <string name="gesture_name_input_hint">name of gesture</string>
     <string name="gesture_name_title">Gesture Name</string>
-    <string name="record_gesture_button">Record</string>
+    <string name="start_sampling_button">Start sampling</string>
+    <string name="end_sampling_button">End sampling</string>
     <string name="add_gesture_activity_title">Add New Gesture</string>
     <string name="setup_error_message">Could not load the necessary information from openHAB.</string>
     <string name="setup_retry">Try again</string>

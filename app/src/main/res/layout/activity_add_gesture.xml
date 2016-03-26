@@ -18,11 +18,23 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/record_gesture_button"
-        android:id="@+id/train_gesture_button"
+        android:text="@string/start_sampling_button"
+        android:id="@+id/new_gesture_start_sampling_button"
         android:layout_gravity="center_horizontal"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"/>
+        android:layout_centerHorizontal="true"
+        android:onClick="onStartSamplingClicked" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/end_sampling_button"
+        android:id="@+id/new_gesture_end_sampling_button"
+        android:layout_gravity="center_horizontal"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:onClick="onEndSamplingClicked"
+        android:visibility="gone" />
 
     <EditText
         android:layout_width="wrap_content"

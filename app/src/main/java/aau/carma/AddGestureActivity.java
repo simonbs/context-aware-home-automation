@@ -9,6 +9,7 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 
 import java.util.ArrayList;
@@ -34,22 +35,45 @@ public class AddGestureActivity extends AppCompatActivity {
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
         recognizer = new ThreeDOneCentRecognizer(this);
-
-        final EditText gestureNameInput = (EditText) findViewById(R.id.gesture_name_input);
-        findViewById(R.id.train_gesture_button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                TrainGesture(gestureNameInput.getText().toString());
-            }
-        });
     }
 
     /**
-     * Starts recording accelerometer data and stores it as a training template for the gesture recognizer.
-     * @param gestureLabel The name of the gesture
+     * Button for start sampling was started.
+     * @param button Button pressed.
      */
-    private void TrainGesture(String gestureLabel){
-        if (isRecording){
+    public void onStartSamplingClicked(View button) {
+        if (!isRecording) {
+            final Button startSamplingButton = (Button) findViewById(R.id.new_gesture_start_sampling_button);
+            final Button endSamplingButton = (Button) findViewById(R.id.new_gesture_end_sampling_button);
+            final EditText gestureNameInput = (EditText) findViewById(R.id.gesture_name_input);
+            toggleSampling(gestureNameInput.getText().toString());
+            startSamplingButton.setVisibility(View.GONE);
+            endSamplingButton.setVisibility(View.VISIBLE);
+        }
+    }
+
+    /**
+     * Button for end sampling was started.
+     * @param button Button pressed.
+     */
+    public void onEndSamplingClicked(View button) {
+        if (isRecording) {
+            final Button startSamplingButton = (Button) findViewById(R.id.new_gesture_start_sampling_button);
+            final Button endSamplingButton = (Button) findViewById(R.id.new_gesture_end_sampling_button);
+            final EditText gestureNameInput = (EditText) findViewById(R.id.gesture_name_input);
+            toggleSampling(gestureNameInput.getText().toString());
+            startSamplingButton.setVisibility(View.VISIBLE);
+            endSamplingButton.setVisibility(View.GONE);
+        }
+    }
+
+    /**
+     * Toggles sampling accelerometer data and stores the data
+     * as a training template for the gesture recognizer.
+     * @param gestureLabel The name of the gesture to associate the template with.
+     */
+    private void toggleSampling(String gestureLabel) {
+        if (isRecording) {
             isRecording = false;
             sensorManager.unregisterListener(sensorEventListener);
             recognizer.AddTrainingStroke(new ThreeDLabeledStroke(tempStroke.getLabel(), tempStroke.getPoints()));
