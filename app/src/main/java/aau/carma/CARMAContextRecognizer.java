@@ -75,7 +75,7 @@ public class CARMAContextRecognizer extends ContextRecognizer {
             gestureContextProviderUUID = null;
         }
 
-        GestureContextProvider contextProvider = new GestureContextProvider();
+        GestureContextProvider contextProvider = new GestureContextProvider(context);
         gestureContextProviderUUID = addProvider(contextProvider);
 
         Logger.verbose("Did configure gesture context provider");

@@ -137,7 +137,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private GestureConfiguration cursorToGestureConfiguration(Cursor cursor) {
         return new GestureConfiguration(getStringFromColumnName(cursor, COLUMN_ROOM_ID),
                                         Integer.toString(getIntFromColumnName(cursor, COLUMN_ACTION_ID)),
-                                        getStringFromColumnName(cursor, COLUMN_GESTURE_ID));
+                                        getStringFromColumnName(cursor, COLUMN_GESTURE_ID),
+                                        Integer.toString(getIntFromColumnName(cursor, COLUMN_ID)));
     }
 
     /**

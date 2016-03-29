@@ -6,6 +6,11 @@ package aau.carma;
  */
 public class GestureConfiguration {
     /**
+     * Identifier for the gesture configuration
+     */
+    public final String id;
+
+    /**
      * Identifier for the room in which the action is triggered.
      */
     public final String roomId;
@@ -21,8 +26,13 @@ public class GestureConfiguration {
     public final String actionId;
 
     public GestureConfiguration(String roomId, String actionId, String gestureId) {
+        this(roomId, actionId, gestureId, "-1");
+    }
+
+    public GestureConfiguration(String roomId, String actionId, String gestureId, String id) {
         this.roomId = roomId;
         this.actionId = actionId;
         this.gestureId = gestureId;
+        this.id = id;
     }
 }

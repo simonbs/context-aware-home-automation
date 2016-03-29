@@ -1,5 +1,6 @@
 package aau.carma.ContextProviders;
 
+import android.content.Context;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -8,6 +9,7 @@ import aau.carma.Configuration;
 import aau.carma.ContextEngine.ContextOutcome;
 import aau.carma.ContextEngine.ContextProvider;
 import aau.carma.ContextEngine.ContextProviderListener;
+import aau.carma.Database.DatabaseHelper;
 import aau.carma.DummyData;
 import aau.carma.GestureConfiguration;
 import aau.carma.Library.Logger;
@@ -22,6 +24,12 @@ public class GestureContextProvider implements ContextProvider {
      * Current set of outcomes.
      */
     private ArrayList<ContextOutcome> outcomes = new ArrayList<>();
+
+    private Context context;
+
+    public GestureContextProvider(Context context) {
+        this.context = context;
+    }
 
     /**
      * Configures the provider
@@ -39,12 +47,12 @@ public class GestureContextProvider implements ContextProvider {
         }
 
         ArrayList<ContextOutcome> outcomes = new ArrayList<>();
-        ArrayList<GestureConfiguration> gestureConfigurations = DummyData.getAllGestureConfigurations();
+        ArrayList<GestureConfiguration> gestureConfigurations = DatabaseHelper.getInstance(context).getAllGestureConfiguration();
         for (GestureConfiguration gestureConfiguration : gestureConfigurations) {
             for(ThreeDMatch match : matches){
                 if (gestureConfiguration.gestureId.equals(match.getLabel())){
                     double probability = match.getScore() / totalScore;
-                    outcomes.add(new ContextOutcome(gestureConfiguration.actionId, probability));
+                    outcomes.add(new ContextOutcome(gestureConfiguration.id, probability));
                 }
             }
         }
