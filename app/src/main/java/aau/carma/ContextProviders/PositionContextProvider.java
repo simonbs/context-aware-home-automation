@@ -147,7 +147,7 @@ public class PositionContextProvider implements ContextProvider {
             // Add a probability for each action in the room.
             for (GestureConfiguration gestureConfiguration : gestureConfigurations) {
                 double probability = (double)observationsCount / (double)totalObservationsCount;
-                outcomes.add(new ContextOutcome(gestureConfiguration.actionId, probability));
+                outcomes.add(new ContextOutcome(gestureConfiguration.id, probability));
             }
         }
 
