@@ -50,7 +50,7 @@ public class PositionManager {
     private String scanId;
 
     /**
-     * Contet we started monitoring in.
+     * Context we started monitoring in.
      * Typically the application context.
      */
     private Context context;
