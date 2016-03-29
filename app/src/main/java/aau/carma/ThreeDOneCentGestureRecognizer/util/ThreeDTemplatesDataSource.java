@@ -12,7 +12,6 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-import aau.carma.Library.Logger;
 import aau.carma.ThreeDOneCentGestureRecognizer.datatype.ThreeDNNRTemplate;
 import aau.carma.ThreeDOneCentGestureRecognizer.datatype.ThreeDLabeledStroke;
 import aau.carma.ThreeDOneCentGestureRecognizer.datatype.ThreeDPoint;
@@ -77,14 +76,10 @@ public class ThreeDTemplatesDataSource {
         }
 
         JSONArray labeledStrokeJsonArray = new JSONObject(cursor.getString(3)).optJSONArray("labeledStroke");
-        Logger.verbose(labeledStrokeJsonArray.toString());
-
         ArrayList<ThreeDPoint> labeledStrokePoints = new ArrayList<>();
         for (int i = 0; i < labeledStrokeJsonArray.length(); i++){
-            Logger.verbose(labeledStrokeJsonArray.getString(i));
             JSONArray values = new JSONArray(labeledStrokeJsonArray.getString(i));
             labeledStrokePoints.add(new ThreeDPoint(values.getDouble(0), values.getDouble(1), values.getDouble(2), 0));
-            Logger.verbose(values.getDouble(0) + ", " + values.getDouble(1) + ", " + values.getDouble(2));
         }
 
         ThreeDNNRTemplate template = new ThreeDNNRTemplate(label, new ThreeDOneDimensionalRepresentation(odr), new ThreeDLabeledStroke(label, labeledStrokePoints));
