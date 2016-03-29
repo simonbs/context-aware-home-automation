@@ -13,6 +13,7 @@ import android.widget.ProgressBar;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 
+import aau.carma.ContextEngine.ContextRecognizer;
 import aau.carma.Library.Action;
 import aau.carma.Library.ActionsManager;
 import aau.carma.Library.Beacon;
@@ -44,6 +45,12 @@ public class SetupActivity extends AppCompatActivity {
 
         View errorView = findViewById(R.id.setup_error);
         errorView.setVisibility(View.GONE);
+
+        try {
+            CARMAContextRecognizer.getInstance().addGestureContextProvider(this);
+        } catch (ContextRecognizer.IsRecognizingException e) {
+            didFailSetup(e);
+        }
 
         RoomsManager.getInstance().reload(new RoomsManager.RoomsListener() {
             @Override
