@@ -56,6 +56,7 @@ public class SelectRoomAndActionActivity extends AppCompatActivity {
         if (!actions.isPresent()) {
             setResult(RESULT_NO_ACTIONS);
             finish();
+            return;
         }
         final ActionArrayAdapter actionArrayAdapter = new ActionArrayAdapter(this, R.layout.simple_listview_item, actions.value);
         actionsListView.setAdapter(actionArrayAdapter);
