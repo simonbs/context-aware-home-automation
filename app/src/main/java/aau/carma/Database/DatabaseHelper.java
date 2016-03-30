@@ -216,6 +216,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     /**
+     * Queries the database for an {@link Action} with the given identifier
+     * @param id identifier for the {@link Action}
+     * @return The {@link Action} if any was found, null otherwise
+     */
+    public Action getAction(String id) {
+        return getAction(Integer.parseInt(id));
+    }
+
+    /**
      * Takes a {@link Cursor} and returns an {@link Action}
      * @param cursor The {@link Cursor} to extract an {@link Action} from
      * @return
