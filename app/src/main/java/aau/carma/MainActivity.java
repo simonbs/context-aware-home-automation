@@ -20,7 +20,9 @@ import com.estimote.sdk.SystemRequirementsChecker;
 import java.util.ArrayList;
 
 import aau.carma.ContextEngine.ContextOutcome;
+import aau.carma.ContextEngine.ContextRecognizer;
 import aau.carma.ContextEngine.ContextRecognizerListener;
+import aau.carma.Database.DatabaseHelper;
 import aau.carma.Library.Action;
 import aau.carma.Library.ActionsManager;
 import aau.carma.Library.BooleanResult;
@@ -28,6 +30,7 @@ import aau.carma.Library.Logger;
 import aau.carma.Library.Result;
 import aau.carma.OpenHABClient.OpenHABClient;
 import aau.carma.RESTClient.BooleanResultListener;
+import aau.carma.RESTClient.RESTClient;
 import aau.carma.RESTClient.ResultListener;
 import aau.carma.ThreeDOneCentGestureRecognizer.datatype.ThreeDLabeledStroke;
 import aau.carma.ThreeDOneCentGestureRecognizer.datatype.ThreeDPoint;
@@ -146,10 +149,51 @@ public class MainActivity extends AppCompatActivity implements ContextRecognizer
      * Starts recording accelerometer data and compares it with the available training templates.
      */
     private void recognizeGesture() {
+        final DatabaseHelper databaseHelper = DatabaseHelper.getInstance(this);
         if (isRecording){
             isRecording = false;
             sensorManager.unregisterListener(sensorEventListener);
             CARMAContextRecognizer.getInstance().getGestureContextProvider().calculateProbabilities(gestureRecognizer.getAllMatches(tempStroke));
+            try {
+                CARMAContextRecognizer.getInstance().start(new ContextRecognizerListener() {
+                    @Override
+                    public void onContextReady(ArrayList<ContextOutcome> outcomes) {
+                        double highestProbability = Double.MIN_VALUE;
+                        ContextOutcome mostProbableOutCome = outcomes.get(0);
+                        for (ContextOutcome outcome : outcomes) {
+                            if (outcome.probability > highestProbability) {
+                                highestProbability = outcome.probability;
+                                mostProbableOutCome = outcome;
+                            }
+                        }
+
+                        GestureConfiguration configuration = databaseHelper.getGestureConfiguration(mostProbableOutCome.id);
+                        Action action = databaseHelper.getAction(configuration.actionId);
+                        new OpenHABClient().updateItemState(action.itemName, action.newState, new BooleanResultListener() {
+                            @Override
+                            public void onResult(BooleanResult result) {
+                                if (result.isSuccess()) {
+                                    Logger.verbose("Success");
+                                } else {
+                                    result.error.value.printStackTrace();
+                                }
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onFailedRecognizingContext() {
+
+                    }
+
+                    @Override
+                    public void onContextRecognitionTimeout() {
+
+                    }
+                });
+            } catch (ContextRecognizer.IsRecognizingException e) {
+                e.printStackTrace();
+            }
         } else {
             isRecording = true;
             tempStroke = new ThreeDLabeledStroke(DEFAULT_LABEL);
