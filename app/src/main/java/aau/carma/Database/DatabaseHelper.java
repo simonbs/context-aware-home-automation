@@ -116,6 +116,32 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     /**
+     * Queries the database for the {@link GestureConfiguration} with the given id
+     * @param id The id of the {@link GestureConfiguration}
+     * @return The {@link GestureConfiguration} found, null if none was found
+     */
+    public GestureConfiguration getGestureConfiguration(int id) {
+        Cursor cursor = database.query(TABLE_GESTURE_CONFIGURATIONS,
+                                    ALL_CONFIGURATION_COLUMNS,
+                                    COLUMN_ID + " = " + Integer.toString(id),
+                                    null, null, null, null);
+        cursor.moveToFirst();
+        if (cursor.getCount() == 0) {
+            return null;
+        }
+        return cursorToGestureConfiguration(cursor);
+    }
+
+    /**
+     * Queries the database for the {@link GestureConfiguration} with the given id
+     * @param id The id of the {@link GestureConfiguration}
+     * @return The {@link GestureConfiguration} found, null if none was found
+     */
+    public GestureConfiguration getGestureConfiguration(String id) {
+        return getGestureConfiguration(Integer.parseInt(id));
+    }
+
+    /**
      * Removes a {@Link GestureConfiguration} from the database
      * @param configuration The {@Link GestureConfiguration} to be removed
      * @return A {@Link boolean} indicating whether the row was removed
