@@ -158,6 +158,11 @@ public class MainActivity extends AppCompatActivity implements ContextRecognizer
                 CARMAContextRecognizer.getInstance().start(new ContextRecognizerListener() {
                     @Override
                     public void onContextReady(ArrayList<ContextOutcome> outcomes) {
+                        // Don't do anything if we did not get any outcomes.
+                        if (outcomes.size() <= 0) {
+                            return;
+                        }
+
                         double highestProbability = Double.MIN_VALUE;
                         ContextOutcome mostProbableOutCome = outcomes.get(0);
                         for (ContextOutcome outcome : outcomes) {
