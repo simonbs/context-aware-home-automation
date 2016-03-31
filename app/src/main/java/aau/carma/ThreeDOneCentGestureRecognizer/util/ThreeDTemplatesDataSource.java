@@ -12,9 +12,15 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+import aau.carma.Library.Consumer;
+import aau.carma.Library.Func;
+import aau.carma.Library.Funcable;
+import aau.carma.Library.Logger;
+import aau.carma.Library.Optional;
 import aau.carma.ThreeDOneCentGestureRecognizer.datatype.ThreeDNNRTemplate;
 import aau.carma.ThreeDOneCentGestureRecognizer.datatype.ThreeDLabeledStroke;
 import aau.carma.ThreeDOneCentGestureRecognizer.datatype.ThreeDPoint;
+import aau.carma.ThreeDOneCentGestureRecognizer.recognizer.ThreeDMatch;
 
 /**
  * Created by kasperlindsorensen on 17/03/16.
@@ -52,7 +58,15 @@ public class ThreeDTemplatesDataSource {
         values.put(ThreeDSQLiteHelper.COLUMN_ODR, odrJsonObject.toString());
 
         JSONObject labeledStrokeJsonObject = new JSONObject();
-        JSONArray labeledStrokeJsonArray = new JSONArray(template.getLs().getPoints());
+
+        Funcable<String> strPoints = new Funcable<>(template.getLs().getPoints()).flatMap(new Consumer<ThreeDPoint, Optional<String>>() {
+            @Override
+            public Optional<String> consume(ThreeDPoint value) {
+                return new Optional<>(value.toString());
+            }
+        });
+
+        JSONArray labeledStrokeJsonArray = new JSONArray(strPoints.getValue());
         labeledStrokeJsonObject.put("labeledStroke", labeledStrokeJsonArray);
         values.put(ThreeDSQLiteHelper.COLUMN_LABELED_STROKE, labeledStrokeJsonObject.toString());
 
@@ -76,6 +90,7 @@ public class ThreeDTemplatesDataSource {
         }
 
         JSONArray labeledStrokeJsonArray = new JSONObject(cursor.getString(3)).optJSONArray("labeledStroke");
+
         ArrayList<ThreeDPoint> labeledStrokePoints = new ArrayList<>();
         for (int i = 0; i < labeledStrokeJsonArray.length(); i++){
             JSONArray values = new JSONArray(labeledStrokeJsonArray.getString(i));
@@ -83,7 +98,6 @@ public class ThreeDTemplatesDataSource {
         }
 
         ThreeDNNRTemplate template = new ThreeDNNRTemplate(label, new ThreeDOneDimensionalRepresentation(odr), new ThreeDLabeledStroke(label, labeledStrokePoints));
-
         return template;
     }
 

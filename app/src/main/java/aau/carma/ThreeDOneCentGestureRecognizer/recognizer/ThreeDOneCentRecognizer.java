@@ -37,6 +37,7 @@ import org.json.JSONException;
 
 import java.util.ArrayList;
 
+import aau.carma.Library.Logger;
 import aau.carma.ThreeDOneCentGestureRecognizer.datatype.ThreeDNNRTemplate;
 import aau.carma.ThreeDOneCentGestureRecognizer.datatype.ThreeDLabeledStroke;
 import aau.carma.ThreeDOneCentGestureRecognizer.datatype.ThreeDPoint;
