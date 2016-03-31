@@ -20,10 +20,12 @@ import java.util.ArrayList;
 
 import aau.carma.Library.Action;
 import aau.carma.Library.ActionsManager;
+import aau.carma.Library.Consumer;
 import aau.carma.Library.Logger;
 import aau.carma.Library.Optional;
 import aau.carma.Library.Room;
 import aau.carma.Library.RoomsManager;
+import aau.carma.OpenHABClient.OpenHABClient;
 
 public class SelectRoomAndActionActivity extends AppCompatActivity {
 
@@ -46,11 +48,12 @@ public class SelectRoomAndActionActivity extends AppCompatActivity {
         }
         final ListView roomsListView = (ListView) findViewById(R.id.rooms_listView);
         final ListView actionsListView = (ListView) findViewById(R.id.actions_listView);
-        ArrayAdapter<String> roomsAdapter = new ArrayAdapter<String>(this, R.layout.simple_listview_item);
-        for (Room room : DummyData.getAllRooms()){
-            roomsAdapter.add(room.identifier);
+
+        Optional<ArrayList<Room>> rooms = RoomsManager.getInstance().getRooms();
+        if (rooms.isPresent()) {
+            RoomAdapter roomAdapter = new RoomAdapter(this, R.layout.room_cell, rooms.value);
+            roomsListView.setAdapter(roomAdapter);
         }
-        roomsListView.setAdapter(roomsAdapter);
 
         Optional<ArrayList<Action>> actions = ActionsManager.getInstance().getActions();
         if (!actions.isPresent()) {
