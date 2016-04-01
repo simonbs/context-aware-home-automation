@@ -167,6 +167,7 @@ public class PositionContextProvider implements ContextProvider {
             // Add a probability for each action in the room.
             for (GestureConfiguration gestureConfiguration : gestureConfigurationsForRoom) {
                 double probability = (double)observationsCount / (double)totalObservationsCount;
+                Logger.verbose("Position probability for " + gestureConfiguration.id + ": " + probability);
                 outcomes.add(new ContextOutcome(gestureConfiguration.id, probability));
             }
         }
@@ -178,8 +179,10 @@ public class PositionContextProvider implements ContextProvider {
      * Logs the current outcomes. For debugging purposes.
      */
     private void logCurrentOutcomes() {
-        for (ContextOutcome outcome : outcomes) {
-            Logger.verbose(outcome.id + ": " + outcome.probability);
+        if (outcomes != null) {
+            for (ContextOutcome outcome : outcomes) {
+                Logger.verbose(outcome.id + ": " + outcome.probability);
+            }
         }
     }
 

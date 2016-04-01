@@ -81,6 +81,7 @@ public class GestureContextProvider implements ContextProvider {
                 if (gestureConfiguration.gestureId.equals(gestureLabel)) {
                     // Subtract from one. The lower the score, the better.
                     double probability = 1 - (gestureScore / totalScore);
+                    Logger.verbose("Gesture probability for " + gestureConfiguration.id + ": " + probability);
                     outcomes.add(new ContextOutcome(gestureConfiguration.id, probability));
                 }
             }

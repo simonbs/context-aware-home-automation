@@ -68,6 +68,7 @@ public class ContextRecognizer {
         public ArrayList<ContextOutcome> calculateWeightedOutcomes() {
             ArrayList<ContextOutcome> result = new ArrayList<>();
             for (ContextOutcome outcome : outcomes) {
+                Logger.verbose("Calculate weighted outcome: " + outcome.probability + " * " + weight);
                 result.add(new ContextOutcome(outcome.id, outcome.probability * weight));
             }
 
@@ -197,11 +198,16 @@ public class ContextRecognizer {
 
             final UUID uuid = entry.getKey();
             final ContextProvider contextProvider = entry.getValue();
+
             pendingContextProviders.put(entry.getKey(), contextProvider);
 
             entry.getValue().getContext(new ContextProviderListener() {
                 @Override
                 public void onContextReady(ArrayList<ContextOutcome> outcomes) {
+                    for (ContextOutcome outcome : outcomes) {
+                        Logger.verbose("Context ready with outcome " + outcome.id + ": " + outcome.probability);
+                    }
+
                     Logger.verbose("Context ready for provider " + entry.getKey());
                     ProvidedContext providedContext = new ProvidedContext(contextProvider.getWeight(), outcomes);
                     providedContexts.add(providedContext);
@@ -307,7 +313,31 @@ public class ContextRecognizer {
         cancelTimeoutTimer();
 
         ArrayList<ContextOutcome> flattenedOutcomes = flattenedOutcomes(providedContexts);
+
+        if (flattenedOutcomes != null) {
+            Logger.verbose("- - - - - - - - - - - - - - - -");
+            Logger.verbose("Flattened outcomes:");
+            for (ContextOutcome flattenedOutcome : flattenedOutcomes) {
+                Logger.verbose("Probability: " + flattenedOutcome .id + ": " + flattenedOutcome .probability);
+            }
+            Logger.verbose("- - - - - - - - - - - - - - - -");
+        }
+
         ArrayList<ContextOutcome> summedOutcomes = ContextOutcome.sumOutcomes(flattenedOutcomes);
+
+        if (summedOutcomes != null) {
+            Logger.verbose("- - - - - - - - - - - - - - - -");
+            Logger.verbose("Summed outcomes:");
+            for (ContextOutcome summedOutcome : summedOutcomes) {
+                Logger.verbose("Probability: " + summedOutcome.id + ": " + summedOutcome.probability);
+            }
+            Logger.verbose("- - - - - - - - - - - - - - - -");
+        }
+
+        for (ContextOutcome summedOutcome : summedOutcomes) {
+            Logger.verbose(summedOutcome.id + ": " + summedOutcome.probability);
+        }
+
         ArrayList<ContextOutcome> normalizedOutcomes = ContextOutcome.normalizeOutcomes(summedOutcomes);
 
         if (listener != null) {

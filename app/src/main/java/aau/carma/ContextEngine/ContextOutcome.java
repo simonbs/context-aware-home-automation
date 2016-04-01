@@ -43,6 +43,10 @@ public class ContextOutcome {
             totalProbability += outcome.probability;
         }
 
+        if (totalProbability == 0) {
+            return new ArrayList<>();
+        }
+
         ArrayList<ContextOutcome> result = new ArrayList<>();
         for (ContextOutcome outcome : outcomes) {
             result.add(new ContextOutcome(outcome.id, outcome.probability / totalProbability));
