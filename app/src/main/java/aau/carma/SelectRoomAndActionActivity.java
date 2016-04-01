@@ -69,7 +69,7 @@ public class SelectRoomAndActionActivity extends AppCompatActivity {
         roomsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                selectedRoom = parent.getItemAtPosition(position).toString();
+                selectedRoom = ((Room)parent.getItemAtPosition(position)).identifier;
             }
         });
         actionsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {

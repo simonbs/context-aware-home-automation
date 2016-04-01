@@ -160,4 +160,29 @@ public class RoomsManager {
             listener.value.onUpdate(Result.Failure(error));
         }
     }
+
+    /**
+     * Retrieve a specific room.
+     * @param roomId ID of room to retrieve.
+     * @return Matching room.
+     */
+    public Optional<Room> getRoom(final String roomId) {
+        if (!this.rooms.isPresent()) {
+            return new Optional<>();
+        }
+
+        ArrayList<Room> rooms = this.rooms.value;
+        Funcable<Room> filteredRooms = new Funcable<>(rooms).filter(new Predicate<Room>() {
+            @Override
+            public boolean apply(Room room) {
+                return room.identifier.equals(roomId);
+            }
+        });
+
+        if (filteredRooms.getValue().size() > 0) {
+            return new Optional<>(filteredRooms.getValue().get(0));
+        }
+
+        return new Optional<>();
+    }
 }

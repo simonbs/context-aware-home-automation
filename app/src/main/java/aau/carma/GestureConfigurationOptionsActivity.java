@@ -16,6 +16,10 @@ import java.util.ArrayList;
 
 import aau.carma.Database.DatabaseHelper;
 import aau.carma.Library.Action;
+import aau.carma.Library.Logger;
+import aau.carma.Library.Optional;
+import aau.carma.Library.Room;
+import aau.carma.Library.RoomsManager;
 
 public class GestureConfigurationOptionsActivity extends AppCompatActivity{
 
@@ -65,7 +69,11 @@ public class GestureConfigurationOptionsActivity extends AppCompatActivity{
             final GestureConfiguration configuration = configurations.get(position);
 
             actionTextView.setText(DatabaseHelper.getInstance(context).getAction(Integer.parseInt(configuration.actionId)).itemLabel);
-            roomTextView.setText(" at " + configuration.roomId);
+
+            Optional<Room> room = RoomsManager.getInstance().getRoom(configuration.roomId);
+
+            String roomName = room.isPresent() ? room.value.name : "Unknown";
+            roomTextView.setText("in " + roomName);
             gestureTextView.setText("(" + configuration.gestureId + ")");
 
             ImageButton removeConfigurationButton = (ImageButton) convertView.findViewById(R.id.remove_configuration_button);
