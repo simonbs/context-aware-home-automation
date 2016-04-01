@@ -23,7 +23,6 @@ public class CARMAApplication extends Application {
         EstimoteSDK.initialize(getApplicationContext(), Configuration.EstimoteAppId, Configuration.EstimoteAppToken);
         EstimoteSDK.enableDebugLogging(true);
 
-        configureContextRecognizer();
         configureOpenHABClient();
     }
 
@@ -32,21 +31,5 @@ public class CARMAApplication extends Application {
      */
     private void configureOpenHABClient() {
         RequestQueue.getInstance().configure(getApplicationContext());
-    }
-
-    /**
-     * Configures the shared context recognizer.
-     */
-    private void configureContextRecognizer() {
-//        Log.v(Configuration.Log, "Will configure context recognizer");
-//
-//        try {
-////            CARMAContextRecognizer.getInstance().addPositionContextProvider(getApplicationContext(), DummyData.getAllRooms());
-//            CARMAContextRecognizer.getInstance().addGestureContextProvider(getApplicationContext());
-//        } catch (ContextRecognizer.IsRecognizingException e) {
-//            Log.e(Configuration.Log, "The shared context recognizer could not be configured because the recognizer is currently recognizing.");
-//        }
-//
-//        Log.v(Configuration.Log, "Did configure context recognizer");
     }
 }

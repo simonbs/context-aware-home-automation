@@ -63,6 +63,13 @@ public class SetupActivity extends AppCompatActivity {
                             Logger.verbose("  - " + beacon.namespace + " : " + beacon.instance);
                         }
                     }
+
+                    ArrayList<Room> rooms = result.value.value;
+                    try {
+                        CARMAContextRecognizer.getInstance().addPositionContextProvider(getApplicationContext(), rooms);
+                    } catch (ContextRecognizer.IsRecognizingException e) {
+                        didFailSetup(e);
+                    }
                 } else {
                     didFailSetup(result.error.value);
                 }
