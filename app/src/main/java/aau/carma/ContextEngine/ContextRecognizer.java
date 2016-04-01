@@ -230,7 +230,7 @@ public class ContextRecognizer {
     }
 
     /**
-     * Cancels recognizing the contex   t.
+     * Cancels recognizing the context.
      */
     public void cancel() throws IsNotRecognizingException {
         if (!recognizing) {
