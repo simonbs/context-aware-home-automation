@@ -4,6 +4,8 @@ import android.content.Context;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import aau.carma.Configuration;
 import aau.carma.ContextEngine.ContextOutcome;
@@ -41,21 +43,48 @@ public class GestureContextProvider implements ContextProvider {
      * @param matches List of comparisons between input gesture and training templates.
      */
     public void calculateProbabilities(ArrayList<ThreeDMatch> matches){
-        double totalScore = 0;
-        for (ThreeDMatch match : matches){
-            totalScore += match.getScore();
+        // A gesture score must be lower than or equal to the threshold in order to be considered.
+        Double gestureScoreThreshold = 40.0;
+
+        // Group the scores as each gesture appears multiple times,
+        // i.e. one per training template.
+        HashMap<String, Double> groupedScores = new HashMap<>();
+        for (ThreeDMatch match : matches) {
+            if (match.getScore() <= gestureScoreThreshold) {
+                if (groupedScores.containsKey(match.getLabel())) {
+                    Double newScore = groupedScores.get(match.getLabel()) + match.getScore();
+                    groupedScores.put(match.getLabel(), newScore);
+                } else {
+                    groupedScores.put(match.getLabel(), match.getScore());
+                }
+            }
+        }
+
+        // Calculate total score
+        Double totalScore = 0.0;
+        for (Map.Entry<String, Double> entry : groupedScores.entrySet()) {
+            totalScore += entry.getValue();
+        }
+
+        for (Map.Entry<String, Double> entry : groupedScores.entrySet()) {
+            Logger.verbose("Gesture " + entry.getKey() + " has total score " + entry.getValue() + " / " + totalScore);
         }
 
         ArrayList<ContextOutcome> outcomes = new ArrayList<>();
         ArrayList<GestureConfiguration> gestureConfigurations = DatabaseHelper.getInstance(context).getAllGestureConfiguration();
         for (GestureConfiguration gestureConfiguration : gestureConfigurations) {
-            for(ThreeDMatch match : matches){
-                if (gestureConfiguration.gestureId.equals(match.getLabel())){
-                    double probability = match.getScore() / totalScore;
+            for (Map.Entry<String, Double> entry : groupedScores.entrySet()) {
+                String gestureLabel = entry.getKey();
+                Double gestureScore = entry.getValue();
+
+                if (gestureConfiguration.gestureId.equals(gestureLabel)) {
+                    // Subtract from one. The lower the score, the better.
+                    double probability = 1 - (gestureScore / totalScore);
                     outcomes.add(new ContextOutcome(gestureConfiguration.id, probability));
                 }
             }
         }
+
         this.outcomes = ContextOutcome.normalizeOutcomes(outcomes);
     }
 

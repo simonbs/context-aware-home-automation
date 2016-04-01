@@ -34,6 +34,7 @@ import aau.carma.RESTClient.RESTClient;
 import aau.carma.RESTClient.ResultListener;
 import aau.carma.ThreeDOneCentGestureRecognizer.datatype.ThreeDLabeledStroke;
 import aau.carma.ThreeDOneCentGestureRecognizer.datatype.ThreeDPoint;
+import aau.carma.ThreeDOneCentGestureRecognizer.recognizer.ThreeDMatch;
 import aau.carma.ThreeDOneCentGestureRecognizer.recognizer.ThreeDOneCentRecognizer;
 
 public class MainActivity extends AppCompatActivity implements ContextRecognizerListener {
@@ -154,7 +155,12 @@ public class MainActivity extends AppCompatActivity implements ContextRecognizer
             Logger.verbose("End recognizing gesture");
             isRecording = false;
             sensorManager.unregisterListener(sensorEventListener);
-            CARMAContextRecognizer.getInstance().getGestureContextProvider().calculateProbabilities(gestureRecognizer.getAllMatches(tempStroke));
+            ArrayList<ThreeDMatch> gestureMatches = gestureRecognizer.getAllMatches(tempStroke);
+            for (ThreeDMatch gestureMatch : gestureMatches) {
+                Logger.verbose("Recognized training template " + gestureMatch.getLabel() + " with a score of " + gestureMatch.getScore());
+            }
+
+            CARMAContextRecognizer.getInstance().getGestureContextProvider().calculateProbabilities(gestureMatches);
             try {
                 Logger.verbose("Start context engine");
                 CARMAContextRecognizer.getInstance().start(new ContextRecognizerListener() {
