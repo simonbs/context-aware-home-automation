@@ -151,15 +151,18 @@ public class MainActivity extends AppCompatActivity implements ContextRecognizer
     private void recognizeGesture() {
         final DatabaseHelper databaseHelper = DatabaseHelper.getInstance(this);
         if (isRecording){
+            Logger.verbose("End recognizing gesture");
             isRecording = false;
             sensorManager.unregisterListener(sensorEventListener);
             CARMAContextRecognizer.getInstance().getGestureContextProvider().calculateProbabilities(gestureRecognizer.getAllMatches(tempStroke));
             try {
+                Logger.verbose("Start context engine");
                 CARMAContextRecognizer.getInstance().start(new ContextRecognizerListener() {
                     @Override
                     public void onContextReady(ArrayList<ContextOutcome> outcomes) {
                         // Don't do anything if we did not get any outcomes.
                         if (outcomes.size() <= 0) {
+                            Logger.verbose("Got no outcomes.");
                             return;
                         }
 
@@ -172,8 +175,13 @@ public class MainActivity extends AppCompatActivity implements ContextRecognizer
                             }
                         }
 
+                        Logger.verbose("Most probable outcome ID: " + mostProbableOutCome.id);
+
                         GestureConfiguration configuration = databaseHelper.getGestureConfiguration(mostProbableOutCome.id);
                         Action action = databaseHelper.getAction(configuration.actionId);
+
+                        Logger.verbose("Action for outcome: " + action.itemName + " -> " + action.newState);
+
                         new OpenHABClient().updateItemState(action.itemName, action.newState, new BooleanResultListener() {
                             @Override
                             public void onResult(BooleanResult result) {
@@ -188,18 +196,20 @@ public class MainActivity extends AppCompatActivity implements ContextRecognizer
 
                     @Override
                     public void onFailedRecognizingContext() {
-
+                        Logger.verbose("Context engine failed.");
                     }
 
                     @Override
                     public void onContextRecognitionTimeout() {
-
+                        Logger.verbose("Context engine did timeout.");
                     }
                 });
             } catch (ContextRecognizer.IsRecognizingException e) {
+                Logger.error("Cannot recognize while already recognizing.");
                 e.printStackTrace();
             }
         } else {
+            Logger.verbose("Start recognizing gesture");
             isRecording = true;
             tempStroke = new ThreeDLabeledStroke(DEFAULT_LABEL);
             sensorManager.registerListener(sensorEventListener, accelerometerSensor, SensorManager.SENSOR_DELAY_FASTEST);

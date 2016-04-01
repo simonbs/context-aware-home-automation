@@ -66,7 +66,6 @@ public class GestureContextProvider implements ContextProvider {
 
     @Override
     public void getContext(ContextProviderListener listener) {
-        logCurrentOutcomes();
         listener.onContextReady(this.outcomes);
     }
 

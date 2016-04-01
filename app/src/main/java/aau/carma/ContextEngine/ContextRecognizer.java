@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import aau.carma.Library.Logger;
+
 /**
  * Recognizes a context given one or more providers that
  * each contribute to the total knowledge about the context.
@@ -155,7 +157,7 @@ public class ContextRecognizer {
      * Starts recognizing the context using the registered context providers.
      * @param listener Listener called when the context has been recognized.
      */
-    public void start(ContextRecognizerListener  listener) throws IsRecognizingException {
+    public void start(ContextRecognizerListener listener) throws IsRecognizingException {
         if (recognizing) {
             throw new IsRecognizingException("The recognition cannot be started because it is already started.");
         }
@@ -163,6 +165,8 @@ public class ContextRecognizer {
         recognizing = true;
         this.listener = listener;
         providedContexts.clear();
+
+        Logger.verbose("Will start");
 
         if (contextProviders.size() > 0) {
             // We have context providers registered. Start recognizing.
@@ -175,19 +179,30 @@ public class ContextRecognizer {
                 listener.onContextReady(new ArrayList<ContextOutcome>());
             }
         }
+
+        Logger.verbose("Did start");
     }
 
     /**
      * Starts all registered context providers.
      */
     private void startRegisteredContextProviders() {
-        for (Map.Entry<UUID, ContextProvider> entry : contextProviders.entrySet()) {
+        // Make sure we register all providers as added.
+        for (final Map.Entry<UUID, ContextProvider> entry : contextProviders.entrySet()) {
+            pendingContextProviders.put(entry.getKey(), null);
+        }
+
+        for (final Map.Entry<UUID, ContextProvider> entry : contextProviders.entrySet()) {
+            Logger.verbose("Start context provider " + entry.getKey());
+
             final UUID uuid = entry.getKey();
             final ContextProvider contextProvider = entry.getValue();
+            pendingContextProviders.put(entry.getKey(), contextProvider);
 
             entry.getValue().getContext(new ContextProviderListener() {
                 @Override
                 public void onContextReady(ArrayList<ContextOutcome> outcomes) {
+                    Logger.verbose("Context ready for provider " + entry.getKey());
                     ProvidedContext providedContext = new ProvidedContext(contextProvider.getWeight(), outcomes);
                     providedContexts.add(providedContext);
                     pendingContextProviders.remove(uuid);
@@ -200,8 +215,6 @@ public class ContextRecognizer {
                     checkIfRecognitionCompleted();
                 }
             });
-
-            pendingContextProviders.put(uuid, contextProvider);
         }
     }
 
@@ -279,6 +292,7 @@ public class ContextRecognizer {
      * have more pending context providers.
      */
     private void checkIfRecognitionCompleted() {
+        Logger.verbose("Remaining pending context providers: " + pendingContextProviders.size());
         if (pendingContextProviders.isEmpty()) {
             onRecognitionCompleted();
         }
