@@ -66,6 +66,7 @@ public class GestureContextProvider implements ContextProvider {
             totalScore += entry.getValue();
         }
 
+        // Log scores
         for (Map.Entry<String, Double> entry : groupedScores.entrySet()) {
             Logger.verbose("Gesture " + entry.getKey() + " has total score " + entry.getValue() + " / " + totalScore);
         }

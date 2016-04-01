@@ -1,18 +1,20 @@
 package aau.carma.ContextProviders;
 
 import android.content.Context;
-import android.util.Log;
+import android.gesture.Gesture;
+
+import com.android.internal.util.Predicate;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import aau.carma.Configuration;
 import aau.carma.ContextEngine.ContextOutcome;
 import aau.carma.ContextEngine.ContextProvider;
 import aau.carma.ContextEngine.ContextProviderListener;
-import aau.carma.DummyData;
+import aau.carma.Database.DatabaseHelper;
 import aau.carma.GestureConfiguration;
+import aau.carma.Library.Funcable;
 import aau.carma.Library.Logger;
 import aau.carma.Library.Room;
 
@@ -67,9 +69,17 @@ public class PositionContextProvider implements ContextProvider {
     private ArrayList<ContextOutcome> outcomes;
 
     /**
-     * Initializes the position context provider.
+     * Context the provider is run in.
      */
-    public PositionContextProvider() { }
+    private Context context;
+
+    /**
+     * Initializes the position context provider.
+     * @param context Context to run the provider in.
+     */
+    public PositionContextProvider(Context context) {
+        this.context = context;
+    }
 
     /**
      * Configures the provider to listen for the users position in the given rooms.
@@ -94,6 +104,7 @@ public class PositionContextProvider implements ContextProvider {
      * @param room Room the user entered.
      */
     private void didFindUserToBeInRoom(Room room) {
+        Logger.verbose("Did receive evidence that user is in room " + room.name);
         EnteredRoomObservation observation = new EnteredRoomObservation(System.currentTimeMillis(), room);
         enteredRoomObservations.add(observation);
         removeOldEnteredRoomObservations();
@@ -139,13 +150,22 @@ public class PositionContextProvider implements ContextProvider {
         }
 
         // Map to outcomes
+        ArrayList<GestureConfiguration> gestureConfigurations = DatabaseHelper.getInstance(context).getAllGestureConfiguration();
+
         ArrayList<ContextOutcome> outcomes = new ArrayList<>();
         for (Map.Entry<String, Integer> entry : roomObservationCountMap.entrySet()) {
-            String roomIdentifier = entry.getKey();
+            final String roomIdentifier = entry.getKey();
             Integer observationsCount = entry.getValue();
-            ArrayList<GestureConfiguration> gestureConfigurations = DummyData.gestureConfigurationsForRoomWithIdentifier(roomIdentifier);
+
+            ArrayList<GestureConfiguration> gestureConfigurationsForRoom = new Funcable(gestureConfigurations).filter(new Predicate<GestureConfiguration>() {
+                @Override
+                public boolean apply(GestureConfiguration gestureConfiguration) {
+                    return gestureConfiguration.roomId.equals(roomIdentifier);
+                }
+            }).getValue();
+
             // Add a probability for each action in the room.
-            for (GestureConfiguration gestureConfiguration : gestureConfigurations) {
+            for (GestureConfiguration gestureConfiguration : gestureConfigurationsForRoom) {
                 double probability = (double)observationsCount / (double)totalObservationsCount;
                 outcomes.add(new ContextOutcome(gestureConfiguration.id, probability));
             }
@@ -170,7 +190,6 @@ public class PositionContextProvider implements ContextProvider {
 
     @Override
     public void getContext(ContextProviderListener listener) {
-        calculateProbabilities();
         logCurrentOutcomes();
         listener.onContextReady(outcomes);
     }

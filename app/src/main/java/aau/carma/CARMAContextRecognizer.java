@@ -53,7 +53,7 @@ public class CARMAContextRecognizer extends ContextRecognizer {
             positionContextProviderUUID = null;
         }
 
-        PositionContextProvider contextProvider = new PositionContextProvider();
+        PositionContextProvider contextProvider = new PositionContextProvider(context);
         contextProvider.configure(context, rooms);
         positionContextProviderUUID = addProvider(contextProvider);
 
