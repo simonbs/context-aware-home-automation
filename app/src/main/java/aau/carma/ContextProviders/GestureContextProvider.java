@@ -94,8 +94,6 @@ public class GestureContextProvider implements ContextProvider {
                 Double gestureScore = entry.getValue();
 
                 if (gestureConfiguration.gestureId.equals(gestureLabel)) {
-
-
                     // We only have one score, so it must have a probability of 1.
                     // If we don't do that, we calculate the score, a total score and
                     // calculate the probability as (1 - score / totalScore) resulting
