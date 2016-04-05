@@ -85,7 +85,7 @@ public class GestureContextProvider implements ContextProvider {
             Logger.verbose("Gesture " + entry.getKey() + " has total score " + entry.getValue() + " / " + totalScore);
         }
 
-        // Create outcomes.
+        // Create outcomes
         ArrayList<ContextOutcome> outcomes = new ArrayList<>();
         ArrayList<GestureConfiguration> gestureConfigurations = DatabaseHelper.getInstance(context).getAllGestureConfiguration();
         for (GestureConfiguration gestureConfiguration : gestureConfigurations) {
@@ -94,8 +94,20 @@ public class GestureContextProvider implements ContextProvider {
                 Double gestureScore = entry.getValue();
 
                 if (gestureConfiguration.gestureId.equals(gestureLabel)) {
-                    // Subtract from one. The lower the score, the better.
-                    double probability = 1 - (gestureScore / totalScore);
+
+
+                    // We only have one score, so it must have a probability of 1.
+                    // If we don't do that, we calculate the score, a total score and
+                    // calculate the probability as (1 - score / totalScore) resulting
+                    // in a probability of 0.
+                    double probability;
+                    if (averagedScores.size() == 1) {
+                        probability = 1;
+                    } else {
+                        // Subtract from one. The lower the score, the better.
+                        probability = 1 - (gestureScore / totalScore);
+                    }
+
                     Logger.verbose("Gesture probability for " + gestureConfiguration.id + ": " + probability);
                     outcomes.add(new ContextOutcome(gestureConfiguration.id, probability));
                 }
