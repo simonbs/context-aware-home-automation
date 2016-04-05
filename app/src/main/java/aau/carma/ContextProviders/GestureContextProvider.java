@@ -2,6 +2,7 @@ package aau.carma.ContextProviders;
 
 import android.content.Context;
 import android.util.Log;
+import android.util.Pair;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,33 +49,47 @@ public class GestureContextProvider implements ContextProvider {
 
         // Group the scores as each gesture appears multiple times,
         // i.e. one per training template.
-        HashMap<String, Double> groupedScores = new HashMap<>();
+        // Hashmap where keys are the label of gesture templates.
+        // Values are pairs of an integer and a double. The integer is the
+        // number of gesture templates with the label (the key) and the double
+        // is the total score for the gesture template.
+        HashMap<String, Pair<Integer, Double>> groupedScores = new HashMap<>();
         for (ThreeDMatch match : matches) {
             if (match.getScore() <= gestureScoreThreshold) {
                 if (groupedScores.containsKey(match.getLabel())) {
-                    Double newScore = groupedScores.get(match.getLabel()) + match.getScore();
-                    groupedScores.put(match.getLabel(), newScore);
+                    Pair<Integer, Double> pair = groupedScores.get(match.getLabel());
+                    Integer count = pair.first + 1;
+                    Double newScore = pair.second + match.getScore();
+                    groupedScores.put(match.getLabel(), new Pair<>(count, newScore));
                 } else {
-                    groupedScores.put(match.getLabel(), match.getScore());
+                    groupedScores.put(match.getLabel(), new Pair<>(1, match.getScore()));
                 }
             }
         }
 
+        // Average the grouped scores.
+        HashMap<String, Double> averagedScores = new HashMap<>();
+        for (Map.Entry<String, Pair<Integer, Double>> entry : groupedScores.entrySet()) {
+            Pair<Integer, Double> pair = entry.getValue();
+            averagedScores.put(entry.getKey(), pair.second.doubleValue() / pair.first.doubleValue());
+        }
+
         // Calculate total score
         Double totalScore = 0.0;
-        for (Map.Entry<String, Double> entry : groupedScores.entrySet()) {
+        for (Map.Entry<String, Double> entry : averagedScores.entrySet()) {
             totalScore += entry.getValue();
         }
 
         // Log scores
-        for (Map.Entry<String, Double> entry : groupedScores.entrySet()) {
+        for (Map.Entry<String, Double> entry : averagedScores.entrySet()) {
             Logger.verbose("Gesture " + entry.getKey() + " has total score " + entry.getValue() + " / " + totalScore);
         }
 
+        // Create outcomes.
         ArrayList<ContextOutcome> outcomes = new ArrayList<>();
         ArrayList<GestureConfiguration> gestureConfigurations = DatabaseHelper.getInstance(context).getAllGestureConfiguration();
         for (GestureConfiguration gestureConfiguration : gestureConfigurations) {
-            for (Map.Entry<String, Double> entry : groupedScores.entrySet()) {
+            for (Map.Entry<String, Double> entry : averagedScores.entrySet()) {
                 String gestureLabel = entry.getKey();
                 Double gestureScore = entry.getValue();
 
