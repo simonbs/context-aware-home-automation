@@ -17,19 +17,24 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".MainActivity" />
+        <activity android:name=".MainActivity"
+                  android:screenOrientation="portrait"/>
 
         <activity android:name=".GestureConfigurationOptionsActivity"
-                  android:parentActivityName=".MainActivity"/>
+                  android:parentActivityName=".MainActivity"
+                  android:screenOrientation="portrait"/>
 
         <activity android:name=".AddGestureActivity"
-                  android:parentActivityName=".MainActivity" />
+                  android:parentActivityName=".MainActivity"
+                  android:screenOrientation="portrait"/>
 
         <activity android:name=".SelectGestureActivity"
-                  android:parentActivityName=".MainActivity"/>
+                  android:parentActivityName=".MainActivity"
+                  android:screenOrientation="portrait"/>
 
         <activity android:name=".SelectRoomAndActionActivity"
-                  android:parentActivityName=".SelectGestureActivity"/>
+                  android:parentActivityName=".SelectGestureActivity"
+                  android:screenOrientation="portrait"/>
     </application>
 
 </manifest>
