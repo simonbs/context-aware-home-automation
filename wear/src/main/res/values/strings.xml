@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">CARMA</string>
+    <string name="settings_train_gesture">Train gesture</string>
+    <string name="settings_configure_action">Configure action</string>
+    <string name="recognize_gesture_touch_to_start">Touch to start recognition</string>
+    <string name="recognize_gesture_touch_to_stop">Touch to stop recognition</string>
+</resources>
