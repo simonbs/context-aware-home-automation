@@ -9,6 +9,8 @@ import android.view.ViewGroup;
 
 import java.util.ArrayList;
 
+import aau.carmakit.Utilities.Optional;
+
 /**
  * Fragment showing settings.
  */
@@ -21,12 +23,13 @@ public class SettingsFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        WearableListView listView = (WearableListView)getView().findViewById(R.id.settings_list_view);
+
         ArrayList<WearableListItemAdapter.WearableListItem> settings = new ArrayList<>();
         settings.add(Setting.TRAIN_GESTURE);
         settings.add(Setting.CONFIGURE_ACTION);
-        WearableListItemAdapter listAdapter = new WearableListItemAdapter(getActivity(), settings);
-        listView.setAdapter(listAdapter);
+
+        PickerFragment pickerFragment = (PickerFragment)getChildFragmentManager().findFragmentById(R.id.settings_picker_fragment);
+        pickerFragment.reloadItems(settings);
     }
 
     /**
@@ -37,23 +40,23 @@ public class SettingsFragment extends Fragment {
         CONFIGURE_ACTION;
 
         @Override
-        public int getIconResource() {
+        public Optional<Integer> getIconResource() {
             switch (this) {
-                case TRAIN_GESTURE: return R.drawable.train_gesture;
-                case CONFIGURE_ACTION: return R.drawable.configure_action;
+                case TRAIN_GESTURE: return new Optional<>(R.drawable.train_gesture);
+                case CONFIGURE_ACTION: return new Optional<>(R.drawable.configure_action);
             }
 
-            return -1;
+            return new Optional<>();
         }
 
         @Override
-        public int getTitleResource() {
+        public Optional<Integer> getTitleResource() {
             switch (this) {
-                case TRAIN_GESTURE: return R.string.settings_train_gesture;
-                case CONFIGURE_ACTION: return R.string.settings_configure_action;
+                case TRAIN_GESTURE: return new Optional<>(R.string.settings_train_gesture);
+                case CONFIGURE_ACTION: return new Optional<>(R.string.settings_configure_action);
             }
 
-            return -1;
+            return new Optional<>();
         }
     }
 }

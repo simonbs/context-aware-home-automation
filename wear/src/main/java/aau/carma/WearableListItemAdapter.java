@@ -8,6 +8,8 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import aau.carmakit.Utilities.Optional;
+
 /**
  * Adapter managing items in a wearable list view.
  */
@@ -30,11 +32,15 @@ class WearableListItemAdapter extends WearableListView.Adapter {
         WearableListItemView itemView = (WearableListItemView) viewHolder.itemView;
         final WearableListItem item = items.get(position);
 
-        TextView textView = (TextView) itemView.findViewById(R.id.wearable_list_item_title);
-        textView.setText(context.getString(item.getTitleResource()));
+        if (item.getTitleResource().isPresent()) {
+            TextView textView = (TextView) itemView.findViewById(R.id.wearable_list_item_title);
+            textView.setText(context.getString(item.getTitleResource().value));
+        }
 
+        if (item.getIconResource().isPresent()) {
             final ImageView imageView = (ImageView) itemView.findViewById(R.id.wearable_list_item_icon);
-            imageView.setImageResource(item.getIconResource());
+            imageView.setImageResource(item.getIconResource().value);
+        }
     }
 
     @Override
@@ -51,7 +57,7 @@ class WearableListItemAdapter extends WearableListView.Adapter {
      * Items shown in the list view must conform to this protocol.
      */
     public interface WearableListItem {
-        int getIconResource();
-        int getTitleResource();
+        Optional<Integer> getIconResource();
+        Optional<Integer> getTitleResource();
     }
 }
