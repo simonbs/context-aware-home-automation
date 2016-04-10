@@ -29,7 +29,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:textAlignment="center"
-            android:text="@string/name_train_gesture_continue" />
+            android:text="@string/name_train_gesture_continue"
+            android:enabled="false" />
 
     </LinearLayout>
 

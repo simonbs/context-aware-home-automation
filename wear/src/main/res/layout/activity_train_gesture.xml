@@ -1,32 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center_horizontal"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:gravity="center"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center">
+    <TextView
+        android:id="@+id/train_gesture_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:gravity="center"
+        android:textColor="@color/white"
+        android:textStyle="bold"
+        android:textSize="16dp"
+        android:layout_marginTop="5dp"
+        tools:text="Circle" />
 
-        <TextView
-            android:id="@+id/train_gesture_instruction"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAlignment="center"
-            android:gravity="center"
-            android:text="@string/train_gesture_touch_to_start" />
-
-    </RelativeLayout>
+    <TextView
+        android:id="@+id/train_gesture_instruction"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:gravity="center"
+        android:textColor="@color/white"
+        android:layout_marginTop="15dp"
+        android:text="@string/train_gesture_touch_to_start" />
 
     <TextView
         android:id="@+id/train_gesture_sample_count"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAlignment="center"
+        android:textColor="@color/light_grey"
         android:text="@string/train_gesture_sample_count"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="25dp" />
+        android:layout_marginTop="5dp"/>
 
-</RelativeLayout>
+    <Button
+        android:id="@+id/train_gesture_done"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/train_gesture_done"
+        android:layout_marginTop="15dp"
+        android:enabled="false" />
+
+</LinearLayout>
