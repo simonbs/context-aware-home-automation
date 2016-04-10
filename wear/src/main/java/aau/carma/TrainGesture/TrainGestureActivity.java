@@ -2,6 +2,7 @@ package aau.carma;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Rect;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -40,6 +41,11 @@ public class TrainGestureActivity extends Activity implements SensorEventListene
      * Name of the gesture to train.
      */
     private String gestureName;
+
+    /**
+     * Done button. Hit when no more samples should be added.
+     */
+    private Button doneButton;
 
     /**
      * Whether or not we are currently sampling.
@@ -87,7 +93,7 @@ public class TrainGestureActivity extends Activity implements SensorEventListene
         TextView nameTextView = (TextView)findViewById(R.id.train_gesture_name);
         nameTextView.setText(gestureName);
 
-        final Button doneButton = (Button)findViewById(R.id.train_gesture_done);
+        doneButton = (Button)findViewById(R.id.train_gesture_done);
         doneButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -115,7 +121,6 @@ public class TrainGestureActivity extends Activity implements SensorEventListene
     private void incrementSampleCount() {
         sampleCount += 1;
         showSampleCount(sampleCount);
-        Button doneButton = (Button)findViewById(R.id.train_gesture_done);
         doneButton.setEnabled(sampleCount >= MinimumSampleCount);
     }
 
@@ -123,25 +128,51 @@ public class TrainGestureActivity extends Activity implements SensorEventListene
      * Toggles sampling a gesture.
      */
     private void toggleSampling() {
-        View contentView = findViewById(android.R.id.content);
         if (isSampling) {
-            // Finish this sample.
-            sensorManager.unregisterListener(this);
-            tempStroke = null;
-            contentView.setBackgroundColor(getResources().getColor(R.color.black));
-            incrementSampleCount();
-            isSampling = false;
+            stopSampling();
         } else {
-            // Start sampling.
-            isSampling = true;
-            contentView.setBackgroundColor(getResources().getColor(R.color.orange));
-            tempStroke = new ThreeDLabeledStroke(gestureName);
-            sensorManager.registerListener(this, accelerometerSensor, SensorManager.SENSOR_DELAY_FASTEST);
+            startSampling();
         }
+    }
+
+    /**
+     * Starts sampling.
+     */
+    private void startSampling() {
+        View contentView = findViewById(android.R.id.content);
+        isSampling = true;
+        contentView.setBackgroundColor(getResources().getColor(R.color.orange));
+        tempStroke = new ThreeDLabeledStroke(gestureName);
+        sensorManager.registerListener(this, accelerometerSensor, SensorManager.SENSOR_DELAY_FASTEST);
+    }
+
+    /**
+     * Stop sampling.
+     */
+    private void stopSampling() {
+        View contentView = findViewById(android.R.id.content);
+        sensorManager.unregisterListener(this);
+        tempStroke = null;
+        contentView.setBackgroundColor(getResources().getColor(R.color.black));
+        incrementSampleCount();
+        isSampling = false;
     }
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
+        // Check if we hit the done button.
+        Rect doneRect = new Rect();
+        doneButton.getHitRect(doneRect);
+        if (doneRect.contains((int)ev.getX(), (int)ev.getY())) {
+            // We hit the done button, so the activity will be closed.
+            // Ensure we stop sampling.
+            if (isSampling) {
+                stopSampling();
+            }
+
+            return super.dispatchTouchEvent(ev);
+        }
+
         if (ev.getAction() == MotionEvent.ACTION_UP) {
             toggleSampling();
         }
@@ -152,6 +183,7 @@ public class TrainGestureActivity extends Activity implements SensorEventListene
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (isSampling && tempStroke != null) {
+            Logger.verbose("" + event.values[0] + ", " + event.values[1] + ", " + event.values[2]);
             tempStroke.addPoint(new ThreeDPoint(event.values[0], event.values[1], event.values[2], event.timestamp));
         }
     }

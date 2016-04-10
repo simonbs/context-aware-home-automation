@@ -15,8 +15,8 @@
         android:layout_marginRight="20dp"
         android:layout_gravity="center">
 
-        <EditText
-            android:id="@+id/new_name_train_gesture_name_field"
+        <Button
+            android:id="@+id/new_name_train_gesture_name_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="20dp"
