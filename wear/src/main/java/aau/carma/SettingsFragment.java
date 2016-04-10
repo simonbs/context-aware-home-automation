@@ -1,6 +1,7 @@
 package aau.carma;
 
 import android.app.Fragment;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.wearable.view.WearableListView;
 import android.view.LayoutInflater;
@@ -9,15 +10,19 @@ import android.view.ViewGroup;
 
 import java.util.ArrayList;
 
+import aau.carma.Picker.PickerFragment;
+import aau.carma.Picker.WearableListItemAdapter;
+import aau.carma.TrainGesture.NameTrainGestureActivity;
+import aau.carmakit.Utilities.Logger;
 import aau.carmakit.Utilities.Optional;
 
 /**
  * Fragment showing settings.
  */
-public class SettingsFragment extends Fragment {
+public class SettingsFragment extends Fragment implements PickerFragment.OnPickListener {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,  Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.settings_fragment, container, false);
+        return inflater.inflate(R.layout.fragment_settings, container, false);
     }
 
     @Override
@@ -30,6 +35,21 @@ public class SettingsFragment extends Fragment {
 
         PickerFragment pickerFragment = (PickerFragment)getChildFragmentManager().findFragmentById(R.id.settings_picker_fragment);
         pickerFragment.reloadItems(settings);
+        pickerFragment.setOnPickListener(this);
+    }
+
+    @Override
+    public void onPick(int position, WearableListView.ViewHolder viewHolder) {
+        Setting setting = Setting.values()[position];
+        switch (setting) {
+            case TRAIN_GESTURE:
+                Intent intent = new Intent(getActivity(), NameTrainGestureActivity.class);
+                startActivity(intent);
+                break;
+            case CONFIGURE_ACTION:
+                Logger.verbose("Configure action selected");
+                break;
+        }
     }
 
     /**

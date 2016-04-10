@@ -19,6 +19,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".TrainGestureActivity"
+            android:label="@string/title_activity_train_gesture" />
+        <activity
+            android:name=".TrainGesture.NameTrainGestureActivity"
+            android:label="@string/title_activity_name_train_gesture"></activity>
     </application>
 
 </manifest>

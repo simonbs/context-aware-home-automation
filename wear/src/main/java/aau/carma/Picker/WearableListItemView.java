@@ -1,4 +1,4 @@
-package aau.carma;
+package aau.carma.Picker;
 
 import android.content.Context;
 import android.support.wearable.view.WearableListView;
@@ -6,6 +6,8 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import aau.carma.R;
 
 /**
  * View for a setting in the settings fragment.

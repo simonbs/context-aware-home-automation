@@ -4,4 +4,12 @@
     <string name="settings_configure_action">Configure action</string>
     <string name="recognize_gesture_touch_to_start">Touch to start recognition</string>
     <string name="recognize_gesture_touch_to_stop">Touch to stop recognition</string>
+    <string name="title_activity_train_gesture">TrainGestureActivity</string>
+    <string name="title_activity_name_train_gesture">NameTrainGestureActivity</string>
+    <string name="name_train_gesture_placeholder">Gesture name</string>
+    <string name="name_train_gesture_continue">Continue</string>
+    <string name="train_gesture_touch_to_start">Touch to start sampling</string>
+    <string name="train_gesture_touch_to_stop">Touch to finish this sample</string>
+    <string name="train_gesture_sample_count">%d samples.</string>
+    <string name="gesture_picker_empty">You have not trained any gestures.</string>
 </resources>

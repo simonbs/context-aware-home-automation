@@ -1,4 +1,4 @@
-package aau.carma;
+package aau.carma.Picker;
 
 import android.content.Context;
 import android.support.wearable.view.WearableListView;
@@ -8,12 +8,13 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import aau.carma.R;
 import aau.carmakit.Utilities.Optional;
 
 /**
  * Adapter managing items in a wearable list view.
  */
-class WearableListItemAdapter extends WearableListView.Adapter {
+public class WearableListItemAdapter extends WearableListView.Adapter {
     private final Context context;
     private final ArrayList<WearableListItem> items;
 

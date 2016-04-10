@@ -2,7 +2,7 @@
 <fragment android:id="@+id/settings_picker_fragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:name="aau.carma.PickerFragment"
-    tools:layout="@layout/picker_fragment"
+    android:name="aau.carma.Picker.PickerFragment"
+    tools:layout="@layout/fragment_picker"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" />
