@@ -96,5 +96,10 @@ public class SettingsFragment extends Fragment implements PickerFragment.OnPickL
 
             return new Optional<>();
         }
+
+        @Override
+        public Optional<String> getSubtitle() {
+            return new Optional<>();
+        }
     }
 }

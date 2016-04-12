@@ -40,7 +40,7 @@ public class NewNameTrainGestureFragment extends android.app.Fragment {
     /**
      * Name of the gesture to train.
      */
-    private Optional<String> gestureName = new Optional<>();
+    private Optional<String> gestureName = new Optional<>("V");
 
     /**
      * Object notified when the user presses continue.

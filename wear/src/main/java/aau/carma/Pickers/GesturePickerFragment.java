@@ -17,6 +17,7 @@ import aau.carma.Picker.WearableListItemAdapter.WearableListItem;
 import aau.carma.R;
 import aau.carmakit.Utilities.Consumer;
 import aau.carmakit.Utilities.Funcable;
+import aau.carmakit.Utilities.Logger;
 import aau.carmakit.Utilities.Optional;
 
 /**
@@ -42,6 +43,7 @@ public class GesturePickerFragment extends Fragment implements PickerFragment.On
     public View onCreateView(LayoutInflater inflater, ViewGroup container,  Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_gesture_picker, container, false);
         pickerFragment = (PickerFragment)getChildFragmentManager().findFragmentById(R.id.gesture_picker_fragment);
+        pickerFragment.setOnPickListener(this);
         emptyTextView = (TextView)view.findViewById(R.id.gesture_picker_empty);
         reload();
         return view;
@@ -59,6 +61,22 @@ public class GesturePickerFragment extends Fragment implements PickerFragment.On
      * Reloads the gestures and updates the picker.
      */
     private void reload() {
+        /**
+         * Enable to show a single dummy gesture.
+         */
+//        ArrayList<String> gestureNames = new ArrayList<>();
+//        gestureNames.add("Circle");
+//
+//        Funcable<WearableListItem> items = new Funcable<>(gestureNames).flatMap(new Consumer<String, Optional<WearableListItem>>() {
+//            @Override
+//            public Optional<WearableListItem> consume(String value) {
+//                return new Optional<>((WearableListItem)new GesturePickerItem(value));
+//            }
+//        });
+//
+//        pickerFragment.reloadItems(items.getValue());
+//        setPickerVisible(true);
+
         Optional<ArrayList<String>> gestureNames = GesturesGateway.allUniqueGestureNames(getActivity());
         if (gestureNames.isPresent() && gestureNames.value.size() > 0) {
             Funcable<WearableListItem> items = new Funcable<>(gestureNames.value).flatMap(new Consumer<String, Optional<WearableListItem>>() {
@@ -94,7 +112,9 @@ public class GesturePickerFragment extends Fragment implements PickerFragment.On
 
     @Override
     public void onPick(int position, WearableListItem item, WearableListView.ViewHolder viewHolder) {
+        Logger.verbose("Gesture fragment onPick");
         if (onGesturePickedListener.isPresent()) {
+            Logger.verbose("Inform listener.");
             onGesturePickedListener.value.onPick((GesturePickerItem)item);
         }
     }
@@ -124,6 +144,11 @@ public class GesturePickerFragment extends Fragment implements PickerFragment.On
         @Override
         public Optional<String> getTitle() {
             return new Optional<>(name);
+        }
+
+        @Override
+        public Optional<String> getSubtitle() {
+            return new Optional<>();
         }
     }
 

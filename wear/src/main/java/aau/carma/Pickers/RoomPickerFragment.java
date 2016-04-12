@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import aau.carma.Picker.PickerFragment;
 import aau.carma.Picker.WearableListItemAdapter;
 import aau.carma.R;
+import aau.carmakit.Utilities.Beacon;
 import aau.carmakit.Utilities.Consumer;
 import aau.carmakit.Utilities.Funcable;
 import aau.carmakit.Utilities.Optional;
@@ -43,6 +44,7 @@ public class RoomPickerFragment extends Fragment implements PickerFragment.OnPic
     public View onCreateView(LayoutInflater inflater, ViewGroup container,  Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_room_picker, container, false);
         pickerFragment = (PickerFragment)getChildFragmentManager().findFragmentById(R.id.room_picker_fragment);
+        pickerFragment.setOnPickListener(this);
         emptyTextView = (TextView)view.findViewById(R.id.room_picker_empty);
         reload();
         return view;
@@ -125,6 +127,11 @@ public class RoomPickerFragment extends Fragment implements PickerFragment.OnPic
         @Override
         public Optional<String> getTitle() {
             return new Optional<>(room.name);
+        }
+
+        @Override
+        public Optional<String> getSubtitle() {
+            return new Optional<>();
         }
     }
 

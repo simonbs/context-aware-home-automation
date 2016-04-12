@@ -2,6 +2,7 @@ package aau.carma.Picker;
 
 import android.content.Context;
 import android.support.wearable.view.WearableListView;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -40,14 +41,28 @@ public class WearableListItemAdapter extends WearableListView.Adapter {
         WearableListItemView itemView = (WearableListItemView) viewHolder.itemView;
         final WearableListItem item = items.get(position);
 
-        if (item.getTitle().isPresent()) {
-            TextView textView = (TextView) itemView.findViewById(R.id.wearable_list_item_title);
-            textView.setText(item.getTitle().value);
+        ImageView iconImageView = (ImageView) itemView.findViewById(R.id.wearable_list_item_icon);
+        if (item.getIconResource().isPresent()) {
+            iconImageView.setImageResource(item.getIconResource().value);
+            iconImageView.setVisibility(View.VISIBLE);
+        } else {
+            iconImageView.setVisibility(View.GONE);
         }
 
-        if (item.getIconResource().isPresent()) {
-            final ImageView imageView = (ImageView) itemView.findViewById(R.id.wearable_list_item_icon);
-            imageView.setImageResource(item.getIconResource().value);
+        TextView titleTextView = (TextView) itemView.findViewById(R.id.wearable_list_item_title);
+        if (item.getTitle().isPresent()) {
+            titleTextView.setText(item.getTitle().value);
+            titleTextView.setVisibility(View.VISIBLE);
+        } else {
+            titleTextView.setVisibility(View.GONE);
+        }
+
+        TextView subtitleTextView = (TextView) itemView.findViewById(R.id.wearable_list_item_subtitle);
+        if (item.getSubtitle().isPresent()) {
+            subtitleTextView.setText(item.getSubtitle().value);
+            subtitleTextView.setVisibility(View.VISIBLE);
+        } else {
+            subtitleTextView.setVisibility(View.GONE);
         }
     }
 
@@ -97,5 +112,6 @@ public class WearableListItemAdapter extends WearableListView.Adapter {
     public interface WearableListItem {
         Optional<Integer> getIconResource();
         Optional<String> getTitle();
+        Optional<String> getSubtitle();
     }
 }

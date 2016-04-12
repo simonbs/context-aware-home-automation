@@ -45,6 +45,7 @@ public class ActionPickerFragment extends Fragment implements PickerFragment.OnP
     public View onCreateView(LayoutInflater inflater, ViewGroup container,  Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_action_picker, container, false);
         pickerFragment = (PickerFragment)getChildFragmentManager().findFragmentById(R.id.action_picker_fragment);
+        pickerFragment.setOnPickListener(this);
         emptyTextView = (TextView)view.findViewById(R.id.action_picker_empty);
         reload();
         return view;
@@ -126,7 +127,12 @@ public class ActionPickerFragment extends Fragment implements PickerFragment.OnP
 
         @Override
         public Optional<String> getTitle() {
-            return new Optional<>(action.itemName + ": " + action.newState);
+            return new Optional<>(action.itemName);
+        }
+
+        @Override
+        public Optional<String> getSubtitle() {
+            return new Optional<>(action.newState);
         }
     }
 

@@ -39,7 +39,7 @@ public class ConfigureActionActivity extends Activity implements
     private void presentGesturePicker() {
         GesturePickerFragment fragment = new GesturePickerFragment();
         fragment.setOnGesturePickedListener(this);
-        replaceFragment(fragment, false);
+        replaceFragment(fragment);
     }
 
     /**
@@ -48,7 +48,7 @@ public class ConfigureActionActivity extends Activity implements
     private void presentRoomPicker() {
         RoomPickerFragment fragment = new RoomPickerFragment();
         fragment.setOnRoomPickedListener(this);
-        replaceFragment(fragment, true);
+        replaceFragment(fragment);
     }
 
     /**
@@ -57,7 +57,7 @@ public class ConfigureActionActivity extends Activity implements
     private void presentActionPicker() {
         ActionPickerFragment fragment = new ActionPickerFragment();
         fragment.setOnActionPickedListener(this);
-        replaceFragment(fragment, true);
+        replaceFragment(fragment);
     }
 
     /**
@@ -92,10 +92,12 @@ public class ConfigureActionActivity extends Activity implements
                 action.id,
                 pickedGesture.name);
         DatabaseHelper.getInstance(this).saveGestureConfiguration(newConfiguration);
+        finish();
     }
 
     @Override
     public void onPick(GesturePickerFragment.GesturePickerItem gesturePickerItem) {
+        Logger.verbose("Did pick gesture");
         configureActionInfo.setGesture(gesturePickerItem);
         presentRoomPicker();
     }
@@ -115,13 +117,10 @@ public class ConfigureActionActivity extends Activity implements
     /**
      * Replaces the displayed fragment.
      * @param newFragment New fragment to replace the existing fragment with.
-     * @param animated Enable to perform the replace animated.
      */
-    private void replaceFragment(Fragment newFragment, boolean animated) {
+    private void replaceFragment(Fragment newFragment) {
+        Logger.verbose("Replace fragment");
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
-        if (animated) {
-            transaction.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
-        }
         transaction.replace(R.id.configure_action_fragment_container, newFragment, "fragment");
         transaction.commit();
     }

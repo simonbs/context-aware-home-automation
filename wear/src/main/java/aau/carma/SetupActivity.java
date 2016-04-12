@@ -47,29 +47,29 @@ public class SetupActivity extends Activity {
             didFailSetup(e);
         }
 
-//        RoomsManager.getInstance().reload(new RoomsManager.RoomsListener() {
-//            @Override
-//            public void onUpdate(Result<ArrayList<Room>> result) {
-//                if (result.isSuccess()) {
-//                    Logger.verbose("Retrieved room and beacon configuration from openHAB:");
-//                    for (Room room : result.value.value) {
-//                        Logger.verbose("- " + room.name);
-//                        for (Beacon beacon : room.beacons) {
-//                            Logger.verbose("  - " + beacon.namespace + " : " + beacon.instance);
-//                        }
-//                    }
-//
-//                    ArrayList<Room> rooms = result.value.value;
-//                    try {
-//                        CARMAContextRecognizer.getInstance().addPositionContextProvider(getApplicationContext(), rooms);
-//                    } catch (ContextRecognizer.IsRecognizingException e) {
-//                        didFailSetup(e);
-//                    }
-//                } else {
-//                    didFailSetup(result.error.value);
-//                }
-//            }
-//        });
+        RoomsManager.getInstance().reload(new RoomsManager.RoomsListener() {
+            @Override
+            public void onUpdate(Result<ArrayList<Room>> result) {
+                if (result.isSuccess()) {
+                    Logger.verbose("Retrieved room and beacon configuration from openHAB:");
+                    for (Room room : result.value.value) {
+                        Logger.verbose("- " + room.name);
+                        for (Beacon beacon : room.beacons) {
+                            Logger.verbose("  - " + beacon.namespace + " : " + beacon.instance);
+                        }
+                    }
+
+                    ArrayList<Room> rooms = result.value.value;
+                    try {
+                        CARMAContextRecognizer.getInstance().addPositionContextProvider(getApplicationContext(), rooms);
+                    } catch (ContextRecognizer.IsRecognizingException e) {
+                        didFailSetup(e);
+                    }
+                } else {
+                    didFailSetup(result.error.value);
+                }
+            }
+        });
 
         ActionsManager.getInstance().loadAllActions(new ActionsManager.ActionsListener() {
             @Override
@@ -109,6 +109,9 @@ public class SetupActivity extends Activity {
         Intent intent = new Intent(this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_TASK_ON_HOME);
         startActivity(intent);
+        // Disable animation on transition.
+        overridePendingTransition(0, 0);
+        // Finish this activity as we are replacing it with the activity for training.
         finish();
     }
 

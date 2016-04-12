@@ -23,22 +23,30 @@ public final class WearableListItemView extends FrameLayout implements WearableL
      */
     final TextView titleTextView;
 
+    /**
+     * Shows the subtitle.
+     */
+    final TextView subtitleTextView;
+
     public WearableListItemView(Context context) {
         super(context);
         View.inflate(context, R.layout.wearable_list_item, this);
         iconImageView = (ImageView)findViewById(R.id.wearable_list_item_icon);
         titleTextView = (TextView)findViewById(R.id.wearable_list_item_title);
+        subtitleTextView = (TextView)findViewById(R.id.wearable_list_item_subtitle);
     }
 
     @Override
     public void onCenterPosition(boolean b) {
-        iconImageView.animate().scaleX(1f).scaleY(1f).alpha(1);
-        titleTextView.animate().scaleX(1f).scaleY(1f).alpha(1);
+        iconImageView.animate().alpha(1);
+        titleTextView.animate().alpha(1);
+        subtitleTextView.animate().alpha(1);
     }
 
     @Override
     public void onNonCenterPosition(boolean b) {
-        iconImageView.animate().scaleX(0.8f).scaleY(0.8f).alpha(0.6f);
-        titleTextView.animate().scaleX(0.8f).scaleY(0.8f).alpha(0.6f);
+        iconImageView.animate().alpha(0.6f);
+        titleTextView.animate().alpha(0.6f);
+        subtitleTextView.animate().alpha(0.6f);
     }
 }
