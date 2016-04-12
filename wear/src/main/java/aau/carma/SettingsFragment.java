@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 
 import java.util.ArrayList;
 
+import aau.carma.ConfigureAction.ConfigureActionActivity;
 import aau.carma.Picker.PickerFragment;
 import aau.carma.Picker.WearableListItemAdapter;
 import aau.carma.TrainGesture.NameTrainGestureActivity;
@@ -39,17 +40,32 @@ public class SettingsFragment extends Fragment implements PickerFragment.OnPickL
     }
 
     @Override
-    public void onPick(int position, WearableListView.ViewHolder viewHolder) {
-        Setting setting = Setting.values()[position];
+    public void onPick(int position, WearableListItemAdapter.WearableListItem item, WearableListView.ViewHolder viewHolder) {
+        Setting setting = (Setting)item;
         switch (setting) {
             case TRAIN_GESTURE:
-                Intent intent = new Intent(getActivity(), NameTrainGestureActivity.class);
-                startActivity(intent);
+                presentTrainGesture();
                 break;
             case CONFIGURE_ACTION:
-                Logger.verbose("Configure action selected");
+                presentConfigureAction();
                 break;
         }
+    }
+
+    /**
+     * Presents train gesture.
+     */
+    private void presentTrainGesture() {
+        Intent intent = new Intent(getActivity(), NameTrainGestureActivity.class);
+        startActivity(intent);
+    }
+
+    /**
+     * Presents configure action.
+     */
+    private void presentConfigureAction() {
+        Intent intent = new Intent(getActivity(), ConfigureActionActivity.class);
+        startActivity(intent);
     }
 
     /**
@@ -62,18 +78,20 @@ public class SettingsFragment extends Fragment implements PickerFragment.OnPickL
         @Override
         public Optional<Integer> getIconResource() {
             switch (this) {
-                case TRAIN_GESTURE: return new Optional<>(R.drawable.train_gesture);
-                case CONFIGURE_ACTION: return new Optional<>(R.drawable.configure_action);
+                case TRAIN_GESTURE: return new Optional<>(R.drawable.gesture);
+                case CONFIGURE_ACTION: return new Optional<>(R.drawable.action);
             }
 
             return new Optional<>();
         }
 
         @Override
-        public Optional<Integer> getTitleResource() {
+        public Optional<String> getTitle() {
             switch (this) {
-                case TRAIN_GESTURE: return new Optional<>(R.string.settings_train_gesture);
-                case CONFIGURE_ACTION: return new Optional<>(R.string.settings_configure_action);
+                case TRAIN_GESTURE:
+                    return new Optional<>(App.getContext().getString(R.string.settings_train_gesture));
+                case CONFIGURE_ACTION:
+                    return new Optional<>(App.getContext().getString(R.string.settings_configure_action));
             }
 
             return new Optional<>();

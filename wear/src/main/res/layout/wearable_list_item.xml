@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
     <ImageView
         android:id="@+id/wearable_list_item_icon"
         android:layout_height="52dp"
@@ -20,5 +21,6 @@
         android:scaleX="0.8"
         android:scaleY="0.8"
         android:alpha="0.6"
-        android:textSize="18sp" />
+        android:textSize="18sp"
+        tools:text="Item" />
 </merge>

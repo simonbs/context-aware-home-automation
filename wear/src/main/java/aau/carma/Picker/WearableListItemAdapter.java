@@ -15,7 +15,14 @@ import aau.carmakit.Utilities.Optional;
  * Adapter managing items in a wearable list view.
  */
 public class WearableListItemAdapter extends WearableListView.Adapter {
+    /**
+     * Context used for configuring views.
+     */
     private final Context context;
+
+    /**
+     * Displayed items.
+     */
     private final ArrayList<WearableListItem> items;
 
     /**
@@ -33,9 +40,9 @@ public class WearableListItemAdapter extends WearableListView.Adapter {
         WearableListItemView itemView = (WearableListItemView) viewHolder.itemView;
         final WearableListItem item = items.get(position);
 
-        if (item.getTitleResource().isPresent()) {
+        if (item.getTitle().isPresent()) {
             TextView textView = (TextView) itemView.findViewById(R.id.wearable_list_item_title);
-            textView.setText(context.getString(item.getTitleResource().value));
+            textView.setText(item.getTitle().value);
         }
 
         if (item.getIconResource().isPresent()) {
@@ -55,10 +62,40 @@ public class WearableListItemAdapter extends WearableListView.Adapter {
     }
 
     /**
+     * Gets all items in the adapter.
+     * @return Items in the adapter.
+     */
+    public Optional<ArrayList<WearableListItem>> getItems() {
+        if (items == null) {
+            return new Optional<>();
+        }
+
+        return new Optional<>(items);
+    }
+
+    /**
+     * Gets the item at the specified position.
+     * @param position Position to get item from.
+     * @return Item at the specified position.
+     */
+    public Optional<WearableListItem> getItem(int position) {
+        if (!getItems().isPresent()) {
+            return new Optional<>();
+        }
+
+        ArrayList<WearableListItem> items = getItems().value;
+        if (position < 0 || position > items.size() - 1) {
+            return new Optional<>();
+        }
+
+        return new Optional<>(items.get(position));
+    }
+
+    /**
      * Items shown in the list view must conform to this protocol.
      */
     public interface WearableListItem {
         Optional<Integer> getIconResource();
-        Optional<Integer> getTitleResource();
+        Optional<String> getTitle();
     }
 }

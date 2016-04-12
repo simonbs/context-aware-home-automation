@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<fragment android:id="@+id/settings_picker_fragment"
+<fragment
+    android:id="@+id/settings_picker_fragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:name="aau.carma.Picker.PickerFragment"

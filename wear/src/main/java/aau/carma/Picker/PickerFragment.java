@@ -59,7 +59,13 @@ public class PickerFragment extends Fragment implements WearableListView.ClickLi
     @Override
     public void onClick(WearableListView.ViewHolder viewHolder) {
         if (onPickListener.isPresent()) {
-            onPickListener.value.onPick(viewHolder.getLayoutPosition(), viewHolder);
+            int position = viewHolder.getLayoutPosition();
+            WearableListItemAdapter adapter = (WearableListItemAdapter)listView.getAdapter();
+            Optional<WearableListItemAdapter.WearableListItem> item = adapter.getItem(position);
+            // Sanity check to ensure the item is there before we inform the listener.
+            if (item.isPresent()) {
+                onPickListener.value.onPick(position, item.value, viewHolder);
+            }
         }
     }
 
@@ -70,6 +76,12 @@ public class PickerFragment extends Fragment implements WearableListView.ClickLi
      * Interface implemented by objects interested in knowing when an item is picked.
      */
     public interface OnPickListener {
-        void onPick(int position, WearableListView.ViewHolder viewHolder);
+        /**
+         * Invoked when an item is picked.
+         * @param position Position of the item.
+         * @param item Item that was picked.
+         * @param viewHolder View representing item that was picked.
+         */
+        void onPick(int position, WearableListItemAdapter.WearableListItem item, WearableListView.ViewHolder viewHolder);
     }
 }

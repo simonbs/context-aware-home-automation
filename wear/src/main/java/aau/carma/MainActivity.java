@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
 
+import com.estimote.sdk.SystemRequirementsChecker;
+
 import java.util.ArrayList;
 
 import aau.carma.GridPager.GridAdapter;
@@ -35,6 +37,12 @@ public class MainActivity extends Activity implements GridFragmentProvider<MainA
 
         gridPager = (GridViewPager) findViewById(R.id.main_pager);
         gridPager.setAdapter(gridAdapter);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        SystemRequirementsChecker.checkWithDefaultDialogs(this);
     }
 
     @Override

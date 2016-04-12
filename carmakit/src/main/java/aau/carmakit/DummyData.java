@@ -1,6 +1,7 @@
 package aau.carmakit;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 import aau.carmakit.Configuration;
 import aau.carmakit.Utilities.Beacon;
@@ -10,6 +11,30 @@ import aau.carmakit.Utilities.Room;
  * Contains dummy data until we have our databases configured.
  */
 public class DummyData {
+    public static final UUID BeaconIce2UUID = UUID.fromString("B9407F30-F5F8-466E-AFF9-25556B57FE6D");
+    public static final Integer BeaconIce2Major = 13299;
+    public static final Integer BeaconIce2Minor = 53869;
+    public static final String BeaconIce2Namespace = "EDD1EBEAC04E5DEFA017";
+    public static final String BeaconIce2Instance = "D470D26D33F3";
+
+    public static final UUID BeaconBlueberry3UUID = UUID.fromString("B9407F30-F5F8-466E-AFF9-25556B57FE6D");
+    public static final Integer BeaconBlueberry3Major = 12677;
+    public static final Integer BeaconBlueberry3Minor = 29613;
+    public static final String BeaconBlueberry3Namespace = "EDD1EBEAC04E5DEFA017";
+    public static final String BeaconBlueberry3Instance = "F13173AD3185";
+
+    public static final UUID BeaconMint3UUID = UUID.fromString("B9407F30-F5F8-466E-AFF9-25556B57FE6D");
+    public static final Integer BeaconMint3Major = 31177;
+    public static final Integer BeaconMint3Minor = 40430;
+    public static final String BeaconMint3Namespace = "EDD1EBEAC04E5DEFA017";
+    public static final String BeaconMint3Instance = "E6D39DEE79C9";
+
+    public static final UUID BeaconIce3UUID = UUID.fromString("B9407F30-F5F8-466E-AFF9-25556B57FE6D");
+    public static final Integer BeaconIce3Major = 49349;
+    public static final Integer BeaconIce3Minor = 36330;
+    public static final String BeaconIce3Namespace = "EDD1EBEAC04E5DEFA017";
+    public static final String BeaconIce3Instance = "DEC18DEAC0C5";
+
     private static String RoomIdentifierKitchen = "kitchen";
     private static String RoomIdentifierDesk = "desk";
     private static String RoomIdentifierLivingRoom = "living_room";
@@ -27,16 +52,16 @@ public class DummyData {
         ArrayList<Room> rooms = new ArrayList<>();
 
         ArrayList<Beacon> kitchenBeacons = new ArrayList<>();
-        kitchenBeacons.add(new Beacon(Configuration.BeaconIce2Namespace, Configuration.BeaconIce2Instance));
+        kitchenBeacons.add(new Beacon(BeaconIce2Namespace, BeaconIce2Instance));
 
         ArrayList<Beacon> deskBeacons = new ArrayList<>();
-        deskBeacons.add(new Beacon(Configuration.BeaconBlueberry3Namespace, Configuration.BeaconBlueberry3Instance));
+        deskBeacons.add(new Beacon(BeaconBlueberry3Namespace, BeaconBlueberry3Instance));
 
         ArrayList<Beacon> livingRoomBeacons = new ArrayList<>();
-        deskBeacons.add(new Beacon(Configuration.BeaconMint3Namespace, Configuration.BeaconMint3Instance));
+        deskBeacons.add(new Beacon(BeaconMint3Namespace, BeaconMint3Instance));
 
         ArrayList<Beacon> bathroomBeacons = new ArrayList<>();
-        deskBeacons.add(new Beacon(Configuration.BeaconIce3Namespace, Configuration.BeaconIce3Instance));
+        deskBeacons.add(new Beacon(BeaconIce3Namespace, BeaconIce3Instance));
 
         rooms.add(new Room(RoomIdentifierKitchen, "Kitchen", kitchenBeacons));
         rooms.add(new Room(RoomIdentifierDesk, "Desk", deskBeacons));

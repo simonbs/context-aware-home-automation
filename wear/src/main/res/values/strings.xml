@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">CARMA</string>
+    <string name="setup_error_message">Could not load the necessary information from openHAB.</string>
+    <string name="setup_retry">Try again</string>
     <string name="settings_train_gesture">Train gesture</string>
     <string name="settings_configure_action">Configure action</string>
     <string name="recognize_gesture_touch_to_start">Touch to start recognition</string>
@@ -12,5 +14,8 @@
     <string name="train_gesture_touch_to_stop">Touch to finish this sample</string>
     <string name="train_gesture_sample_count">%d samples.</string>
     <string name="train_gesture_done">Done</string>
+    <string name="title_activity_configure_action_select_gesture">ConfigureActionSelectGestureActivity</string>
     <string name="gesture_picker_empty">You have not trained any gestures.</string>
+    <string name="room_picker_empty">You do not have any rooms. Configure them in openHAB.</string>
+    <string name="action_picker_empty">You do not have any actions. Actions are provided by items in openHAB.</string>
 </resources>

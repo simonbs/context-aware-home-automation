@@ -8,13 +8,11 @@ import android.support.wearable.view.GridViewPager;
 
 import java.util.ArrayList;
 
-import aau.carma.GesturePickerFragment;
 import aau.carma.GridPager.GridAdapter;
 import aau.carma.GridPager.GridFragmentProvider;
 import aau.carma.GridPager.GridRow;
+import aau.carma.Pickers.GesturePickerFragment;
 import aau.carma.R;
-import aau.carma.RecognizeGestureFragment;
-import aau.carma.SettingsFragment;
 import aau.carma.TrainGestureActivity;
 
 /**
@@ -59,20 +57,41 @@ public class NameTrainGestureActivity extends Activity implements GridFragmentPr
     @Override
     public Fragment fragmentForPage(Page page) {
         switch (page) {
-            case NEW_NAME:
-                NewNameTrainGestureFragment fragment = new NewNameTrainGestureFragment();
-                fragment.setContinueListener(new NewNameTrainGestureFragment.ContinueListener() {
-                    @Override
-                    public void onContinue(String gestureName) {
-                        startTraining(gestureName);
-                    }
-                });
-                return fragment;
-            case EXISTING_GESTURE:
-                return new GesturePickerFragment();
+            case NEW_NAME: return createNewNameFragment();
+            case EXISTING_GESTURE: return createExistingGestureFragment();
         }
 
         return null;
+    }
+
+    /**
+     * Creates fragment for training a gesture with a specified name.
+     * @return Created fragment.
+     */
+    private Fragment createNewNameFragment() {
+        NewNameTrainGestureFragment fragment = new NewNameTrainGestureFragment();
+        fragment.setContinueListener(new NewNameTrainGestureFragment.ContinueListener() {
+            @Override
+            public void onContinue(String gestureName) {
+                startTraining(gestureName);
+            }
+        });
+        return fragment;
+    }
+
+    /**
+     * Creates a fragment for training an existing gesture.
+     * @return Created fragment.
+     */
+    private Fragment createExistingGestureFragment() {
+        GesturePickerFragment fragment = new GesturePickerFragment();
+        fragment.setOnGesturePickedListener(new GesturePickerFragment.OnGesturePickedListener() {
+            @Override
+            public void onPick(GesturePickerFragment.GesturePickerItem gesturePickerItem) {
+                startTraining(gesturePickerItem.name);
+            }
+        });
+        return fragment;
     }
 
     /**
