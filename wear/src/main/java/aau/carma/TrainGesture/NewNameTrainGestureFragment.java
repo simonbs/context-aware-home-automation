@@ -40,7 +40,7 @@ public class NewNameTrainGestureFragment extends android.app.Fragment {
     /**
      * Name of the gesture to train.
      */
-    private Optional<String> gestureName;
+    private Optional<String> gestureName = new Optional<>();
 
     /**
      * Object notified when the user presses continue.
@@ -69,7 +69,8 @@ public class NewNameTrainGestureFragment extends android.app.Fragment {
             }
         });
 
-        continueButton.setEnabled(false);
+        updateStateForConfiguredGestureName();
+
         return view;
     }
 
@@ -95,16 +96,23 @@ public class NewNameTrainGestureFragment extends android.app.Fragment {
             List<String> results = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
             String spokenText = results.get(0);
             gestureName = new Optional<>(spokenText);
-            if (gestureName.isPresent()) {
-                nameButton.setText(gestureName.value);
-            } else {
-                nameButton.setText(getString(R.string.name_train_gesture_placeholder));
-            }
-
-            continueButton.setEnabled(gestureName.isPresent() && gestureName.value.length() > 0);
+            updateStateForConfiguredGestureName();
         }
 
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    /**
+     * Updates the state of buttons based on the selected gesture name.
+     */
+    private void updateStateForConfiguredGestureName() {
+        if (gestureName.isPresent()) {
+            nameButton.setText(gestureName.value);
+        } else {
+            nameButton.setText(getString(R.string.name_train_gesture_placeholder));
+        }
+
+        continueButton.setEnabled(gestureName.isPresent() && gestureName.value.length() > 0);
     }
 
     /**
