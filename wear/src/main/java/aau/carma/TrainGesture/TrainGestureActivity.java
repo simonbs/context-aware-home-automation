@@ -74,11 +74,6 @@ public class TrainGestureActivity extends Activity implements SensorEventListene
     private ThreeDLabeledStroke tempStroke;
 
     /**
-     * Recognized strokes ("samples").
-     */
-    private ArrayList<ThreeDLabeledStroke> strokes;
-
-    /**
      * Gesture recognizer.
      */
     private ThreeDOneCentRecognizer recognizer;
@@ -152,6 +147,7 @@ public class TrainGestureActivity extends Activity implements SensorEventListene
     private void stopSampling() {
         View contentView = findViewById(android.R.id.content);
         sensorManager.unregisterListener(this);
+        recognizer.AddTrainingStroke(new ThreeDLabeledStroke(tempStroke.getLabel(), tempStroke.getPoints()));
         tempStroke = null;
         contentView.setBackgroundColor(getResources().getColor(R.color.black));
         incrementSampleCount();
