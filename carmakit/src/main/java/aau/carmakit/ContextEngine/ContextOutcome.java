@@ -1,5 +1,8 @@
 package aau.carmakit.ContextEngine;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -7,7 +10,7 @@ import java.util.Map;
 /**
  * Represents a possible outcome recognized of running the context engine.
  */
-public class ContextOutcome {
+public class ContextOutcome implements Parcelable {
     /**
      * ID of the represented outcome.
      */
@@ -19,7 +22,7 @@ public class ContextOutcome {
     public final double probability;
 
     /**
-     * Initialies a representation of a possible outcome.
+     * Initializes a representation of a possible outcome.
      * @param id ID of the represented outcome.
      * @param probability Probability of the outcome.
      */
@@ -28,10 +31,27 @@ public class ContextOutcome {
         this.probability = probability;
     }
 
+    protected ContextOutcome(Parcel in) {
+        id = in.readString();
+        probability = in.readDouble();
+    }
+
+    public static final Creator<ContextOutcome> CREATOR = new Creator<ContextOutcome>() {
+        @Override
+        public ContextOutcome createFromParcel(Parcel in) {
+            return new ContextOutcome(in);
+        }
+
+        @Override
+        public ContextOutcome[] newArray(int size) {
+            return new ContextOutcome[size];
+        }
+    };
+
     /**
      * Normalizes a set of outcomes.
-     * @param outcomes
-     * @return
+     * @param outcomes Outcomes to normalize.
+     * @return Normalized outcomes.
      */
     public static ArrayList<ContextOutcome> normalizeOutcomes(ArrayList<ContextOutcome> outcomes) {
         if (outcomes.size() == 0) {
@@ -81,5 +101,16 @@ public class ContextOutcome {
         }
 
         return result;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
+        dest.writeDouble(probability);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
     }
 }

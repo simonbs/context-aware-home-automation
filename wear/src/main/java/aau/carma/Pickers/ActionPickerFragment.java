@@ -19,8 +19,6 @@ import aau.carmakit.Utilities.ActionsManager;
 import aau.carmakit.Utilities.Consumer;
 import aau.carmakit.Utilities.Funcable;
 import aau.carmakit.Utilities.Optional;
-import aau.carmakit.Utilities.Room;
-import aau.carmakit.Utilities.RoomsManager;
 
 /**
  * Fragment for picking an action.

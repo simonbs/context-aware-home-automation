@@ -42,7 +42,7 @@ public class MainActivity extends Activity implements GridFragmentProvider<MainA
         gridPager.setAdapter(gridAdapter);
 
         Logger.verbose("TRAINED GESTURES:");
-        Optional<ArrayList<String>> gestureNames = GesturesGateway.allUniqueGestureNames(this);
+        Optional<ArrayList<String>> gestureNames = GesturesGateway.allUniqueGestureNames();
         if (gestureNames.isPresent()) {
             for (String name : gestureNames.value) {
                 Logger.verbose(" - " + name);

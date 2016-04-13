@@ -18,4 +18,6 @@
     <string name="gesture_picker_empty">You have not trained any gestures.</string>
     <string name="room_picker_empty">You do not have any rooms. Configure them in openHAB.</string>
     <string name="action_picker_empty">You do not have any actions. Actions are provided by items in openHAB.</string>
+    <string name="context_outcome_picker_empty">There are no outcomes to pick from.</string>
+    <string name="title_activity_context_outcome_picker">ContextOutcomePickerActivity</string>
 </resources>

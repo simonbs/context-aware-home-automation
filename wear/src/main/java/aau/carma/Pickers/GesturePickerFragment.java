@@ -77,7 +77,7 @@ public class GesturePickerFragment extends Fragment implements PickerFragment.On
 //        pickerFragment.reloadItems(items.getValue());
 //        setPickerVisible(true);
 
-        Optional<ArrayList<String>> gestureNames = GesturesGateway.allUniqueGestureNames(getActivity());
+        Optional<ArrayList<String>> gestureNames = GesturesGateway.allUniqueGestureNames();
         if (gestureNames.isPresent() && gestureNames.value.size() > 0) {
             Funcable<WearableListItem> items = new Funcable<>(gestureNames.value).flatMap(new Consumer<String, Optional<WearableListItem>>() {
                 @Override
@@ -112,9 +112,7 @@ public class GesturePickerFragment extends Fragment implements PickerFragment.On
 
     @Override
     public void onPick(int position, WearableListItem item, WearableListView.ViewHolder viewHolder) {
-        Logger.verbose("Gesture fragment onPick");
         if (onGesturePickedListener.isPresent()) {
-            Logger.verbose("Inform listener.");
             onGesturePickedListener.value.onPick((GesturePickerItem)item);
         }
     }

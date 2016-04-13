@@ -6,6 +6,7 @@ import org.json.JSONException;
 
 import java.util.ArrayList;
 
+import aau.carma.App;
 import aau.carmakit.ThreeDOneCentGestureRecognizer.datatype.ThreeDNNRTemplate;
 import aau.carmakit.ThreeDOneCentGestureRecognizer.util.ThreeDTemplatesDataSource;
 import aau.carmakit.Utilities.Consumer;
@@ -19,12 +20,11 @@ import aau.carmakit.Utilities.Optional;
 public class GesturesGateway {
     /**
      * Retrieves all unique gesture names from the database.
-     * @param context Context to read from the database in.
      * @return All unique gesture names.
      */
-    public static Optional<ArrayList<String>> allUniqueGestureNames(Context context) {
+    public static Optional<ArrayList<String>> allUniqueGestureNames() {
         try {
-            ThreeDTemplatesDataSource dataSource = new ThreeDTemplatesDataSource(context);
+            ThreeDTemplatesDataSource dataSource = new ThreeDTemplatesDataSource(App.getContext());
             dataSource.open();
             ArrayList<ThreeDNNRTemplate> gestureTemplates = dataSource.getAllTemplates();
             dataSource.close();

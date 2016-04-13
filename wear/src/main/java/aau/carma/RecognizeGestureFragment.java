@@ -2,6 +2,7 @@ package aau.carma;
 
 import android.app.Fragment;
 import android.content.Context;
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -15,6 +16,8 @@ import android.view.ViewGroup;
 
 import java.util.ArrayList;
 
+import aau.carma.Gateways.ActionsGateway;
+import aau.carma.Pickers.ContextOutcomePickerActivity;
 import aau.carmakit.ContextEngine.ContextOutcome;
 import aau.carmakit.ContextEngine.ContextRecognizer;
 import aau.carmakit.ContextEngine.ContextRecognizerListener;
@@ -35,6 +38,11 @@ import aau.carmakit.Utilities.Optional;
  * Fragment for recognizing a gesture.
  */
 public class RecognizeGestureFragment extends Fragment implements View.OnTouchListener, SensorEventListener, ContextRecognizerListener {
+    /**
+     * Result code for picking a context outcome.
+     */
+    private static final int CONTEXT_OUTCOME_PICKER_REQUEST_CODE = 1000;
+
     /**
      * Default stroke label.
      */
@@ -194,24 +202,38 @@ public class RecognizeGestureFragment extends Fragment implements View.OnTouchLi
             return;
         }
 
-        double highestProbability = Double.MIN_VALUE;
-        ContextOutcome mostProbableOutCome = outcomes.get(0);
-        for (ContextOutcome outcome : outcomes) {
-            if (outcome.probability > highestProbability) {
-                highestProbability = outcome.probability;
-                mostProbableOutCome = outcome;
-            }
+        if (outcomes.size() == 1) {
+            // Choose the only outcome.
+            triggerActionForContextOutcome(outcomes.get(0));
+        } else {
+            // Let the user pick an outcome.
+            presentContextOutcomePicker(outcomes);
+        }
+    }
+
+    @Override
+    public void onFailedRecognizingContext() {
+        Logger.verbose("Context engine failed.");
+    }
+
+    @Override
+    public void onContextRecognitionTimeout() {
+        Logger.verbose("Context engine did timeout.");
+    }
+
+    /**
+     * Triggers an action for a context outcome.
+     * @param contextOutcome Context outcome representing the action to trigger.
+     */
+    private void triggerActionForContextOutcome(ContextOutcome contextOutcome) {
+        Optional<Action> action = ActionsGateway.getAction(contextOutcome.id);
+        if (!action.isPresent()) {
+            return;
         }
 
-        Logger.verbose("Most probable outcome ID: " + mostProbableOutCome.id);
+        Logger.verbose("Action for outcome: " + action.value.itemName + " -> " + action.value.newState);
 
-        DatabaseHelper databaseHelper = DatabaseHelper.getInstance(getActivity());
-        GestureConfiguration configuration = databaseHelper.getGestureConfiguration(mostProbableOutCome.id);
-        Action action = databaseHelper.getAction(configuration.actionId);
-
-        Logger.verbose("Action for outcome: " + action.itemName + " -> " + action.newState);
-
-        new OpenHABClient().updateItemState(action.itemName, action.newState, new BooleanResultListener() {
+        new OpenHABClient().updateItemState(action.value.itemName, action.value.newState, new BooleanResultListener() {
             @Override
             public void onResult(BooleanResult result) {
                 if (result.isSuccess()) {
@@ -223,14 +245,25 @@ public class RecognizeGestureFragment extends Fragment implements View.OnTouchLi
         });
     }
 
-    @Override
-    public void onFailedRecognizingContext() {
-        Logger.verbose("Context engine failed.");
+    /**
+     * Presents the context outcome picker with the specified context outcomes.
+     * @param contextOutcomes Context outcomes to show in the picker.
+     */
+    private void presentContextOutcomePicker(ArrayList<ContextOutcome> contextOutcomes) {
+        Intent intent = new Intent(getActivity(), ContextOutcomePickerActivity.class);
+        intent.putExtra(ContextOutcomePickerActivity.EXTRA_CONTEXT_OUTCOMES, contextOutcomes);
+        startActivityForResult(intent, CONTEXT_OUTCOME_PICKER_REQUEST_CODE);
     }
 
     @Override
-    public void onContextRecognitionTimeout() {
-        Logger.verbose("Context engine did timeout.");
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == CONTEXT_OUTCOME_PICKER_REQUEST_CODE) {
+            ContextOutcome contextOutcome = data.getParcelableExtra(ContextOutcomePickerActivity.RESULT_CONTEXT_OUTCOME);
+            if (contextOutcome != null) {
+                triggerActionForContextOutcome(contextOutcome);
+            }
+        }
     }
 
     /**
