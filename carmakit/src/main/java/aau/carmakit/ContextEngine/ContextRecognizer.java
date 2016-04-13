@@ -204,6 +204,11 @@ public class ContextRecognizer {
             entry.getValue().getContext(new ContextProviderListener() {
                 @Override
                 public void onContextReady(ArrayList<ContextOutcome> outcomes) {
+                    // Sanity check to ensure we do not have null outcomes.
+                    if (outcomes == null) {
+                        outcomes = new ArrayList<>();
+                    }
+
                     for (ContextOutcome outcome : outcomes) {
                         Logger.verbose("Context ready with outcome " + outcome.id + ": " + outcome.probability);
                     }
