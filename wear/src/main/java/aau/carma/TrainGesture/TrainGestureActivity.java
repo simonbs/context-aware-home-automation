@@ -179,7 +179,7 @@ public class TrainGestureActivity extends Activity implements SensorEventListene
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (isSampling && tempStroke != null) {
-            Logger.verbose("" + event.values[0] + ", " + event.values[1] + ", " + event.values[2]);
+//            Logger.verbose("" + event.values[0] + ", " + event.values[1] + ", " + event.values[2]);
             tempStroke.addPoint(new ThreeDPoint(event.values[0], event.values[1], event.values[2], event.timestamp));
         }
     }

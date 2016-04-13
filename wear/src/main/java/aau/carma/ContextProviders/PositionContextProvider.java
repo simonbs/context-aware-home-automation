@@ -107,9 +107,7 @@ public class PositionContextProvider implements ContextProvider {
         EnteredRoomObservation observation = new EnteredRoomObservation(System.currentTimeMillis(), room);
         enteredRoomObservations.add(observation);
         removeOldEnteredRoomObservations();
-
         calculateProbabilities();
-        logCurrentOutcomes();
     }
 
     /**
@@ -174,17 +172,6 @@ public class PositionContextProvider implements ContextProvider {
         this.outcomes = ContextOutcome.normalizeOutcomes(outcomes);
     }
 
-    /**
-     * Logs the current outcomes. For debugging purposes.
-     */
-    private void logCurrentOutcomes() {
-        if (outcomes != null) {
-            for (ContextOutcome outcome : outcomes) {
-                Logger.verbose(outcome.id + ": " + outcome.probability);
-            }
-        }
-    }
-
     @Override
     public double getWeight() {
         return 0.4;
@@ -192,7 +179,6 @@ public class PositionContextProvider implements ContextProvider {
 
     @Override
     public void getContext(ContextProviderListener listener) {
-        logCurrentOutcomes();
         listener.onContextReady(outcomes);
     }
 

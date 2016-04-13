@@ -16,6 +16,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 import aau.carma.Gateways.ActionsGateway;
 import aau.carma.Pickers.ContextOutcomePickerActivity;
@@ -48,6 +50,14 @@ public class RecognizeGestureFragment extends Fragment implements View.OnTouchLi
      * Default stroke label.
      */
     private static final String STROKE_DEFAULT_LABEL = "DefaultLabel";
+
+    /**
+     * Outcomes are considered if their difference from the outcome with the
+     * highest probability lower than or equal to this value.
+     * When more than one outcome is considered, we present a picker allowing
+     * the user to choose which action they want to trigger.
+     */
+    private static final double ContextOutcomeAcceptanceThreshold = 0.1;
 
     /**
      * Whether or not we are currently recognizing a gesture.
@@ -199,16 +209,49 @@ public class RecognizeGestureFragment extends Fragment implements View.OnTouchLi
     public void onContextReady(ArrayList<ContextOutcome> outcomes) {
         // Don't do anything if we did not get any outcomes.
         if (outcomes.size() <= 0) {
-            Logger.verbose("Got no outcomes.");
+            Logger.verbose("Got no outcomes");
             return;
         }
 
-        if (outcomes.size() == 1) {
+        // Sort outcomes by probability.
+        Collections.sort(outcomes, new Comparator<ContextOutcome>() {
+            @Override
+            public int compare(ContextOutcome lhs, ContextOutcome rhs) {
+                if (lhs.probability > rhs.probability) {
+                    return -1;
+                } else if (lhs.probability < rhs.probability) {
+                    return 1;
+                }
+
+                return 0;
+            }
+        });
+
+        for (ContextOutcome outcome : outcomes) {
+            Logger.verbose("Context engine suggests outcome " + outcome.id + " with probability " + outcome.probability);
+        }
+
+        // Accept outcomes that have almost the same probability as the outcome
+        // with the highest probability.
+        ContextOutcome mostProbableOutcome = outcomes.get(0);
+        ArrayList<ContextOutcome> acceptedOutcomes = new ArrayList<>();
+        for (ContextOutcome outcome : outcomes) {
+            if (mostProbableOutcome.probability - outcome.probability <= ContextOutcomeAcceptanceThreshold) {
+                acceptedOutcomes.add(outcome);
+            }
+        }
+
+        for (ContextOutcome outcome : acceptedOutcomes) {
+            Logger.verbose("Accepted outcome " + outcome.id + " with probability " + outcome.probability);
+        }
+
+
+        if (acceptedOutcomes.size() == 1) {
             // Choose the only outcome.
-            triggerActionForContextOutcome(outcomes.get(0));
+            triggerActionForContextOutcome(acceptedOutcomes.get(0));
         } else {
             // Let the user pick an outcome.
-            presentContextOutcomePicker(outcomes);
+            presentContextOutcomePicker(acceptedOutcomes);
         }
     }
 

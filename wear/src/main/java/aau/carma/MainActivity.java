@@ -8,13 +8,19 @@ import com.estimote.sdk.SystemRequirementsChecker;
 
 import java.util.ArrayList;
 
+import aau.carma.Gateways.ActionsGateway;
+import aau.carma.Gateways.GestureConfigurationsGateway;
 import aau.carma.Gateways.GesturesGateway;
 import aau.carma.GridPager.GridAdapter;
 import aau.carma.GridPager.GridFragmentProvider;
 import aau.carma.GridPager.GridRow;
 import aau.carma.GridPager.GridViewPager;
+import aau.carmakit.GestureConfiguration;
+import aau.carmakit.Utilities.Action;
 import aau.carmakit.Utilities.Logger;
 import aau.carmakit.Utilities.Optional;
+import aau.carmakit.Utilities.Room;
+import aau.carmakit.Utilities.RoomsManager;
 
 public class MainActivity extends Activity implements GridFragmentProvider<MainActivity.Page>, RecognizeGestureFragment.RecognitionListener {
     /**
@@ -49,6 +55,20 @@ public class MainActivity extends Activity implements GridFragmentProvider<MainA
             }
         } else {
             Logger.verbose("No gestures retrieved.");
+        }
+
+        Logger.verbose("CONFIGURED (AND VALID) ACTIONS:");
+        Optional<ArrayList<GestureConfiguration>> gestureConfigurations = GestureConfigurationsGateway.getAllGestureConfigurations();
+        if (gestureConfigurations.isPresent()) {
+            for (GestureConfiguration gestureConfiguration : gestureConfigurations.value) {
+                Optional<Room> room = RoomsManager.getInstance().getRoom(gestureConfiguration.roomId);
+                Optional<Action> action = ActionsGateway.getAction(gestureConfiguration.actionId);
+                if (room.isPresent() && action.isPresent()) {
+                    Logger.verbose(" - Gesture '" + gestureConfiguration.gestureId
+                            + "' in " + room.value.name + ": "
+                            + action.value.itemName + " -> " + action.value.newState);
+                }
+            }
         }
     }
 

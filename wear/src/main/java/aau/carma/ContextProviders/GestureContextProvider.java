@@ -19,7 +19,6 @@ import aau.carmakit.Utilities.Logger;
  * Provides the gesture context.
  */
 public class GestureContextProvider implements ContextProvider {
-
     /**
      * Current set of outcomes.
      */
@@ -42,7 +41,7 @@ public class GestureContextProvider implements ContextProvider {
      */
     public void calculateProbabilities(ArrayList<ThreeDMatch> matches){
         // A gesture score must be lower than or equal to the threshold in order to be considered.
-        Double gestureScoreThreshold = 40.0;
+        Double gestureScoreThreshold = 70.0;
 
         // Group the scores as each gesture appears multiple times,
         // i.e. one per training template.
