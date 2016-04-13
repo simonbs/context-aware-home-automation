@@ -59,12 +59,12 @@ public class SetupActivity extends Activity {
                         }
                     }
 
-//                    ArrayList<Room> rooms = result.value.value;
-//                    try {
-//                        CARMAContextRecognizer.getInstance().addPositionContextProvider(getApplicationContext(), rooms);
-//                    } catch (ContextRecognizer.IsRecognizingException e) {
-//                        didFailSetup(e);
-//                    }
+                    ArrayList<Room> rooms = result.value.value;
+                    try {
+                        CARMAContextRecognizer.getInstance().addPositionContextProvider(getApplicationContext(), rooms);
+                    } catch (ContextRecognizer.IsRecognizingException e) {
+                        didFailSetup(e);
+                    }
                 } else {
                     didFailSetup(result.error.value);
                 }
