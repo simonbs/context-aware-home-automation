@@ -1,5 +1,6 @@
 package aau.carma;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
@@ -258,7 +259,7 @@ public class RecognizeGestureFragment extends Fragment implements View.OnTouchLi
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == CONTEXT_OUTCOME_PICKER_REQUEST_CODE) {
+        if (requestCode == CONTEXT_OUTCOME_PICKER_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             ContextOutcome contextOutcome = data.getParcelableExtra(ContextOutcomePickerActivity.RESULT_CONTEXT_OUTCOME);
             if (contextOutcome != null) {
                 triggerActionForContextOutcome(contextOutcome);
