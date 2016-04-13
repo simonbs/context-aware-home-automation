@@ -48,4 +48,10 @@ public class ContextOutcomePickerActivity extends Activity implements ContextOut
         setResult(RESULT_OK, returnIntent);
         finish();
     }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        setResult(RESULT_CANCELED);
+    }
 }
