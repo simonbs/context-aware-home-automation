@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import aau.carma.R;
@@ -22,6 +23,13 @@ import aau.carmakit.Utilities.Optional;
  * Fragment for naming a new gesture.
  */
 public class NewNameTrainGestureFragment extends android.app.Fragment {
+    /**
+     * Enable to make the name button active and when pressed,
+     * it will suggest a name for the gesture thus bypassing
+     * the speech recognition.
+     */
+    private static boolean IsDebugEnabled = true;
+
     /**
      * Speech activity request code.
      */
@@ -40,7 +48,7 @@ public class NewNameTrainGestureFragment extends android.app.Fragment {
     /**
      * Name of the gesture to train.
      */
-    private Optional<String> gestureName = new Optional<>("V");
+    private Optional<String> gestureName = new Optional<>();
 
     /**
      * Object notified when the user presses continue.
@@ -56,7 +64,11 @@ public class NewNameTrainGestureFragment extends android.app.Fragment {
         nameButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                presentSpeechRecognizer();
+                if (IsDebugEnabled) {
+                    suggestNameForDebugging();
+                } else {
+                    presentSpeechRecognizer();
+                }
             }
         });
 
@@ -79,6 +91,37 @@ public class NewNameTrainGestureFragment extends android.app.Fragment {
      */
     public void setContinueListener(ContinueListener continueListener) {
         this.continueListener = new Optional<>(continueListener);
+    }
+
+    /**
+     * Suggests a name for the gesture. Used when IsDebugEnabled is true.
+     */
+    private void suggestNameForDebugging() {
+        ArrayList<String> names = new ArrayList<>();
+        names.add("Circle");
+        names.add("V");
+        names.add("Zorro");
+        names.add("Swipe Left to Right");
+        names.add("Triangle");
+        names.add("Square");
+
+        if (gestureName.isPresent()) {
+            int index = names.indexOf(gestureName.value);
+            if (index != -1) {
+                int nextIndex = index + 1;
+                if (nextIndex > names.size() - 1) {
+                    nextIndex = 0;
+                }
+
+                gestureName = new Optional<>(names.get(nextIndex));
+            } else {
+                gestureName = new Optional<>(names.get(0));
+            }
+        } else {
+            gestureName = new Optional<>(names.get(0));
+        }
+
+        updateStateForConfiguredGestureName();
     }
 
     /**
