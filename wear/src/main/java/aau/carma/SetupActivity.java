@@ -47,6 +47,29 @@ public class SetupActivity extends Activity {
             didFailSetup(e);
         }
 
+        loadActions();
+    }
+
+    /**
+     * Loads actions.
+     */
+    private void loadActions() {
+        ActionsManager.getInstance().loadAllActions(new ActionsManager.ActionsListener() {
+            @Override
+            public void onActionsLoaded(Result<ArrayList<Action>> result) {
+                if (result.isSuccess()) {
+                    loadRooms();
+                } else {
+                    didFailSetup(result.error.value);
+                }
+            }
+        });
+    }
+
+    /**
+     * Loads rooms.
+     */
+    private void loadRooms() {
         RoomsManager.getInstance().reload(new RoomsManager.RoomsListener() {
             @Override
             public void onUpdate(Result<ArrayList<Room>> result) {
@@ -62,20 +85,10 @@ public class SetupActivity extends Activity {
                     ArrayList<Room> rooms = result.value.value;
                     try {
                         CARMAContextRecognizer.getInstance().addPositionContextProvider(getApplicationContext(), rooms);
+                        didSetup();
                     } catch (ContextRecognizer.IsRecognizingException e) {
                         didFailSetup(e);
                     }
-                } else {
-                    didFailSetup(result.error.value);
-                }
-            }
-        });
-
-        ActionsManager.getInstance().loadAllActions(new ActionsManager.ActionsListener() {
-            @Override
-            public void onActionsLoaded(Result<ArrayList<Action>> result) {
-                if (result.isSuccess()) {
-                    didSetup();
                 } else {
                     didFailSetup(result.error.value);
                 }

@@ -255,7 +255,7 @@ public class RESTClient {
      * @return Default retry policy.
      */
     private RetryPolicy createRetryPolicy() {
-        final int timeoutSeconds = 10;
+        final int timeoutSeconds = 30;
         return new DefaultRetryPolicy(
                 timeoutSeconds * 1000,
                 DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
