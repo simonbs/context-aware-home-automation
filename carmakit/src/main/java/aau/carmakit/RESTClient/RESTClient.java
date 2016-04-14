@@ -3,8 +3,10 @@ package aau.carmakit.RESTClient;
 import android.util.Log;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.Response;
+import com.android.volley.RetryPolicy;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
@@ -71,7 +73,7 @@ public class RESTClient {
             }
         });
 
-        RequestQueue.getInstance().addToRequestQueue(request);
+        addToRequestQueue(request);
     }
 
     /**
@@ -112,7 +114,7 @@ public class RESTClient {
             }
         });
 
-        RequestQueue.getInstance().addToRequestQueue(request);
+        addToRequestQueue(request);
     }
 
     /**
@@ -149,7 +151,7 @@ public class RESTClient {
             }
         };
 
-        RequestQueue.getInstance().addToRequestQueue(request);
+        addToRequestQueue(request);
     }
 
     /**
@@ -237,6 +239,27 @@ public class RESTClient {
                 return new Optional<>();
             }
         }, done);
+    }
+
+    /**
+     * Adds the request to the request queue. Also sets the retry policy.
+     * @param request Request to add to the queue.
+     */
+    private void addToRequestQueue(Request request) {
+        request.setRetryPolicy(createRetryPolicy());
+        RequestQueue.getInstance().addToRequestQueue(request);
+    }
+
+    /**
+     * Creates the default retry policy to apply to requests.
+     * @return Default retry policy.
+     */
+    private RetryPolicy createRetryPolicy() {
+        final int timeoutSeconds = 10;
+        return new DefaultRetryPolicy(
+                timeoutSeconds * 1000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
     }
 
     /**

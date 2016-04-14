@@ -45,4 +45,16 @@ public class RequestQueue {
     public <T> void addToRequestQueue(Request<T> req) {
         requestQueue.add(req);
     }
+
+    /**
+     * Cancels all requests in the queue.
+     */
+    public void cancelAll() {
+        requestQueue.cancelAll(new com.android.volley.RequestQueue.RequestFilter() {
+            @Override
+            public boolean apply(Request<?> request) {
+                return true;
+            }
+        });
+    }
 }

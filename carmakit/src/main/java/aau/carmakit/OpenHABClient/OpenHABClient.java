@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import aau.carmakit.Configuration;
+import aau.carmakit.RESTClient.RequestQueue;
 import aau.carmakit.Utilities.BooleanResult;
 import aau.carmakit.Utilities.Result;
 import aau.carmakit.RESTClient.BooleanResultListener;
@@ -43,6 +44,7 @@ public class OpenHABClient extends RESTClient {
 
     public void updateItemState(String itemName, String newState, final BooleanResultListener done)  {
         String path = "items/" + itemName;
+        RequestQueue.getInstance().cancelAll();
         postStringRequest(path, newState, new ResultListener<String>() {
             @Override
             public void onResult(Result<String> result) {
