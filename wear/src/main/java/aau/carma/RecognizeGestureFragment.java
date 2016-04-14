@@ -9,7 +9,6 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -24,8 +23,6 @@ import aau.carma.Pickers.ContextOutcomePickerActivity;
 import aau.carmakit.ContextEngine.ContextOutcome;
 import aau.carmakit.ContextEngine.ContextRecognizer;
 import aau.carmakit.ContextEngine.ContextRecognizerListener;
-import aau.carmakit.Database.DatabaseHelper;
-import aau.carmakit.GestureConfiguration;
 import aau.carmakit.OpenHABClient.OpenHABClient;
 import aau.carmakit.RESTClient.BooleanResultListener;
 import aau.carmakit.ThreeDOneCentGestureRecognizer.datatype.ThreeDLabeledStroke;
@@ -252,6 +249,7 @@ public class RecognizeGestureFragment extends Fragment implements View.OnTouchLi
         } else {
             // Let the user pick an outcome.
             presentContextOutcomePicker(acceptedOutcomes);
+            Vibrator.significantEvent();
         }
     }
 
