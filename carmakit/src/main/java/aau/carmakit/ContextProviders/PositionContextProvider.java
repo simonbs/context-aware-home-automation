@@ -16,6 +16,7 @@ import aau.carmakit.Database.DatabaseHelper;
 import aau.carmakit.GestureConfiguration;
 import aau.carmakit.Utilities.Funcable;
 import aau.carmakit.Utilities.Logger;
+import aau.carmakit.Utilities.Optional;
 import aau.carmakit.Utilities.Room;
 
 /**
@@ -74,12 +75,9 @@ public class PositionContextProvider implements ContextProvider {
     private Context context;
 
     /**
-     * Initializes the position context provider.
-     * @param context Context to run the provider in.
+     * The virtual position being used.
      */
-    public PositionContextProvider(Context context) {
-        this.context = context;
-    }
+    private Optional<Room> virtualPosition = new Optional<>();
 
     /**
      * Configures the provider to listen for the users position in the given rooms.
@@ -87,16 +85,59 @@ public class PositionContextProvider implements ContextProvider {
      * @param rooms Rooms to listen for the users position in.
      */
     public void configure(Context context, ArrayList<Room> rooms) {
+        this.context = context;
         positionManager = new PositionManager();
         positionManager.configureWithRooms(rooms);
+        startMonitoringPosition();
+        Logger.verbose("Did configure PositionManager");
+    }
+
+    /**
+     * Starts monitoring the users position.
+     */
+    private void startMonitoringPosition() {
         positionManager.startMonitoring(context, new PositionManager.EventListener() {
             @Override
             public void onUserFoundInRoom(Room room) {
                 didFindUserToBeInRoom(room);
             }
         });
+    }
 
-        Logger.verbose("Did configure PositionManager");
+    /**
+     * Sets the users position virtually. The provider will always
+     * provide the specified room until the virtual positioning is
+     * stopped.
+     * @param room Virtual position of the user.
+     */
+    public void setVirtualPosition(Room room) {
+        virtualPosition = new Optional<>(room);
+    }
+
+    /**
+     * Stops using a virtual positioning, thus using "real"
+     * positioning again.
+     */
+    public void stopVirtualPosition() {
+        if (isUsingVirtualPosition()) {
+            virtualPosition = new Optional<>();
+        }
+    }
+
+    /**
+     * Checks whether or not we are using a virtual position.
+     * @return Whether or not we are using a virtual position.
+     */
+    public boolean isUsingVirtualPosition() {
+        return virtualPosition.isPresent();
+    }
+
+    /**
+     * Retrieves the virtual position.
+     * @return Virtual position.
+     */
+    public Optional<Room> getVirtualPosition() {
+        return virtualPosition;
     }
 
     /**
@@ -137,21 +178,26 @@ public class PositionContextProvider implements ContextProvider {
         // Calculate occurrences
         int totalObservationsCount = enteredRoomObservations.size();
         HashMap<String, Integer> roomObservationCountMap = new HashMap<>();
-        for (EnteredRoomObservation enteredRoomObservation : enteredRoomObservations) {
-            String roomIdentifier = enteredRoomObservation.room.identifier;
-            if (roomObservationCountMap.containsKey(roomIdentifier)) {
-                // We have seen the room identifier before.
-                int newCount = roomObservationCountMap.get(roomIdentifier) + 1;
-                roomObservationCountMap.put(roomIdentifier, newCount);
-            } else {
-                // It is the first time we see the room identifier.
-                roomObservationCountMap.put(roomIdentifier, 1);
+        if (virtualPosition.isPresent()) {
+            // We are using a virtual position, so the only room we have observed is
+            // the virtual position.
+            roomObservationCountMap.put(virtualPosition.value.identifier, 1);
+        } else {
+            for (EnteredRoomObservation enteredRoomObservation : enteredRoomObservations) {
+                String roomIdentifier = enteredRoomObservation.room.identifier;
+                if (roomObservationCountMap.containsKey(roomIdentifier)) {
+                    // We have seen the room identifier before.
+                    int newCount = roomObservationCountMap.get(roomIdentifier) + 1;
+                    roomObservationCountMap.put(roomIdentifier, newCount);
+                } else {
+                    // It is the first time we see the room identifier.
+                    roomObservationCountMap.put(roomIdentifier, 1);
+                }
             }
         }
 
         // Map to outcomes
         ArrayList<GestureConfiguration> gestureConfigurations = DatabaseHelper.getInstance(context).getAllGestureConfiguration();
-
         ArrayList<ContextOutcome> outcomes = new ArrayList<>();
         for (Map.Entry<String, Integer> entry : roomObservationCountMap.entrySet()) {
             final String roomIdentifier = entry.getKey();

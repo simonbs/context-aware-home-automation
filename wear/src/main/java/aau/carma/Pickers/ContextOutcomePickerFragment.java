@@ -3,8 +3,6 @@ package aau.carma.Pickers;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.support.wearable.view.WearableListView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -85,11 +83,11 @@ public class ContextOutcomePickerFragment extends Fragment implements PickerFrag
                 }
             });
 
-            pickerFragment.reloadItems(items.getValue());
+            pickerFragment.setItems(items.getValue());
             setPickerVisible(true);
         } else {
             setPickerVisible(false);
-            pickerFragment.reloadItems(new ArrayList<WearableListItemAdapter.WearableListItem>());
+            pickerFragment.setItems(new ArrayList<WearableListItemAdapter.WearableListItem>());
         }
     }
 

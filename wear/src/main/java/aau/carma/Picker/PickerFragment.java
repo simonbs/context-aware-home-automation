@@ -51,9 +51,16 @@ public class PickerFragment extends Fragment implements WearableListView.ClickLi
      * Reloads the items in the picker.
      * @param items Items to show in the picker.
      */
-    public void reloadItems(ArrayList<WearableListItemAdapter.WearableListItem> items) {
+    public void setItems(ArrayList<WearableListItemAdapter.WearableListItem> items) {
         WearableListItemAdapter listAdapter = new WearableListItemAdapter(getActivity(), items);
         listView.setAdapter(listAdapter);
+    }
+
+    /**
+     * Reloads the items in the list view.
+     */
+    public void reloadItems() {
+        listView.getAdapter().notifyDataSetChanged();
     }
 
     @Override

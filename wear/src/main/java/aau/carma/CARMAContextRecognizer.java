@@ -5,9 +5,9 @@ import android.content.Context;
 import java.util.ArrayList;
 import java.util.UUID;
 
-import aau.carma.ContextProviders.GestureContextProvider;
-import aau.carma.ContextProviders.PositionContextProvider;
 import aau.carmakit.ContextEngine.ContextRecognizer;
+import aau.carmakit.ContextProviders.GestureContextProvider;
+import aau.carmakit.ContextProviders.PositionContextProvider;
 import aau.carmakit.Utilities.Logger;
 import aau.carmakit.Utilities.Room;
 
@@ -52,7 +52,7 @@ public class CARMAContextRecognizer extends ContextRecognizer {
             positionContextProviderUUID = null;
         }
 
-        PositionContextProvider contextProvider = new PositionContextProvider(context);
+        PositionContextProvider contextProvider = new PositionContextProvider();
         contextProvider.configure(context, rooms);
         positionContextProviderUUID = addProvider(contextProvider);
 

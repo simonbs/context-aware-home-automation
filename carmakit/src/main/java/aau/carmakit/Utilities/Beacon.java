@@ -1,9 +1,12 @@
 package aau.carmakit.Utilities;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Represents a beacon registered in openHAB.
  */
-public class Beacon {
+public class Beacon implements Parcelable {
     /**
      * Namespace of the Eddystone beacon.
      * Identifies a group of beacons.
@@ -26,6 +29,23 @@ public class Beacon {
         this.instance = instance;
     }
 
+    protected Beacon(Parcel in) {
+        namespace = in.readString();
+        instance = in.readString();
+    }
+
+    public static final Creator<Beacon> CREATOR = new Creator<Beacon>() {
+        @Override
+        public Beacon createFromParcel(Parcel in) {
+            return new Beacon(in);
+        }
+
+        @Override
+        public Beacon[] newArray(int size) {
+            return new Beacon[size];
+        }
+    };
+
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof Beacon)) {
@@ -40,5 +60,16 @@ public class Beacon {
     @Override
     public int hashCode() {
         return (namespace.toLowerCase() + instance.toLowerCase()).hashCode();
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(namespace);
+        dest.writeString(instance);
     }
 }

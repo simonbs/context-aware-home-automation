@@ -36,7 +36,10 @@
             android:label="@string/title_activity_configure_action_select_gesture" />
         <activity
             android:name=".Pickers.ContextOutcomePickerActivity"
-            android:label="@string/title_activity_context_outcome_picker"></activity>
+            android:label="@string/title_activity_context_outcome_picker" />
+        <activity
+            android:name=".Pickers.RoomPickerActivity"
+            android:label="@string/title_activity_room_picker" />
     </application>
 
 </manifest>

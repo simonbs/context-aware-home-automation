@@ -70,11 +70,11 @@ public class ActionPickerFragment extends Fragment implements PickerFragment.OnP
                 }
             });
 
-            pickerFragment.reloadItems(items.getValue());
+            pickerFragment.setItems(items.getValue());
             setPickerVisible(true);
         } else {
             setPickerVisible(false);
-            pickerFragment.reloadItems(new ArrayList<WearableListItemAdapter.WearableListItem>());
+            pickerFragment.setItems(new ArrayList<WearableListItemAdapter.WearableListItem>());
         }
     }
 

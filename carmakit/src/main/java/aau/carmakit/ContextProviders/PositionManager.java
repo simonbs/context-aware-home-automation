@@ -114,10 +114,11 @@ public class PositionManager {
     public void stopMonitoring() {
         Logger.verbose("PositionManager did stop monitoring");
 
-        beaconManager.setEddystoneListener(null);
         if (scanId != null) {
             beaconManager.stopEddystoneScanning(scanId);
         }
+
+        beaconManager.setEddystoneListener(null);
 
         scanId = null;
         beaconManager = null;

@@ -2,6 +2,8 @@
     <string name="app_name">CARMA</string>
     <string name="setup_error_message">Could not load the necessary information from openHAB.</string>
     <string name="setup_retry">Try again</string>
+    <string name="settings_set_virtual_position">Set virtual position</string>
+    <string name="settings_unset_virtual_position">Unset: %s</string>
     <string name="settings_train_gesture">Train gesture</string>
     <string name="settings_configure_action">Configure action</string>
     <string name="recognize_gesture_touch_to_start">Touch to start recognition</string>
@@ -19,5 +21,6 @@
     <string name="room_picker_empty">You do not have any rooms. Configure them in openHAB.</string>
     <string name="action_picker_empty">You do not have any actions. Actions are provided by items in openHAB.</string>
     <string name="context_outcome_picker_empty">There are no outcomes to pick from.</string>
-    <string name="title_activity_context_outcome_picker">ContextOutcomePickerActivity</string>
+    <string name="title_activity_context_outcome_picker">Context Outcome Picker</string>
+    <string name="title_activity_room_picker">Room Picker</string>
 </resources>

@@ -17,7 +17,6 @@ import aau.carma.Picker.WearableListItemAdapter.WearableListItem;
 import aau.carma.R;
 import aau.carmakit.Utilities.Consumer;
 import aau.carmakit.Utilities.Funcable;
-import aau.carmakit.Utilities.Logger;
 import aau.carmakit.Utilities.Optional;
 
 /**
@@ -86,11 +85,11 @@ public class GesturePickerFragment extends Fragment implements PickerFragment.On
                 }
             });
 
-            pickerFragment.reloadItems(items.getValue());
+            pickerFragment.setItems(items.getValue());
             setPickerVisible(true);
         } else {
             setPickerVisible(false);
-            pickerFragment.reloadItems(new ArrayList<WearableListItem>());
+            pickerFragment.setItems(new ArrayList<WearableListItem>());
         }
     }
 

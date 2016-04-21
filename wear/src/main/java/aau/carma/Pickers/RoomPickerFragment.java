@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import aau.carma.Picker.PickerFragment;
 import aau.carma.Picker.WearableListItemAdapter;
 import aau.carma.R;
-import aau.carmakit.Utilities.Beacon;
 import aau.carmakit.Utilities.Consumer;
 import aau.carmakit.Utilities.Funcable;
 import aau.carmakit.Utilities.Optional;
@@ -71,11 +70,11 @@ public class RoomPickerFragment extends Fragment implements PickerFragment.OnPic
                 }
             });
 
-            pickerFragment.reloadItems(items.getValue());
+            pickerFragment.setItems(items.getValue());
             setPickerVisible(true);
         } else {
             setPickerVisible(false);
-            pickerFragment.reloadItems(new ArrayList<WearableListItemAdapter.WearableListItem>());
+            pickerFragment.setItems(new ArrayList<WearableListItemAdapter.WearableListItem>());
         }
     }
 
