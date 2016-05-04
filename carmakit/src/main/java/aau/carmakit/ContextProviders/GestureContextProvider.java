@@ -22,7 +22,6 @@ import aau.carmakit.ThreeDOneCentGestureRecognizer.recognizer.ThreeDMatch;
  * Provides the gesture context.
  */
 public class GestureContextProvider implements ContextProvider {
-
     /**
      * Current set of outcomes.
      */

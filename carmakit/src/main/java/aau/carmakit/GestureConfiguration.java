@@ -6,7 +6,7 @@ package aau.carmakit;
  */
 public class GestureConfiguration {
     /**
-     * Identifier for the gesture configuration
+     * Identifier for the gesture configuration.
      */
     public final String id;
 
