@@ -337,35 +337,44 @@ public class ContextRecognizer {
                 inference.addSoftEvidence(providedContextualInformation.evidenceNode, providedContextualInformation.softEvidence);
             }
 
-            double[] gestureBeliefs = inference.getBeliefs(net.value.getNode("gesture"));
-            Logger.verbose("Gesture beliefs:");
-            for (int i = 0; i < gestureBeliefs.length; i++) {
-                Logger.verbose(" - " + net.value.getNode("gesture").getOutcomeName(i) + ": " + gestureBeliefs[i] * 100);
-            }
-
-            double[] roomBeliefs = inference.getBeliefs(net.value.getNode("room"));
-            Logger.verbose("Room beliefs:");
-            for (int i = 0; i < roomBeliefs.length; i++) {
-                Logger.verbose(" - " + net.value.getNode("room").getOutcomeName(i) + ": " + roomBeliefs[i] * 100);
-            }
-
-            double[] gestureActionBeliefs = inference.getBeliefs(net.value.getNode("gesture_action"));
-            Logger.verbose("Gesture action beliefs:");
-            for (int i = 0; i < gestureActionBeliefs.length; i++) {
-                Logger.verbose(" - " + net.value.getNode("gesture_action").getOutcomeName(i) + ": " + gestureActionBeliefs[i] * 100);
-            }
-
-            double[] roomActionBeliefs = inference.getBeliefs(net.value.getNode("room_action"));
-            Logger.verbose("Room action beliefs:");
-            for (int i = 0; i < roomActionBeliefs.length; i++) {
-                Logger.verbose(" - " + net.value.getNode("room_action").getOutcomeName(i) + ": " + roomActionBeliefs[i] * 100);
-            }
-
-            double[] actionBeliefs = inference.getBeliefs(net.value.getNode("action"));
-            Logger.verbose("Action beliefs:");
+            ArrayList<ContextOutcome> contextOutcomes = new ArrayList<>();
+            BayesNode inferredActionNode = net.value.getNode("action");
+            double[] actionBeliefs = inference.getBeliefs(inferredActionNode);
             for (int i = 0; i < actionBeliefs.length; i++) {
-                Logger.verbose(" - " + net.value.getNode("action").getOutcomeName(i) + ": " + actionBeliefs[i] * 100);
+                contextOutcomes.add(new ContextOutcome(inferredActionNode.getOutcomeName(i), actionBeliefs[i]));
             }
+
+            listener.onContextReady(contextOutcomes);
+
+//            double[] gestureBeliefs = inference.getBeliefs(net.value.getNode("gesture"));
+//            Logger.verbose("Gesture beliefs:");
+//            for (int i = 0; i < gestureBeliefs.length; i++) {
+//                Logger.verbose(" - " + net.value.getNode("gesture").getOutcomeName(i) + ": " + gestureBeliefs[i] * 100);
+//            }
+//
+//            double[] roomBeliefs = inference.getBeliefs(net.value.getNode("room"));
+//            Logger.verbose("Room beliefs:");
+//            for (int i = 0; i < roomBeliefs.length; i++) {
+//                Logger.verbose(" - " + net.value.getNode("room").getOutcomeName(i) + ": " + roomBeliefs[i] * 100);
+//            }
+//
+//            double[] gestureActionBeliefs = inference.getBeliefs(net.value.getNode("gesture_action"));
+//            Logger.verbose("Gesture action beliefs:");
+//            for (int i = 0; i < gestureActionBeliefs.length; i++) {
+//                Logger.verbose(" - " + net.value.getNode("gesture_action").getOutcomeName(i) + ": " + gestureActionBeliefs[i] * 100);
+//            }
+//
+//            double[] roomActionBeliefs = inference.getBeliefs(net.value.getNode("room_action"));
+//            Logger.verbose("Room action beliefs:");
+//            for (int i = 0; i < roomActionBeliefs.length; i++) {
+//                Logger.verbose(" - " + net.value.getNode("room_action").getOutcomeName(i) + ": " + roomActionBeliefs[i] * 100);
+//            }
+//
+//            double[] actionBeliefs = inference.getBeliefs(net.value.getNode("action"));
+//            Logger.verbose("Action beliefs:");
+//            for (int i = 0; i < actionBeliefs.length; i++) {
+//                Logger.verbose(" - " + net.value.getNode("action").getOutcomeName(i) + ": " + actionBeliefs[i] * 100);
+//            }
         }
     }
 }
