@@ -100,13 +100,9 @@ public class SoftEvidenceInferrer implements IBayesInferrer {
     private void updateBeliefs() {
         List<Entry<BayesNode, double[]>> softEv = new ArrayList<Entry<BayesNode, double[]>>(softEvidence.entrySet());
 
-        Logger.verbose("Will update beliefs");
-
         int noChanges = 0;
         int k = 0;
         while (noChanges < softEv.size()) {
-//            Logger.verbose(noChanges + " < " + softEv.size());
-
             int i = k % softEv.size();
 
             Entry<BayesNode, double[]> se = softEv.get(i);
@@ -122,19 +118,15 @@ public class SoftEvidenceInferrer implements IBayesInferrer {
                 MathUtils.multiply(factor, ve, ve);
             }
 
-            if (factor != null && Arrays.equals(factor, ve)) {
-//                Logger.verbose("Increment noChanges");
+            if (factor != null && Arrays.equals(factor, ve)) {//                Logger.verbose("Increment noChanges");
                 noChanges++;
             } else {
                 delegate.addVirtualEvidence(se.getKey(), ve);
-//                Logger.verbose("Reset noChanges");
                 noChanges = 0;
             }
 
             k++;
         }
-
-        Logger.verbose("Did update beliefs");
     }
 
 }
