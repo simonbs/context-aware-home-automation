@@ -141,7 +141,7 @@ public class ContextRecognizer {
         if (contextualInformationProviders.size() > 0) {
             // We have context providers registered. Start recognizing.
             startTimeoutTimer();
-            startRegisteredContextProviders();
+            startRegisteredContextualInformationProviders();
         } else {
             // We do not have any context providers, so just tell the
             // listener that there are zero outcomes.
@@ -156,7 +156,7 @@ public class ContextRecognizer {
     /**
      * Starts all registered context providers.
      */
-    private void startRegisteredContextProviders() {
+    private void startRegisteredContextualInformationProviders() {
         BayesNet net = new BayesNet();
         this.net = new Optional<>(net);
 
@@ -229,14 +229,14 @@ public class ContextRecognizer {
         }
 
         listener = null;
-        cancelPendingContextProviders();
+        cancelPendingContextualInformationProviders();
         recognizing = false;
     }
 
     /**
      * Cancels all pending context providers.
      */
-    private void cancelPendingContextProviders() {
+    private void cancelPendingContextualInformationProviders() {
         for (ContextualInformationProvider contextualInformationProvider: pendingContextualInformationProviders.values()) {
             contextualInformationProvider.cancel();
         }
