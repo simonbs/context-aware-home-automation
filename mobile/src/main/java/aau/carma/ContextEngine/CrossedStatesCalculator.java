@@ -49,6 +49,12 @@ public class CrossedStatesCalculator {
         double[] probabilities = new double[probabilitiesCount];
         // For each row
         for (int r = 0; r < rowCount; r++) {
+            String rowStr = "";
+            for (Integer indice : indices) {
+                rowStr += indice + " ";
+            }
+            Logger.verbose(rowStr);
+            
             // For each column
             for (int c = 0; c < statesCount; c++) {
                 String columnState = states.get(c);
@@ -67,10 +73,10 @@ public class CrossedStatesCalculator {
             boolean didIncrementValue = false;
             for (int i = indices.size() - 1; i >= 0; i--) {
                 Integer value = indices.get(i);
-                if (value == statesCount - 1) {
-                    newIndices.add(0, 0);
-                } else if (didIncrementValue) {
+                if (didIncrementValue) {
                     newIndices.add(0, value);
+                } else  if (value == statesCount - 1) {
+                    newIndices.add(0, 0);
                 } else {
                     newIndices.add(0, value + 1);
                     didIncrementValue = true;
@@ -81,14 +87,22 @@ public class CrossedStatesCalculator {
         }
 
         // DEBUG: Logs the entire conditional probability table.
-        for (int r = 0; r < rowCount; r++) {
-            String rowStr = "";
-            for (int c = 0; c < statesCount; c++) {
-                rowStr += probabilities[r * statesCount + c] + " ";
-            }
-
-            Logger.verbose(rowStr);
-        }
+//        for (int n = 0; n < statesCount; n++) {
+//            for (int i = 0; i < statesCount; i++) {
+//                String rowStr = "";
+//                for (int c = 0; c < statesCount; c++) {
+//                    rowStr += probabilities[n * statesCount * statesCount + i * statesCount + c] + " ";
+//                }
+//
+//                Logger.verbose(rowStr);
+//            }
+//
+//            Logger.verbose("- - - - - - - - - - - - - - - -");
+//        }
+//
+//        for (double probability : probabilities) {
+//            Logger.verbose("" + probability);
+//        }
 
         return probabilities;
 
