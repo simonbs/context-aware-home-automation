@@ -16,7 +16,7 @@ import aau.carma.Picker.PickerFragment;
 import aau.carma.Picker.WearableListItemAdapter;
 import aau.carma.Pickers.RoomPickerActivity;
 import aau.carma.TrainGesture.NameTrainGestureActivity;
-import aau.carmakit.ContextProviders.PositionContextProvider;
+import aau.carmakit.ContextualInformationProviders.PositionContextualInformationProvider;
 import aau.carmakit.Utilities.Optional;
 import aau.carmakit.Utilities.Room;
 
@@ -53,9 +53,9 @@ public class SettingsFragment extends Fragment implements PickerFragment.OnPickL
         Setting setting = (Setting)item;
         switch (setting) {
             case VIRTUAL_POSITION:
-                PositionContextProvider positionContextProvider = CARMAContextRecognizer.getInstance().getPositionContextProvider();
-                if (positionContextProvider.isUsingVirtualPosition()) {
-                    positionContextProvider.stopVirtualPosition();
+                PositionContextualInformationProvider positionContextualInformationProvider = CARMAContextRecognizer.getInstance().getPositionContextualInformationProvider();
+                if (positionContextualInformationProvider.isUsingVirtualPosition()) {
+                    positionContextualInformationProvider.stopVirtualPosition();
                     reloadListView();
                 } else {
                     presentVirtualPositionPicker();
@@ -125,9 +125,9 @@ public class SettingsFragment extends Fragment implements PickerFragment.OnPickL
         public Optional<String> getTitle() {
             switch (this) {
                 case VIRTUAL_POSITION:
-                    PositionContextProvider positionContextProvider = CARMAContextRecognizer.getInstance().getPositionContextProvider();
-                    if (positionContextProvider.getVirtualPosition().isPresent()) {
-                        Room room = positionContextProvider.getVirtualPosition().value;
+                    PositionContextualInformationProvider positionContextualInformationProvider = CARMAContextRecognizer.getInstance().getPositionContextualInformationProvider();
+                    if (positionContextualInformationProvider.getVirtualPosition().isPresent()) {
+                        Room room = positionContextualInformationProvider.getVirtualPosition().value;
                         return new Optional<>(String.format(App.getContext().getString(R.string.settings_unset_virtual_position), room.name));
                     } else {
                         return new Optional<>(App.getContext().getString(R.string.settings_set_virtual_position));
@@ -153,7 +153,7 @@ public class SettingsFragment extends Fragment implements PickerFragment.OnPickL
         if (requestCode == VIRTUAL_POSITION_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             Room room = data.getParcelableExtra(RoomPickerActivity.RESULT_ROOM);
             if (room != null) {
-                PositionContextProvider positionContextProvider = CARMAContextRecognizer.getInstance().getPositionContextProvider();
+                PositionContextualInformationProvider positionContextProvider = CARMAContextRecognizer.getInstance().getPositionContextualInformationProvider();
                 positionContextProvider.setVirtualPosition(room);
                 reloadListView();
             }

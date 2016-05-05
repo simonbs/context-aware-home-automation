@@ -1,4 +1,4 @@
-package aau.carma.ContextProviders;
+package aau.carmakit.ContextualInformationProviders;
 
 import android.content.Context;
 import android.util.Pair;
@@ -10,13 +10,13 @@ import java.util.Map;
 import aau.carmakit.ContextEngine.ContextOutcome;
 import aau.carmakit.Database.DatabaseHelper;
 import aau.carmakit.GestureConfiguration;
-import aau.carmakit.ThreeDOneCentGestureRecognizer.recognizer.ThreeDMatch;
 import aau.carmakit.Utilities.Logger;
+import aau.carmakit.ThreeDOneCentGestureRecognizer.recognizer.ThreeDMatch;
 
 /**
  * Provides the gesture context.
  */
-//public class GestureContextProvider implements ContextProvider {
+//public class GestureContextProvider {
 //    /**
 //     * Current set of outcomes.
 //     */
@@ -37,9 +37,9 @@ import aau.carmakit.Utilities.Logger;
 //     * Calculates the probabilities of gesture-bound actions based on the latest input gesture.
 //     * @param matches List of comparisons between input gesture and training templates.
 //     */
-//    public void calculateProbabilities(ArrayList<ThreeDMatch> matches){
+//    public void calculateProbabilities(ArrayList<ThreeDMatch> matches) {
 //        // A gesture score must be lower than or equal to the threshold in order to be considered.
-//        Double gestureScoreThreshold = 70.0;
+//        Double gestureScoreThreshold = 40.0;
 //
 //        // Group the scores as each gesture appears multiple times,
 //        // i.e. one per training template.

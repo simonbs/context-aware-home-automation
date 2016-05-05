@@ -6,11 +6,10 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 import aau.carmakit.ContextEngine.ContextRecognizer;
-import aau.carmakit.ContextProviders.GestureContextProvider;
-import aau.carmakit.ContextProviders.PositionContextProvider;
+import aau.carmakit.ContextualInformationProviders.GestureContextualInformationProvider;
+import aau.carmakit.ContextualInformationProviders.PositionContextualInformationProvider;
 import aau.carmakit.Utilities.Logger;
 import aau.carmakit.Utilities.Room;
-
 
 /**
  * A gesture recognizer that can easily be configured
@@ -52,11 +51,11 @@ public class CARMAContextRecognizer extends ContextRecognizer {
             positionContextProviderUUID = null;
         }
 
-        PositionContextProvider contextProvider = new PositionContextProvider();
-        contextProvider.configure(context, rooms);
-        positionContextProviderUUID = addProvider(contextProvider);
+        PositionContextualInformationProvider contextualInformationProvider = new PositionContextualInformationProvider(context);
+        contextualInformationProvider.monitorRooms(rooms);
+        positionContextProviderUUID = addProvider(contextualInformationProvider);
 
-        Logger.verbose("Did configure position context provider");
+        Logger.verbose("Did configure position contextual information provider");
     }
 
     /**
@@ -74,25 +73,25 @@ public class CARMAContextRecognizer extends ContextRecognizer {
             gestureContextProviderUUID = null;
         }
 
-        GestureContextProvider contextProvider = new GestureContextProvider(context);
-        gestureContextProviderUUID = addProvider(contextProvider);
+        GestureContextualInformationProvider contextualInformationProvider = new GestureContextualInformationProvider(context);
+        gestureContextProviderUUID = addProvider(contextualInformationProvider);
 
-        Logger.verbose("Did configure gesture context provider");
+        Logger.verbose("Did configure gesture contextual information provider");
     }
 
     /**
-     * Gets the registered position context provider.
-     * @return Registered position context provider.
+     * Gets the registered position contextual information provider.
+     * @return Registered position contextual information provider.
      */
-    public PositionContextProvider getPositionContextProvider() {
-        return (PositionContextProvider)getProvider(positionContextProviderUUID);
+    public PositionContextualInformationProvider getPositionContextualInformationProvider() {
+        return (PositionContextualInformationProvider)getProvider(positionContextProviderUUID);
     }
 
     /**
-     * Gets the registered gesture context provider
-     * @return Registered gesture context provider
+     * Gets the registered gesture contextual information provider.
+     * @return Registered gesture contextual information provider.
      */
-    public GestureContextProvider getGestureContextProvider() {
-        return (GestureContextProvider)getProvider(gestureContextProviderUUID);
+    public GestureContextualInformationProvider getGestureContextualInformationProvider() {
+        return (GestureContextualInformationProvider)getProvider(gestureContextProviderUUID);
     }
 }

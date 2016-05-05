@@ -1,7 +1,6 @@
-package aau.carma;
+package aau.carma.TrainGesture;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Rect;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -14,14 +13,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
-
-import java.util.ArrayList;
-
+import aau.carma.R;
 import aau.carmakit.ThreeDOneCentGestureRecognizer.datatype.ThreeDLabeledStroke;
 import aau.carmakit.ThreeDOneCentGestureRecognizer.datatype.ThreeDPoint;
 import aau.carmakit.ThreeDOneCentGestureRecognizer.recognizer.ThreeDOneCentRecognizer;
-import aau.carmakit.Utilities.Logger;
 
 /**
  * Activity for training a gesture.

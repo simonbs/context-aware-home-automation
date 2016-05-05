@@ -151,7 +151,7 @@ public class RecognizeGestureFragment extends Fragment implements View.OnTouchLi
             Logger.verbose("Recognized training template " + gestureMatch.getLabel() + " with a score of " + gestureMatch.getScore());
         }
 
-        CARMAContextRecognizer.getInstance().getGestureContextProvider().calculateProbabilities(gestureMatches);
+        CARMAContextRecognizer.getInstance().getGestureContextualInformationProvider().updateProbabilities(gestureMatches);
         isRecognizing = false;
 
         recognizeContext();

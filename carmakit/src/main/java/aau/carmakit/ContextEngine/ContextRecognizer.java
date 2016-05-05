@@ -1,20 +1,21 @@
 package aau.carmakit.ContextEngine;
 
-import android.content.Context;
 import android.os.Handler;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import aau.carmakit.ContextEngine.Recommender.jayes.BayesNet;
+import aau.carmakit.ContextEngine.Recommender.jayes.BayesNode;
+import aau.carmakit.ContextEngine.Recommender.jayes.inference.SoftEvidenceInferrer;
+import aau.carmakit.ContextEngine.Recommender.jayes.inference.jtree.JunctionTreeAlgorithm;
 import aau.carmakit.Utilities.Logger;
+import aau.carmakit.Utilities.Optional;
 
-/**
- * Recognizes a context given one or more providers that
- * each contribute to the total knowledge about the context.
- */
 public class ContextRecognizer {
     /**
      * Thrown when an operation could not be performed because the
@@ -37,46 +38,6 @@ public class ContextRecognizer {
     }
 
     /**
-     * Represents a context provided by one of the context providers.
-     */
-    private class ProvidedContext {
-        /**
-         * Weight of the context.
-         */
-        public final double weight;
-
-        /**
-         * Outcomes of the context.
-         */
-        public final ArrayList<ContextOutcome> outcomes;
-
-        /**
-         * Creates a representation of a context provided by one of the context providers.
-         * @param weight Weight of the context.
-         * @param outcomes Outcomes of the context, each having a probability.
-         */
-        ProvidedContext(double weight, ArrayList<ContextOutcome> outcomes) {
-            this.weight = weight;
-            this.outcomes = outcomes;
-        }
-
-        /**
-         * Calculates the weighted outcomes based on the weight provided
-         * by the weight property.
-         * @return Weighted outcomes.
-         */
-        public ArrayList<ContextOutcome> calculateWeightedOutcomes() {
-            ArrayList<ContextOutcome> result = new ArrayList<>();
-            for (ContextOutcome outcome : outcomes) {
-                Logger.verbose("Calculate weighted outcome: " + outcome.probability + " * " + weight);
-                result.add(new ContextOutcome(outcome.id, outcome.probability * weight));
-            }
-
-            return result;
-        }
-    }
-
-    /**
      * Seconds after which context providers should timeout.
      */
     private static final float Timeout = 5;
@@ -87,7 +48,7 @@ public class ContextRecognizer {
      * can hold onto in order to retrieve the provider again
      * or remove it.
      */
-    private HashMap<UUID, ContextProvider> contextProviders = new HashMap<>();
+    private HashMap<UUID, ContextualInformationProvider> contextualInformationProviders = new HashMap<>();
 
     /**
      * Listener set when starting to recognize the context.
@@ -100,12 +61,12 @@ public class ContextRecognizer {
      * Context providers pending delivery of their context.
      * These providers may be cancelled, timeout or deliver a context.
      */
-    private HashMap<UUID, ContextProvider> pendingContextProviders = new HashMap<>();
+    private HashMap<UUID, ContextualInformationProvider> pendingContextualInformationProviders = new HashMap<>();
 
     /**
-     * Contexts provided by the context providers.
+     * Contextual information provided by the contextual information providers.
      */
-    private ArrayList<ProvidedContext> providedContexts = new ArrayList<>();
+    private ArrayList<ProvidedContextualInformation> providedContextualInformations = new ArrayList<>();
 
     /**
      * Timer started when the gesture recognizer starts recognizing.
@@ -119,17 +80,25 @@ public class ContextRecognizer {
     private boolean recognizing = false;
 
     /**
+     * Reference to the Bayesian network.
+     * Currently the network is recreated every time the recognizer is started.
+     * This is a minor implementation detail. The network should only be created
+     * when actually needed, i.e. when gesture configurations change.
+     */
+    private Optional<BayesNet> net = new Optional<>();
+
+    /**
      * Add a provider to the engine thus including its context in the recognition.
      * @param contextProvider Provider to add.
      * @return UUID Identifying the provider that was just added.
      */
-    public UUID addProvider(ContextProvider contextProvider) throws IsRecognizingException {
+    public UUID addProvider(ContextualInformationProvider contextProvider) throws IsRecognizingException {
         if (recognizing) {
             throw new IsRecognizingException("Context providers cannot be added while the recognizer is recognizing.");
         }
 
         UUID uuid = UUID.randomUUID();
-        contextProviders.put(uuid, contextProvider);
+        contextualInformationProviders.put(uuid, contextProvider);
         return uuid;
     }
 
@@ -142,7 +111,7 @@ public class ContextRecognizer {
             throw new IsRecognizingException("Context providers cannot be removed while the recognizer is recognizing.");
         }
 
-        contextProviders.remove(uuid);
+        contextualInformationProviders.remove(uuid);
     }
 
     /**
@@ -150,8 +119,8 @@ public class ContextRecognizer {
      * @param uuid UUID of provider to retrieve.
      * @return Registered provider with the specified UUID. null, if the provider is not registered.
      */
-    public ContextProvider getProvider(UUID uuid) {
-        return contextProviders.get(uuid);
+    public ContextualInformationProvider getProvider(UUID uuid) {
+        return contextualInformationProviders.get(uuid);
     }
 
     /**
@@ -165,11 +134,11 @@ public class ContextRecognizer {
 
         recognizing = true;
         this.listener = listener;
-        providedContexts.clear();
+        providedContextualInformations.clear();
 
-        Logger.verbose("Will start");
+        Logger.verbose("Context recognizer will start");
 
-        if (contextProviders.size() > 0) {
+        if (contextualInformationProviders.size() > 0) {
             // We have context providers registered. Start recognizing.
             startTimeoutTimer();
             startRegisteredContextProviders();
@@ -181,51 +150,49 @@ public class ContextRecognizer {
             }
         }
 
-        Logger.verbose("Did start");
+        Logger.verbose("Context recognizer did start");
     }
 
     /**
      * Starts all registered context providers.
      */
     private void startRegisteredContextProviders() {
+        BayesNet net = new BayesNet();
+        this.net = new Optional<>(net);
+
         // Make sure we register all providers as added.
-        for (final Map.Entry<UUID, ContextProvider> entry : contextProviders.entrySet()) {
-            pendingContextProviders.put(entry.getKey(), null);
+        for (final Map.Entry<UUID, ContextualInformationProvider> entry : contextualInformationProviders.entrySet()) {
+            pendingContextualInformationProviders.put(entry.getKey(), null);
         }
 
-        for (final Map.Entry<UUID, ContextProvider> entry : contextProviders.entrySet()) {
+        for (final Map.Entry<UUID, ContextualInformationProvider> entry : contextualInformationProviders.entrySet()) {
             Logger.verbose("Start context provider " + entry.getKey());
 
             final UUID uuid = entry.getKey();
-            final ContextProvider contextProvider = entry.getValue();
+            final ContextualInformationProvider contextualInformationProvider= entry.getValue();
 
-            pendingContextProviders.put(entry.getKey(), contextProvider);
+            pendingContextualInformationProviders.put(entry.getKey(), contextualInformationProvider);
 
-            entry.getValue().getContext(new ContextProviderListener() {
+            ContextualInformationListener listener = new ContextualInformationListener() {
                 @Override
-                public void onContextReady(ArrayList<ContextOutcome> outcomes) {
+                public void onContextualInformationReady(ProvidedContextualInformation providedContextualInformation) {
                     // Sanity check to ensure we do not have null outcomes.
-                    if (outcomes == null) {
-                        outcomes = new ArrayList<>();
+                    if (providedContextualInformation != null) {
+                        providedContextualInformations.add(providedContextualInformation);
                     }
 
-                    for (ContextOutcome outcome : outcomes) {
-                        Logger.verbose("Context ready with outcome " + outcome.id + ": " + outcome.probability);
-                    }
-
-                    Logger.verbose("Context ready for provider " + entry.getKey());
-                    ProvidedContext providedContext = new ProvidedContext(contextProvider.getWeight(), outcomes);
-                    providedContexts.add(providedContext);
-                    pendingContextProviders.remove(uuid);
+                    pendingContextualInformationProviders.remove(uuid);
                     checkIfRecognitionCompleted();
                 }
 
                 @Override
                 public void onFailure() {
-                    pendingContextProviders.remove(uuid);
+                    pendingContextualInformationProviders.remove(uuid);
                     checkIfRecognitionCompleted();
                 }
-            });
+            };
+
+            entry.getValue().getContext(listener, net);
         }
     }
 
@@ -270,11 +237,11 @@ public class ContextRecognizer {
      * Cancels all pending context providers.
      */
     private void cancelPendingContextProviders() {
-        for (ContextProvider contextProvider : pendingContextProviders.values()) {
-            contextProvider.cancel();
+        for (ContextualInformationProvider contextualInformationProvider: pendingContextualInformationProviders.values()) {
+            contextualInformationProvider.cancel();
         }
 
-        pendingContextProviders.clear();
+        pendingContextualInformationProviders.clear();
     }
 
     /**
@@ -303,8 +270,8 @@ public class ContextRecognizer {
      * have more pending context providers.
      */
     private void checkIfRecognitionCompleted() {
-        Logger.verbose("Remaining pending context providers: " + pendingContextProviders.size());
-        if (pendingContextProviders.isEmpty()) {
+        Logger.verbose("Remaining pending context providers: " + pendingContextualInformationProviders.size());
+        if (pendingContextualInformationProviders.isEmpty()) {
             onRecognitionCompleted();
         }
     }
@@ -314,53 +281,97 @@ public class ContextRecognizer {
      */
     private void onRecognitionCompleted() {
         recognizing = false;
-
         cancelTimeoutTimer();
 
-        ArrayList<ContextOutcome> flattenedOutcomes = flattenedOutcomes(providedContexts);
+        // No information was provided.
+        if (providedContextualInformations.size() == 0) {
+            listener.onFailedRecognizingContext();
+            return;
+        }
 
-        if (flattenedOutcomes != null) {
-            Logger.verbose("- - - - - - - - - - - - - - - -");
-            Logger.verbose("Flattened outcomes:");
-            for (ContextOutcome flattenedOutcome : flattenedOutcomes) {
-                Logger.verbose("Probability: " + flattenedOutcome .id + ": " + flattenedOutcome .probability);
+        if (net.isPresent()) {
+            // Create hash sets of states for all nodes in order to check if all nodes have the same states.
+            ArrayList<HashSet<String>> nodeStatesHashSets = new ArrayList<>();
+            for (ProvidedContextualInformation providedContextualInformation : providedContextualInformations) {
+                ArrayList<String> states = new ArrayList<>(providedContextualInformation.actionParentNode.getOutcomes());
+                nodeStatesHashSets.add(new HashSet(states));
             }
-            Logger.verbose("- - - - - - - - - - - - - - - -");
-        }
 
-        ArrayList<ContextOutcome> summedOutcomes = ContextOutcome.sumOutcomes(flattenedOutcomes);
-
-        if (summedOutcomes != null) {
-            Logger.verbose("- - - - - - - - - - - - - - - -");
-            Logger.verbose("Summed outcomes:");
-            for (ContextOutcome summedOutcome : summedOutcomes) {
-                Logger.verbose("Probability: " + summedOutcome.id + ": " + summedOutcome.probability);
+            // Check if all nodes have the same states.
+            for (int i = 0; i < nodeStatesHashSets.size(); i++) {
+                for (int n = 0; n < nodeStatesHashSets.size(); n++) {
+                    if (!nodeStatesHashSets.get(i).equals(nodeStatesHashSets.get(n))) {
+                        Logger.error("Action nodes does not have same states!");
+                        listener.onFailedRecognizingContext();
+                        return;
+                    }
+                }
             }
-            Logger.verbose("- - - - - - - - - - - - - - - -");
+
+            // All nodes have the same states. Take the states from one of the nodes.
+            List<String> states = providedContextualInformations.get(0).actionParentNode.getOutcomes();
+
+            BayesNode actionNode = net.value.createNode("action");
+            for (String state : states) {
+                actionNode.addOutcomes(state);
+            }
+
+            // Add parents to the action node.
+            ArrayList<BayesNode> actionParents = new ArrayList<>();
+            for (ProvidedContextualInformation providedContextualInformation : providedContextualInformations) {
+                actionParents.add(providedContextualInformation.actionParentNode);
+            }
+            actionNode.setParents(actionParents);
+
+            // Create the probabilities.
+            int nodeCount = providedContextualInformations.size();
+            CrossedStatesCalculator crossedStatesCalculator = new CrossedStatesCalculator(new ArrayList<>(states), nodeCount);
+            actionNode.setProbabilities(crossedStatesCalculator.calculateProbabilities());
+
+            SoftEvidenceInferrer inference = new SoftEvidenceInferrer(new JunctionTreeAlgorithm());
+            inference.setNetwork(net.value);
+            for (ProvidedContextualInformation providedContextualInformation : providedContextualInformations) {
+                inference.addSoftEvidence(providedContextualInformation.evidenceNode, providedContextualInformation.softEvidence);
+            }
+
+            ArrayList<ContextOutcome> contextOutcomes = new ArrayList<>();
+            BayesNode inferredActionNode = net.value.getNode("action");
+            double[] actionBeliefs = inference.getBeliefs(inferredActionNode);
+            for (int i = 0; i < actionBeliefs.length; i++) {
+                contextOutcomes.add(new ContextOutcome(inferredActionNode.getOutcomeName(i), actionBeliefs[i]));
+            }
+
+            listener.onContextReady(contextOutcomes);
+
+//            double[] gestureBeliefs = inference.getBeliefs(net.value.getNode("gesture"));
+//            Logger.verbose("Gesture beliefs:");
+//            for (int i = 0; i < gestureBeliefs.length; i++) {
+//                Logger.verbose(" - " + net.value.getNode("gesture").getOutcomeName(i) + ": " + gestureBeliefs[i] * 100);
+//            }
+//
+//            double[] roomBeliefs = inference.getBeliefs(net.value.getNode("room"));
+//            Logger.verbose("Room beliefs:");
+//            for (int i = 0; i < roomBeliefs.length; i++) {
+//                Logger.verbose(" - " + net.value.getNode("room").getOutcomeName(i) + ": " + roomBeliefs[i] * 100);
+//            }
+//
+//            double[] gestureActionBeliefs = inference.getBeliefs(net.value.getNode("gesture_action"));
+//            Logger.verbose("Gesture action beliefs:");
+//            for (int i = 0; i < gestureActionBeliefs.length; i++) {
+//                Logger.verbose(" - " + net.value.getNode("gesture_action").getOutcomeName(i) + ": " + gestureActionBeliefs[i] * 100);
+//            }
+//
+//            double[] roomActionBeliefs = inference.getBeliefs(net.value.getNode("room_action"));
+//            Logger.verbose("Room action beliefs:");
+//            for (int i = 0; i < roomActionBeliefs.length; i++) {
+//                Logger.verbose(" - " + net.value.getNode("room_action").getOutcomeName(i) + ": " + roomActionBeliefs[i] * 100);
+//            }
+//
+//            double[] actionBeliefs = inference.getBeliefs(net.value.getNode("action"));
+//            Logger.verbose("Action beliefs:");
+//            for (int i = 0; i < actionBeliefs.length; i++) {
+//                Logger.verbose(" - " + net.value.getNode("action").getOutcomeName(i) + ": " + actionBeliefs[i] * 100);
+//            }
         }
-
-        for (ContextOutcome summedOutcome : summedOutcomes) {
-            Logger.verbose(summedOutcome.id + ": " + summedOutcome.probability);
-        }
-
-        ArrayList<ContextOutcome> normalizedOutcomes = ContextOutcome.normalizeOutcomes(summedOutcomes);
-
-        if (listener != null) {
-            listener.onContextReady(normalizedOutcomes);
-        }
-    }
-
-    /**
-     * Flattens the array of outcomes in all provided contexts available.
-     * @param providedContexts Provided contexts to take weighted outcomes from.
-     * @return All outcomes.
-     */
-    private ArrayList<ContextOutcome> flattenedOutcomes(ArrayList<ProvidedContext> providedContexts) {
-        ArrayList<ContextOutcome> result = new ArrayList<>();
-        for (ProvidedContext providedContext : providedContexts) {
-            result.addAll(providedContext.calculateWeightedOutcomes());
-        }
-
-        return result;
     }
 }

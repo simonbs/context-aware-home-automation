@@ -13,7 +13,6 @@ import aau.carma.GridPager.GridFragmentProvider;
 import aau.carma.GridPager.GridRow;
 import aau.carma.Pickers.GesturePickerFragment;
 import aau.carma.R;
-import aau.carma.TrainGestureActivity;
 
 /**
  * Activity for choosing the name of a gesture.
