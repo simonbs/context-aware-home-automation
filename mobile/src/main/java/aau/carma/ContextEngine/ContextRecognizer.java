@@ -300,14 +300,6 @@ public class ContextRecognizer {
                 nodeStatesHashSets.add(new HashSet(states));
             }
 
-            Logger.verbose("- - - - - - - - - - - - - - - - - - - - - - - - - - - -");
-            for (ProvidedContextualInformation providedContextualInformation : providedContextualInformations) {
-                for (String state : providedContextualInformation.actionParentNode.getOutcomes()) {
-                    Logger.verbose(state);
-                }
-                Logger.verbose("- - - - - - - - - - - - - - - - - - - - - - - - - - - -");
-            }
-
             // Check if all nodes have the same states.
             for (int i = 0; i < nodeStatesHashSets.size(); i++) {
                 for (int n = 0; n < nodeStatesHashSets.size(); n++) {
@@ -342,7 +334,6 @@ public class ContextRecognizer {
             SoftEvidenceInferrer inference = new SoftEvidenceInferrer(new JunctionTreeAlgorithm());
             inference.setNetwork(net.value);
             for (ProvidedContextualInformation providedContextualInformation : providedContextualInformations) {
-                Logger.verbose("Add soft evidence: " + providedContextualInformation.evidenceNode + " -> " + providedContextualInformation.softEvidence);
                 inference.addSoftEvidence(providedContextualInformation.evidenceNode, providedContextualInformation.softEvidence);
             }
 

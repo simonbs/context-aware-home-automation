@@ -49,12 +49,6 @@ public class CrossedStatesCalculator {
         double[] probabilities = new double[probabilitiesCount];
         // For each row
         for (int r = 0; r < rowCount; r++) {
-            String rowStr = "";
-            for (Integer indice : indices) {
-                rowStr += indice + " ";
-            }
-            Logger.verbose(rowStr);
-            
             // For each column
             for (int c = 0; c < statesCount; c++) {
                 String columnState = states.get(c);
