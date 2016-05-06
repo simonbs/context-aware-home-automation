@@ -27,6 +27,7 @@ import aau.carmakit.OpenHABClient.OpenHABClient;
 import aau.carmakit.RESTClient.BooleanResultListener;
 import aau.carmakit.ThreeDOneCentGestureRecognizer.datatype.ThreeDLabeledStroke;
 import aau.carmakit.ThreeDOneCentGestureRecognizer.datatype.ThreeDPoint;
+import aau.carmakit.ThreeDOneCentGestureRecognizer.datatype.ThreeDStroke;
 import aau.carmakit.ThreeDOneCentGestureRecognizer.recognizer.ThreeDMatch;
 import aau.carmakit.ThreeDOneCentGestureRecognizer.recognizer.ThreeDOneCentRecognizer;
 import aau.carmakit.Utilities.Action;
@@ -128,12 +129,12 @@ public class RecognizeGestureFragment extends Fragment implements View.OnTouchLi
     private void beginRecognizing() {
         isRecognizing = true;
         getView().setBackgroundColor(getResources().getColor(R.color.orange));
-        if (recognitionListener.isPresent()) {
-            recognitionListener.value.onBeginRecognizing();
-        }
-
-        tempStroke = new ThreeDLabeledStroke(STROKE_DEFAULT_LABEL);
-        sensorManager.registerListener(this, accelerometerSensor, SensorManager.SENSOR_DELAY_FASTEST);
+//        if (recognitionListener.isPresent()) {
+//            recognitionListener.value.onBeginRecognizing();
+//        }
+//
+//        tempStroke = new ThreeDLabeledStroke(STROKE_DEFAULT_LABEL);
+//        sensorManager.registerListener(this, accelerometerSensor, SensorManager.SENSOR_DELAY_FASTEST);
     }
 
     /**
@@ -141,18 +142,18 @@ public class RecognizeGestureFragment extends Fragment implements View.OnTouchLi
      */
     private void endRecognizing() {
         getView().setBackgroundColor(getResources().getColor(R.color.black));
-        if (recognitionListener.isPresent()) {
-            recognitionListener.value.onEndRecognizing();
-        }
-
-        sensorManager.unregisterListener(this);
-        ArrayList<ThreeDMatch> gestureMatches = gestureRecognizer.getAllMatches(tempStroke);
-        for (ThreeDMatch gestureMatch : gestureMatches) {
-            Logger.verbose("Recognized training template " + gestureMatch.getLabel() + " with a score of " + gestureMatch.getScore());
-        }
-
-        CARMAContextRecognizer.getInstance().getGestureContextualInformationProvider().updateProbabilities(gestureMatches);
-        isRecognizing = false;
+//        if (recognitionListener.isPresent()) {
+//            recognitionListener.value.onEndRecognizing();
+//        }
+//
+//        sensorManager.unregisterListener(this);
+//        ArrayList<ThreeDMatch> gestureMatches = gestureRecognizer.getAllMatches(tempStroke);
+//        for (ThreeDMatch gestureMatch : gestureMatches) {
+//            Logger.verbose("Recognized training template " + gestureMatch.getLabel() + " with a score of " + gestureMatch.getScore());
+//        }
+//
+//        CARMAContextRecognizer.getInstance().getGestureContextualInformationProvider().updateProbabilities(gestureMatches);
+//        isRecognizing = false;
 
         recognizeContext();
     }
@@ -161,6 +162,13 @@ public class RecognizeGestureFragment extends Fragment implements View.OnTouchLi
      * Starts context recognition.
      */
     private void recognizeContext() {
+        ArrayList<ThreeDMatch> gestureMatches = new ArrayList<>();
+        gestureMatches.add(new ThreeDMatch(new ThreeDStroke(new ArrayList<ThreeDPoint>()), 10.0, "Circle"));
+        gestureMatches.add(new ThreeDMatch(new ThreeDStroke(new ArrayList<ThreeDPoint>()), 12.0, "Circle"));
+        gestureMatches.add(new ThreeDMatch(new ThreeDStroke(new ArrayList<ThreeDPoint>()), 14.0, "Circle"));
+        gestureMatches.add(new ThreeDMatch(new ThreeDStroke(new ArrayList<ThreeDPoint>()), 27.0, "Circle"));
+        CARMAContextRecognizer.getInstance().getGestureContextualInformationProvider().updateProbabilities(gestureMatches);
+
         try {
             Logger.verbose("Start context engine");
             CARMAContextRecognizer.getInstance().start(this);

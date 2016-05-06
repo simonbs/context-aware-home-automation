@@ -16,6 +16,9 @@ import aau.carma.GridPager.GridFragmentProvider;
 import aau.carma.GridPager.GridRow;
 import aau.carma.GridPager.GridViewPager;
 import aau.carmakit.GestureConfiguration;
+import aau.carmakit.ThreeDOneCentGestureRecognizer.datatype.ThreeDPoint;
+import aau.carmakit.ThreeDOneCentGestureRecognizer.datatype.ThreeDStroke;
+import aau.carmakit.ThreeDOneCentGestureRecognizer.recognizer.ThreeDMatch;
 import aau.carmakit.Utilities.Action;
 import aau.carmakit.Utilities.Logger;
 import aau.carmakit.Utilities.Optional;
@@ -75,7 +78,7 @@ public class MainActivity extends Activity implements GridFragmentProvider<MainA
     @Override
     protected void onResume() {
         super.onResume();
-        SystemRequirementsChecker.checkWithDefaultDialogs(this);
+//        SystemRequirementsChecker.checkWithDefaultDialogs(this);
     }
 
     @Override

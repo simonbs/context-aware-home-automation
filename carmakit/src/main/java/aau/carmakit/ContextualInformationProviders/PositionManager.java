@@ -89,21 +89,21 @@ public class PositionManager {
     private void startBeaconManager() {
         Logger.verbose("PositionManager did start BeaconManager");
 
-        final PositionManager positionManager = this;
-        beaconManager = new BeaconManager(context);
-        beaconManager.connect(new BeaconManager.ServiceReadyCallback() {
-            @Override
-            public void onServiceReady() {
-                // Monitor all configured regions
-                positionManager.scanId = beaconManager.startEddystoneScanning();
-                beaconManager.setEddystoneListener(new BeaconManager.EddystoneListener() {
-                    @Override
-                    public void onEddystonesFound(List<Eddystone> list) {
-                        positionManager.didDiscoverEddystoneBeacons(list);
-                    }
-                });
-            }
-        });
+//        final PositionManager positionManager = this;
+//        beaconManager = new BeaconManager(context);
+//        beaconManager.connect(new BeaconManager.ServiceReadyCallback() {
+//            @Override
+//            public void onServiceReady() {
+//                // Monitor all configured regions
+//                positionManager.scanId = beaconManager.startEddystoneScanning();
+//                beaconManager.setEddystoneListener(new BeaconManager.EddystoneListener() {
+//                    @Override
+//                    public void onEddystonesFound(List<Eddystone> list) {
+//                        positionManager.didDiscoverEddystoneBeacons(list);
+//                    }
+//                });
+//            }
+//        });
     }
 
     /**

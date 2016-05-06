@@ -176,8 +176,14 @@ public class GestureContextualInformationProvider implements ContextualInformati
                     actionProbabilitiesForGesture.put(uniqueActionId, 0.0);
                 }
             }
+
+            gestureActionProbabilities.put(uniqueGestureId, actionProbabilitiesForGesture);
         }
         this.gestureActionProbabilities = new Optional<>(gestureActionProbabilities);
+
+        for (Map.Entry<String, Double> stringDoubleEntry : averagedScores.entrySet()) {
+            Logger.verbose("Averaged score, " + stringDoubleEntry.getKey() + ": " + stringDoubleEntry.getValue());
+        }
 
         // Create evidence.
         HashMap<String, Double> evidence = new HashMap<>();
@@ -191,17 +197,22 @@ public class GestureContextualInformationProvider implements ContextualInformati
                     // If we don't do that, we calculate the score, a total score and
                     // calculate the probability as (1 - score / totalScore) resulting
                     // in a probability of 0.
+                    Logger.verbose("Gesture, set probability for only entry: " + uniqueGestureId);
                     evidence.put(uniqueGestureId, 1.0);
                 } else {
                     // Subtract from one. The lower the score, the better.
+                    Logger.verbose("Gesture, set probability for entry: " + uniqueGestureId + " -> " + (1.0 - (gestureScore / totalScore)));
                     evidence.put(uniqueGestureId, 1.0 - (gestureScore / totalScore));
                 }
             } else {
                 // We have not observed the gesture.
+                Logger.verbose("Gesture, set probability for unobserved entry: " + uniqueGestureId);
                 evidence.put(uniqueGestureId, 0.0);
             }
         }
         this.evidence = new Optional<>(evidence);
+
+        Logger.verbose("Gesture provider did update probabilities");
     }
 
     @Override
@@ -241,9 +252,11 @@ public class GestureContextualInformationProvider implements ContextualInformati
         ArrayList<String> actionIds;
         // Sanity check to ensure we have probabilities for gesture_action node.
         if (gestureActionProbabilities.value.size() > 0) {
+            Logger.verbose("Set gesture action probabilities");
             String firstGestureId = gestureActionProbabilities.value.keySet().iterator().next();
             actionIds = new ArrayList<>(gestureActionProbabilities.value.get(firstGestureId).keySet());
         } else {
+            Logger.verbose("Gesture action probabilities are empty");
             actionIds = new ArrayList<>();
         }
 
@@ -258,6 +271,7 @@ public class GestureContextualInformationProvider implements ContextualInformati
         BayesNode gestureActionNode = net.createNode("gesture_action");
         // Add states to gesture_action node.
         for (String actionId : actionIds) {
+            Logger.verbose("Add gesture_action state: " + actionId);
             gestureActionNode.addOutcome(actionId);
         }
 
@@ -274,13 +288,20 @@ public class GestureContextualInformationProvider implements ContextualInformati
                 rawGestureActionProbabilities[g * actionIds.size() + a] = actionsForGesture.get(actionId);
             }
         }
-        gestureActionNode.setProbabilities(rawGestureProbabilities);
+
+        for (int i = 0; i < rawGestureActionProbabilities.length; i++) {
+            Logger.verbose(i + ": " + rawGestureActionProbabilities[i]);
+        }
+
+        gestureActionNode.setProbabilities(rawGestureActionProbabilities);
 
         // Add evidence to gesture node.
         double[] softEvidence = new double[gestureIds.size()];
         for (int g = 0; g < gestureIds.size(); g++) {
+            Logger.verbose("Add evidence to gesture node: " + evidence.value.get(gestureIds.get(g)));
             softEvidence[g] = evidence.value.get(gestureIds.get(g));
         }
+
         ProvidedContextualInformation contextualInformation = new ProvidedContextualInformation(
                 gestureActionNode,
                 gestureNode,

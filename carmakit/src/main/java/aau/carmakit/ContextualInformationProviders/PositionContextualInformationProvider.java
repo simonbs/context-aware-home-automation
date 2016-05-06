@@ -178,37 +178,6 @@ public class PositionContextualInformationProvider implements ContextualInformat
         enteredRoomObservations = result;
     }
 
-    /**
-     * Counts the number of observations for each room.
-     * @return Map containing observation count. Keys are room IDs and values
-     * are the number of times the user is observed in the room.
-     */
-    private HashMap<String, Integer> countObservations() {
-        // Compute occurrences of the rooms being in each room.
-        // Keys are the room identifiers and values are the number of
-        // times we have observed the user in the room.
-        HashMap<String, Integer> roomObservationCountMap = new HashMap<>();
-        if (virtualPosition.isPresent()) {
-            // We are using a virtual position, so the only room we have observed is
-            // the virtual position.
-            roomObservationCountMap.put(virtualPosition.value.identifier, 1);
-        } else {
-            for (EnteredRoomObservation enteredRoomObservation : enteredRoomObservations) {
-                String roomIdentifier = enteredRoomObservation.room.identifier;
-                if (roomObservationCountMap.containsKey(roomIdentifier)) {
-                    // We have seen the room identifier before.
-                    int newCount = roomObservationCountMap.get(roomIdentifier) + 1;
-                    roomObservationCountMap.put(roomIdentifier, newCount);
-                } else {
-                    // It is the first time we see the room identifier.
-                    roomObservationCountMap.put(roomIdentifier, 1);
-                }
-            }
-        }
-
-        return roomObservationCountMap;
-    }
-
     @Override
     public void getContext(ContextualInformationListener listener, BayesNet net) {
         this.listener = new Optional<>(listener);
@@ -226,6 +195,34 @@ public class PositionContextualInformationProvider implements ContextualInformat
                 uniqueActionIds.add(gestureConfiguration.actionId);
             }
         }
+
+        // Count observed rooms.
+        HashMap<String, Integer> roomObservationCountMap = new HashMap<>();
+        roomObservationCountMap.put("carma:room:f3bf9779", 14);
+//        roomObservationCountMap.put("carma:room:03473522", 6);
+
+//        if (virtualPosition.isPresent()) {
+//            // We are using a virtual position, so the only room we have observed is
+//            // the virtual position.
+//            roomObservationCountMap.put(virtualPosition.value.identifier, 1);
+//        } else {
+//            for (String uniqueRoomId : uniqueRoomIds) {
+//                if (enteredRoomObservations.contains(uniqueRoomId)) {
+//                    // We have observed the user in the room.
+//                    if (roomObservationCountMap.containsKey(uniqueRoomId)) {
+//                        // We have seen the room identifier before.
+//                        int newCount = roomObservationCountMap.get(uniqueRoomId) + 1;
+//                        roomObservationCountMap.put(uniqueRoomId, newCount);
+//                    } else {
+//                        // It is the first time we see the room identifier.
+//                        roomObservationCountMap.put(uniqueRoomId, 1);
+//                    }
+//                } else {
+//                    // We have not observed the user in the room.
+//                    roomObservationCountMap.put(uniqueRoomId, 0);
+//                }
+//            }
+//        }
 
         // Sort room IDs to ensure uniformity.
         Collections.sort(uniqueRoomIds, new Comparator<String>() {
@@ -306,12 +303,21 @@ public class PositionContextualInformationProvider implements ContextualInformat
         roomActionNode.setProbabilities(rawRoomActionProabilities);
 
         // Add soft evidence to the room node.
-        int totalObservationsCount = enteredRoomObservations.size();
-        HashMap<String, Integer> countedObservations = countObservations();
+        int totalObservationsCount = 0;
+        for (Integer roomObservationCount : roomObservationCountMap.values()) {
+            totalObservationsCount += roomObservationCount;
+        }
+
         double[] softEvidence = new double[uniqueRoomIds.size()];
         for (int r = 0; r < uniqueRoomIds.size(); r++) {
             String roomId = uniqueRoomIds.get(r);
-            softEvidence[r] = (double)countedObservations.get(roomId) / (double)totalObservationsCount;
+            int observationCount = roomObservationCountMap.get(roomId);
+            Logger.verbose("Add evidence to room node: " + (double)observationCount + "/" + (double)totalObservationsCount + " = " + (double)observationCount / (double)totalObservationsCount);
+            if (observationCount == 0 || totalObservationsCount == 0) {
+                softEvidence[r] = 0.0;
+            } else {
+                softEvidence[r] = (double) roomObservationCountMap.get(roomId) / (double) totalObservationsCount;
+            }
         }
 
         ProvidedContextualInformation contextualInformation = new ProvidedContextualInformation(
