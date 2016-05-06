@@ -55,7 +55,7 @@ public class RecognizeGestureFragment extends Fragment implements View.OnTouchLi
      * When more than one outcome is considered, we present a picker allowing
      * the user to choose which action they want to trigger.
      */
-    private static final double ContextOutcomeAcceptanceThreshold = 0.1;
+    private static final double ContextOutcomeAcceptanceThreshold = 0.04;
 
     /**
      * Whether or not we are currently recognizing a gesture.
@@ -129,12 +129,12 @@ public class RecognizeGestureFragment extends Fragment implements View.OnTouchLi
     private void beginRecognizing() {
         isRecognizing = true;
         getView().setBackgroundColor(getResources().getColor(R.color.orange));
-//        if (recognitionListener.isPresent()) {
-//            recognitionListener.value.onBeginRecognizing();
-//        }
-//
-//        tempStroke = new ThreeDLabeledStroke(STROKE_DEFAULT_LABEL);
-//        sensorManager.registerListener(this, accelerometerSensor, SensorManager.SENSOR_DELAY_FASTEST);
+        if (recognitionListener.isPresent()) {
+            recognitionListener.value.onBeginRecognizing();
+        }
+
+        tempStroke = new ThreeDLabeledStroke(STROKE_DEFAULT_LABEL);
+        sensorManager.registerListener(this, accelerometerSensor, SensorManager.SENSOR_DELAY_FASTEST);
     }
 
     /**
@@ -142,18 +142,18 @@ public class RecognizeGestureFragment extends Fragment implements View.OnTouchLi
      */
     private void endRecognizing() {
         getView().setBackgroundColor(getResources().getColor(R.color.black));
-//        if (recognitionListener.isPresent()) {
-//            recognitionListener.value.onEndRecognizing();
-//        }
-//
-//        sensorManager.unregisterListener(this);
-//        ArrayList<ThreeDMatch> gestureMatches = gestureRecognizer.getAllMatches(tempStroke);
-//        for (ThreeDMatch gestureMatch : gestureMatches) {
-//            Logger.verbose("Recognized training template " + gestureMatch.getLabel() + " with a score of " + gestureMatch.getScore());
-//        }
-//
-//        CARMAContextRecognizer.getInstance().getGestureContextualInformationProvider().updateProbabilities(gestureMatches);
-//        isRecognizing = false;
+        if (recognitionListener.isPresent()) {
+            recognitionListener.value.onEndRecognizing();
+        }
+
+        sensorManager.unregisterListener(this);
+        ArrayList<ThreeDMatch> gestureMatches = gestureRecognizer.getAllMatches(tempStroke);
+        for (ThreeDMatch gestureMatch : gestureMatches) {
+            Logger.verbose("Recognized training template " + gestureMatch.getLabel() + " with a score of " + gestureMatch.getScore());
+        }
+
+        CARMAContextRecognizer.getInstance().getGestureContextualInformationProvider().updateProbabilities(gestureMatches);
+        isRecognizing = false;
 
         recognizeContext();
     }
@@ -162,12 +162,12 @@ public class RecognizeGestureFragment extends Fragment implements View.OnTouchLi
      * Starts context recognition.
      */
     private void recognizeContext() {
-        ArrayList<ThreeDMatch> gestureMatches = new ArrayList<>();
-        gestureMatches.add(new ThreeDMatch(new ThreeDStroke(new ArrayList<ThreeDPoint>()), 10.0, "Circle"));
-        gestureMatches.add(new ThreeDMatch(new ThreeDStroke(new ArrayList<ThreeDPoint>()), 12.0, "Circle"));
-        gestureMatches.add(new ThreeDMatch(new ThreeDStroke(new ArrayList<ThreeDPoint>()), 14.0, "Circle"));
-        gestureMatches.add(new ThreeDMatch(new ThreeDStroke(new ArrayList<ThreeDPoint>()), 27.0, "Circle"));
-        CARMAContextRecognizer.getInstance().getGestureContextualInformationProvider().updateProbabilities(gestureMatches);
+//        ArrayList<ThreeDMatch> gestureMatches = new ArrayList<>();
+//        gestureMatches.add(new ThreeDMatch(new ThreeDStroke(new ArrayList<ThreeDPoint>()), 10.0, "Circle"));
+//        gestureMatches.add(new ThreeDMatch(new ThreeDStroke(new ArrayList<ThreeDPoint>()), 12.0, "Circle"));
+//        gestureMatches.add(new ThreeDMatch(new ThreeDStroke(new ArrayList<ThreeDPoint>()), 14.0, "Circle"));
+//        gestureMatches.add(new ThreeDMatch(new ThreeDStroke(new ArrayList<ThreeDPoint>()), 27.0, "Circle"));
+//        CARMAContextRecognizer.getInstance().getGestureContextualInformationProvider().updateProbabilities(gestureMatches);
 
         try {
             Logger.verbose("Start context engine");
@@ -249,7 +249,6 @@ public class RecognizeGestureFragment extends Fragment implements View.OnTouchLi
         for (ContextOutcome outcome : acceptedOutcomes) {
             Logger.verbose("Accepted outcome " + outcome.id + " with probability " + outcome.probability);
         }
-
 
         if (acceptedOutcomes.size() == 1) {
             // Choose the only outcome.

@@ -26,7 +26,7 @@
             android:name=".MainActivity"
             android:label="@string/app_name" />
         <activity
-            android:name=".TrainGestureActivity"
+            android:name=".TrainGesture.TrainGestureActivity"
             android:label="@string/title_activity_train_gesture" />
         <activity
             android:name=".TrainGesture.NameTrainGestureActivity"

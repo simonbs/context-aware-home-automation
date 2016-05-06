@@ -89,21 +89,21 @@ public class PositionManager {
     private void startBeaconManager() {
         Logger.verbose("PositionManager did start BeaconManager");
 
-//        final PositionManager positionManager = this;
-//        beaconManager = new BeaconManager(context);
-//        beaconManager.connect(new BeaconManager.ServiceReadyCallback() {
-//            @Override
-//            public void onServiceReady() {
-//                // Monitor all configured regions
-//                positionManager.scanId = beaconManager.startEddystoneScanning();
-//                beaconManager.setEddystoneListener(new BeaconManager.EddystoneListener() {
-//                    @Override
-//                    public void onEddystonesFound(List<Eddystone> list) {
-//                        positionManager.didDiscoverEddystoneBeacons(list);
-//                    }
-//                });
-//            }
-//        });
+        final PositionManager positionManager = this;
+        beaconManager = new BeaconManager(context);
+        beaconManager.connect(new BeaconManager.ServiceReadyCallback() {
+            @Override
+            public void onServiceReady() {
+                // Monitor all configured regions
+                positionManager.scanId = beaconManager.startEddystoneScanning();
+                beaconManager.setEddystoneListener(new BeaconManager.EddystoneListener() {
+                    @Override
+                    public void onEddystonesFound(List<Eddystone> list) {
+                        positionManager.didDiscoverEddystoneBeacons(list);
+                    }
+                });
+            }
+        });
     }
 
     /**
@@ -160,10 +160,10 @@ public class PositionManager {
         // Check if we found beacons at all.
         if (beacons.isEmpty()) { return; }
 
-        // Don'd do anything if no one is interested in the data.
+        // Don't do anything if no one is interested in the data.
         if (listener == null) { return; }
 
-        // Find the eddystone with the highest RSSI.
+        // Find the Eddystone with the highest RSSI.
         Collections.sort(beacons, new Comparator<Eddystone>() {
             @Override
             public int compare(Eddystone lhs, Eddystone rhs) {

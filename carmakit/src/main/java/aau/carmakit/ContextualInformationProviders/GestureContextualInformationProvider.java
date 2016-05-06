@@ -76,7 +76,7 @@ public class GestureContextualInformationProvider implements ContextualInformati
      */
     public void updateProbabilities(ArrayList<ThreeDMatch> matches) {
         // A gesture score must be lower than or equal to the threshold in order to be considered.
-        Double gestureScoreThreshold = 40.0;
+        Double gestureScoreThreshold = 70.0;
 
         // Group the scores as each gesture appears multiple times,
         // i.e. one per training template.
@@ -187,9 +187,12 @@ public class GestureContextualInformationProvider implements ContextualInformati
 
         // Create evidence.
         HashMap<String, Double> evidence = new HashMap<>();
-        Set<String> observedGestures = groupedScores.keySet(); // Gesture IDs of gestures we have recognized.
         for (String uniqueGestureId : uniqueGestureIds) {
-            if (observedGestures.contains(uniqueGestureId)) {
+            if (averagedScores.keySet().size() == 0) {
+                // If the averaged scores are empty, we assign an equal evidence to all gestures.
+                Logger.verbose("Gesture, set equal evidence entry: " + uniqueGestureId + " -> " + 1.0 / (double)uniqueGestureId.length());
+                evidence.put(uniqueGestureId, 1.0 / (double)uniqueGestureId.length());
+            } else if (averagedScores.keySet().contains(uniqueGestureId)) {
                 // We have observed, i.e. recognized the gesture with some probability.
                 Double gestureScore = averagedScores.get(uniqueGestureId);
                 if (averagedScores.size() == 1) {
@@ -197,16 +200,16 @@ public class GestureContextualInformationProvider implements ContextualInformati
                     // If we don't do that, we calculate the score, a total score and
                     // calculate the probability as (1 - score / totalScore) resulting
                     // in a probability of 0.
-                    Logger.verbose("Gesture, set probability for only entry: " + uniqueGestureId);
+                    Logger.verbose("Gesture, set evidence for only entry: " + uniqueGestureId);
                     evidence.put(uniqueGestureId, 1.0);
                 } else {
                     // Subtract from one. The lower the score, the better.
-                    Logger.verbose("Gesture, set probability for entry: " + uniqueGestureId + " -> " + (1.0 - (gestureScore / totalScore)));
+                    Logger.verbose("Gesture, set evidence for entry: " + uniqueGestureId + " -> " + (1.0 - (gestureScore / totalScore)));
                     evidence.put(uniqueGestureId, 1.0 - (gestureScore / totalScore));
                 }
             } else {
                 // We have not observed the gesture.
-                Logger.verbose("Gesture, set probability for unobserved entry: " + uniqueGestureId);
+                Logger.verbose("Gesture, set evidence for unobserved entry: " + uniqueGestureId);
                 evidence.put(uniqueGestureId, 0.0);
             }
         }
@@ -287,10 +290,6 @@ public class GestureContextualInformationProvider implements ContextualInformati
                 String actionId = actionIds.get(a);
                 rawGestureActionProbabilities[g * actionIds.size() + a] = actionsForGesture.get(actionId);
             }
-        }
-
-        for (int i = 0; i < rawGestureActionProbabilities.length; i++) {
-            Logger.verbose(i + ": " + rawGestureActionProbabilities[i]);
         }
 
         gestureActionNode.setProbabilities(rawGestureActionProbabilities);

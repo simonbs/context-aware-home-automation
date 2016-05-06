@@ -78,7 +78,7 @@ public class MainActivity extends Activity implements GridFragmentProvider<MainA
     @Override
     protected void onResume() {
         super.onResume();
-//        SystemRequirementsChecker.checkWithDefaultDialogs(this);
+        SystemRequirementsChecker.checkWithDefaultDialogs(this);
     }
 
     @Override
