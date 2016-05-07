@@ -148,9 +148,6 @@ public class RecognizeGestureFragment extends Fragment implements View.OnTouchLi
 
         sensorManager.unregisterListener(this);
         ArrayList<ThreeDMatch> gestureMatches = gestureRecognizer.getAllMatches(tempStroke);
-        for (ThreeDMatch gestureMatch : gestureMatches) {
-            Logger.verbose("Recognized training template " + gestureMatch.getLabel() + " with a score of " + gestureMatch.getScore());
-        }
 
         CARMAContextRecognizer.getInstance().getGestureContextualInformationProvider().updateProbabilities(gestureMatches);
         isRecognizing = false;
@@ -170,10 +167,9 @@ public class RecognizeGestureFragment extends Fragment implements View.OnTouchLi
 //        CARMAContextRecognizer.getInstance().getGestureContextualInformationProvider().updateProbabilities(gestureMatches);
 
         try {
-            Logger.verbose("Start context engine");
             CARMAContextRecognizer.getInstance().start(this);
         } catch (ContextRecognizer.IsRecognizingException e) {
-            Logger.error("Cannot recognize while already recognizing.");
+            Logger.error("[RecognizeGestureFragment] Cannot recognize while already recognizing.");
             e.printStackTrace();
         }
     }
@@ -214,7 +210,7 @@ public class RecognizeGestureFragment extends Fragment implements View.OnTouchLi
     public void onContextReady(ArrayList<ContextOutcome> outcomes) {
         // Don't do anything if we did not get any outcomes.
         if (outcomes.size() <= 0) {
-            Logger.verbose("Got no outcomes");
+            Logger.verbose("[RecognizeGestureFragment] The context recognizer gave us no outcomes. Recognition failed.");
             return;
         }
 
@@ -232,10 +228,6 @@ public class RecognizeGestureFragment extends Fragment implements View.OnTouchLi
             }
         });
 
-        for (ContextOutcome outcome : outcomes) {
-            Logger.verbose("Context engine suggests outcome " + outcome.id + " with probability " + outcome.probability);
-        }
-
         // Accept outcomes that have almost the same probability as the outcome
         // with the highest probability.
         ContextOutcome mostProbableOutcome = outcomes.get(0);
@@ -246,15 +238,22 @@ public class RecognizeGestureFragment extends Fragment implements View.OnTouchLi
             }
         }
 
+        // Log accepted outcomes for debugging purposes.
         for (ContextOutcome outcome : acceptedOutcomes) {
-            Logger.verbose("Accepted outcome " + outcome.id + " with probability " + outcome.probability);
+            Logger.verbose("[RecognizeGestureFragment] Accept outcome " + outcome.id + " with probability " + outcome.probability + ".");
         }
 
         if (acceptedOutcomes.size() == 1) {
             // Choose the only outcome.
+            Logger.verbose("[RecognizeGestureFragment] Only one outcome was accepted. Trigger action " + acceptedOutcomes.get(0).id + ".");
             triggerActionForContextOutcome(acceptedOutcomes.get(0));
         } else {
             // Let the user pick an outcome.
+            Logger.verbose("[RecognizeGestureFragment] Multiple outcomes were accepted. Present a picker with the following outcomes to the user:");
+            for (ContextOutcome acceptedOutcome : acceptedOutcomes) {
+                Logger.verbose("[RecognizeGestureFragment] - " + acceptedOutcome.id + " with probability " + acceptedOutcome.probability + ".");
+            }
+
             presentContextOutcomePicker(acceptedOutcomes);
             Vibrator.significantEvent();
         }
@@ -262,12 +261,12 @@ public class RecognizeGestureFragment extends Fragment implements View.OnTouchLi
 
     @Override
     public void onFailedRecognizingContext() {
-        Logger.verbose("Context engine failed.");
+        Logger.verbose("[RecognizeGestureFragment] Context engine failed.");
     }
 
     @Override
     public void onContextRecognitionTimeout() {
-        Logger.verbose("Context engine did timeout.");
+        Logger.verbose("[RecognizeGestureFragment] Context engine did timeout.");
     }
 
     /**
@@ -277,10 +276,11 @@ public class RecognizeGestureFragment extends Fragment implements View.OnTouchLi
     private void triggerActionForContextOutcome(ContextOutcome contextOutcome) {
         Optional<Action> action = ActionsGateway.getAction(contextOutcome.id);
         if (!action.isPresent()) {
+            Logger.verbose("[RecognizeGestureFragment] Unable to find an action for outcome " + contextOutcome.id + ".");
             return;
         }
 
-        Logger.verbose("Action for outcome: " + action.value.itemName + " -> " + action.value.newState);
+        Logger.verbose("[RecognizeGestureFragment] Trigger action on item " + action.value.itemName + ". Set new state to " + action.value.newState + ".");
 
         new OpenHABClient().updateItemState(action.value.itemName, action.value.newState, new BooleanResultListener() {
             @Override

@@ -136,7 +136,7 @@ public class ContextRecognizer {
         this.listener = listener;
         providedContextualInformations.clear();
 
-        Logger.verbose("Context recognizer will start");
+        Logger.verbose("[ContextRecognizer] Context recognizer will start.");
 
         if (contextualInformationProviders.size() > 0) {
             // We have context providers registered. Start recognizing.
@@ -150,7 +150,7 @@ public class ContextRecognizer {
             }
         }
 
-        Logger.verbose("Context recognizer did start");
+        Logger.verbose("[ContextRecognizer] Context recognizer did start.");
     }
 
     /**
@@ -166,7 +166,7 @@ public class ContextRecognizer {
         }
 
         for (final Map.Entry<UUID, ContextualInformationProvider> entry : contextualInformationProviders.entrySet()) {
-            Logger.verbose("Start context provider " + entry.getKey());
+            Logger.verbose("[ContextRecognizer] Start contextual information provider " + entry.getKey() + ".");
 
             final UUID uuid = entry.getKey();
             final ContextualInformationProvider contextualInformationProvider= entry.getValue();
@@ -270,7 +270,7 @@ public class ContextRecognizer {
      * have more pending context providers.
      */
     private void checkIfRecognitionCompleted() {
-        Logger.verbose("Remaining pending context providers: " + pendingContextualInformationProviders.size());
+        Logger.verbose("[ContextRecognizer] We are waiting for " + pendingContextualInformationProviders.size() + " more contextual information provider(s).");
         if (pendingContextualInformationProviders.isEmpty()) {
             onRecognitionCompleted();
         }
@@ -301,7 +301,7 @@ public class ContextRecognizer {
             for (int i = 0; i < nodeStatesHashSets.size(); i++) {
                 for (int n = 0; n < nodeStatesHashSets.size(); n++) {
                     if (!nodeStatesHashSets.get(i).equals(nodeStatesHashSets.get(n))) {
-                        Logger.error("Action nodes does not have same states!");
+                        Logger.error("[ContextRecognizer] Action nodes does not have same states. This is a serious error!");
                         listener.onFailedRecognizingContext();
                         return;
                     }
@@ -311,14 +311,17 @@ public class ContextRecognizer {
             // All nodes have the same states. Take the states from one of the nodes.
             List<String> states = providedContextualInformations.get(0).actionParentNode.getOutcomes();
 
+            // Add states to action node.
             BayesNode actionNode = net.value.createNode("action");
             for (String state : states) {
+                Logger.verbose("[ContextRecognizer] Add state " + state + " to action node.");
                 actionNode.addOutcomes(state);
             }
 
             // Add parents to the action node.
             ArrayList<BayesNode> actionParents = new ArrayList<>();
             for (ProvidedContextualInformation providedContextualInformation : providedContextualInformations) {
+                Logger.verbose("[ContextRecognizer] Set " + providedContextualInformation.actionParentNode.getName() + " as parent to action node.");
                 actionParents.add(providedContextualInformation.actionParentNode);
             }
             actionNode.setParents(actionParents);
@@ -331,45 +334,52 @@ public class ContextRecognizer {
             SoftEvidenceInferrer inference = new SoftEvidenceInferrer(new JunctionTreeAlgorithm());
             inference.setNetwork(net.value);
             for (ProvidedContextualInformation providedContextualInformation : providedContextualInformations) {
+                Logger.verbose("[ContextRecognizer] Add evidence to " + providedContextualInformation.evidenceNode.getName() + " node.");
+                for (int e = 0; e < providedContextualInformation.softEvidence.length; e++) {
+                    Logger.verbose("[ContextRecognizer] - " + providedContextualInformation.evidenceNode.getOutcomeName(e) + " state: " + providedContextualInformation.softEvidence[e] + ".");
+                }
+
                 inference.addSoftEvidence(providedContextualInformation.evidenceNode, providedContextualInformation.softEvidence);
             }
 
+            // Create context outcomes that are delivered to the listener.
             ArrayList<ContextOutcome> contextOutcomes = new ArrayList<>();
             BayesNode inferredActionNode = net.value.getNode("action");
             double[] actionBeliefs = inference.getBeliefs(inferredActionNode);
             for (int i = 0; i < actionBeliefs.length; i++) {
+                Logger.verbose("[ContextRecognizer] Create outcome " + inferredActionNode.getOutcomeName(i) + " with probability " + actionBeliefs[i] + ".");
                 contextOutcomes.add(new ContextOutcome(inferredActionNode.getOutcomeName(i), actionBeliefs[i]));
             }
 
             listener.onContextReady(contextOutcomes);
 
             double[] gestureBeliefs = inference.getBeliefs(net.value.getNode("gesture"));
-            Logger.verbose("Gesture beliefs:");
+            Logger.verbose("[ContextRecognizer] Beliefs for the gesture node:");
             for (int i = 0; i < gestureBeliefs.length; i++) {
-                Logger.verbose(" - " + net.value.getNode("gesture").getOutcomeName(i) + ": " + gestureBeliefs[i] * 100);
+                Logger.verbose("[ContextRecognizer] - " + net.value.getNode("gesture").getOutcomeName(i) + ": " + gestureBeliefs[i] * 100);
             }
 
             double[] roomBeliefs = inference.getBeliefs(net.value.getNode("room"));
-            Logger.verbose("Room beliefs:");
+            Logger.verbose("[ContextRecognizer] Beliefs for the room node:");
             for (int i = 0; i < roomBeliefs.length; i++) {
-                Logger.verbose(" - " + net.value.getNode("room").getOutcomeName(i) + ": " + roomBeliefs[i] * 100);
+                Logger.verbose("[ContextRecognizer] - " + net.value.getNode("room").getOutcomeName(i) + ": " + roomBeliefs[i] * 100);
             }
 
             double[] gestureActionBeliefs = inference.getBeliefs(net.value.getNode("gesture_action"));
-            Logger.verbose("Gesture action beliefs:");
+            Logger.verbose("[ContextRecognizer] Beliefs for the gesture_action node:");
             for (int i = 0; i < gestureActionBeliefs.length; i++) {
-                Logger.verbose(" - " + net.value.getNode("gesture_action").getOutcomeName(i) + ": " + gestureActionBeliefs[i] * 100);
+                Logger.verbose("[ContextRecognizer] - " + net.value.getNode("gesture_action").getOutcomeName(i) + ": " + gestureActionBeliefs[i] * 100);
             }
 
             double[] roomActionBeliefs = inference.getBeliefs(net.value.getNode("room_action"));
-            Logger.verbose("Room action beliefs:");
+            Logger.verbose("[ContextRecognizer] Beliefs for the room_action node:");
             for (int i = 0; i < roomActionBeliefs.length; i++) {
-                Logger.verbose(" - " + net.value.getNode("room_action").getOutcomeName(i) + ": " + roomActionBeliefs[i] * 100);
+                Logger.verbose("[ContextRecognizer] - " + net.value.getNode("room_action").getOutcomeName(i) + ": " + roomActionBeliefs[i] * 100);
             }
 
-            Logger.verbose("Action beliefs:");
+            Logger.verbose("[ContextRecognizer] Beliefs for the action node:");
             for (int i = 0; i < actionBeliefs.length; i++) {
-                Logger.verbose(" - " + net.value.getNode("action").getOutcomeName(i) + ": " + actionBeliefs[i] * 100);
+                Logger.verbose("[ContextRecognizer] - " + net.value.getNode("action").getOutcomeName(i) + ": " + actionBeliefs[i] * 100);
             }
         }
     }

@@ -76,7 +76,6 @@ public class PositionManager {
      * @param context Context in which to perform the monitoring. Typically the application context.
      */
     public void startMonitoring(Context context, EventListener listener) {
-        Logger.verbose("PositionManager did start monitoring");
         this.context = context;
         this.listener = listener;
         startBeaconManager();
@@ -87,8 +86,6 @@ public class PositionManager {
      * scanning for nearby beacons.
      */
     private void startBeaconManager() {
-        Logger.verbose("PositionManager did start BeaconManager");
-
         final PositionManager positionManager = this;
         beaconManager = new BeaconManager(context);
         beaconManager.connect(new BeaconManager.ServiceReadyCallback() {
@@ -110,8 +107,6 @@ public class PositionManager {
      * Stops monitoring for change in rooms.
      */
     public void stopMonitoring() {
-        Logger.verbose("PositionManager did stop monitoring");
-
         if (scanId != null) {
             beaconManager.stopEddystoneScanning(scanId);
         }

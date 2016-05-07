@@ -50,25 +50,25 @@ public class MainActivity extends Activity implements GridFragmentProvider<MainA
         gridPager = (GridViewPager) findViewById(R.id.main_pager);
         gridPager.setAdapter(gridAdapter);
 
-        Logger.verbose("TRAINED GESTURES:");
+        Logger.verbose("[MainActivity] Trained gestures:");
         Optional<ArrayList<String>> gestureNames = GesturesGateway.allUniqueGestureNames();
         if (gestureNames.isPresent()) {
             for (String name : gestureNames.value) {
-                Logger.verbose(" - " + name);
+                Logger.verbose("[MainActivity] - " + name);
             }
         } else {
-            Logger.verbose("No gestures retrieved.");
+            Logger.verbose("[MainActivity] - No trained gestures found.");
         }
 
-        Logger.verbose("CONFIGURED (AND VALID) ACTIONS:");
+        Logger.verbose("[MainActivity] Gesture configurations:");
         Optional<ArrayList<GestureConfiguration>> gestureConfigurations = GestureConfigurationsGateway.getAllGestureConfigurations();
         if (gestureConfigurations.isPresent()) {
             for (GestureConfiguration gestureConfiguration : gestureConfigurations.value) {
                 Optional<Room> room = RoomsManager.getInstance().getRoom(gestureConfiguration.roomId);
                 Optional<Action> action = ActionsGateway.getAction(gestureConfiguration.actionId);
                 if (room.isPresent() && action.isPresent()) {
-                    Logger.verbose(" - Gesture '" + gestureConfiguration.gestureId
-                            + "' in " + room.value.name + ": "
+                    Logger.verbose(" - [MainActivity] Gesture '" + gestureConfiguration.gestureId
+                            + "' in " + room.value.name + " triggers: "
                             + action.value.itemName + " -> " + action.value.newState);
                 }
             }

@@ -1,5 +1,6 @@
 package aau.carmakit.ContextualInformationProviders;
 import android.content.Context;
+import android.util.Log;
 
 import com.android.internal.util.Predicate;
 
@@ -101,7 +102,7 @@ public class PositionContextualInformationProvider implements ContextualInformat
         positionManager = new PositionManager();
         positionManager.configureWithRooms(rooms);
         startMonitoringPosition();
-        Logger.verbose("Did configure PositionManager");
+        Logger.verbose("[PositionContextualInformationProvider] Did start monitoring rooms.");
     }
 
     /**
@@ -157,10 +158,44 @@ public class PositionContextualInformationProvider implements ContextualInformat
      * @param room Room the user entered.
      */
     private void didFindUserToBeInRoom(Room room) {
-        Logger.verbose("Did receive evidence that user is in room " + room.name);
+        Logger.verbose("[PositionContextualInformationProvider] Did receive evidence that the user is in room " + room.name + " (" + room.identifier + ").");
         EnteredRoomObservation observation = new EnteredRoomObservation(System.currentTimeMillis(), room);
         enteredRoomObservations.add(observation);
         removeOldEnteredRoomObservations();
+
+        // For debugging purposes only.
+        HashMap<String, Integer> roomObservationCountMap = new HashMap<>();
+        if (virtualPosition.isPresent()) {
+            // We are using a virtual position, so the only room we have observed is
+            // the virtual position.
+            roomObservationCountMap.put(virtualPosition.value.identifier, 1);
+        } else {
+            for (EnteredRoomObservation enteredRoomObservation : enteredRoomObservations) {
+                final String roomId = enteredRoomObservation.room.identifier;
+                Funcable<EnteredRoomObservation> observationWithIdentifier = new Funcable<>(enteredRoomObservations).filter(new Predicate<EnteredRoomObservation>() {
+                    @Override
+                    public boolean apply(EnteredRoomObservation enteredRoomObservation) {
+                        return enteredRoomObservation.room.identifier.equals(roomId);
+                    }
+                });
+
+                int observationCount = observationWithIdentifier.getValue().size();
+                roomObservationCountMap.put(roomId, observationCount);
+            }
+        }
+
+        // Count total observations.
+        int totalObservationsCount = 0;
+        for (Integer roomObservationCount : roomObservationCountMap.values()) {
+            totalObservationsCount += roomObservationCount;
+        }
+
+        String probabiltiesLogMsg = "";
+        for (Map.Entry<String, Integer> entry : roomObservationCountMap.entrySet()) {
+            probabiltiesLogMsg += entry.getKey() + " " + entry.getValue() + " time(s) (" + (double)entry.getValue() / (double)totalObservationsCount + ") ";
+        }
+
+        Logger.verbose("[PositionContextualInformationProvider] User was observed in rooms " + probabiltiesLogMsg);
     }
 
     /**
@@ -172,7 +207,7 @@ public class PositionContextualInformationProvider implements ContextualInformat
         ArrayList<EnteredRoomObservation> result = new ArrayList<>();
         for (EnteredRoomObservation enteredRoomObservation : enteredRoomObservations) {
             if (enteredRoomObservation.timestamp > maxAgeTimestamp) {
-                Logger.verbose("Remove observed room: " + enteredRoomObservation.room.name);
+                Logger.verbose("[PositionContextualInformationProvider] An observation in room " + enteredRoomObservation.room.name + " (" + enteredRoomObservation.room.identifier + ") was removed. It was too old.");
                 result.add(enteredRoomObservation);
             }
         }
@@ -184,9 +219,7 @@ public class PositionContextualInformationProvider implements ContextualInformat
     public void getContext(ContextualInformationListener listener, BayesNet net) {
         this.listener = new Optional<>(listener);
 
-        for (EnteredRoomObservation enteredRoomObservation : enteredRoomObservations) {
-            Logger.verbose("Observed room: " + enteredRoomObservation.room.name + " (" + enteredRoomObservation.room.identifier + "), " + enteredRoomObservation.timestamp);
-        }
+        Logger.verbose("[PositionContextualInformationProvider] Will get context.");
 
         // Find all unique configured rooms and actions.
         ArrayList<GestureConfiguration> gestureConfigurations = DatabaseHelper.getInstance(context).getAllGestureConfiguration();
@@ -204,13 +237,9 @@ public class PositionContextualInformationProvider implements ContextualInformat
 
         // Count observed rooms.
         HashMap<String, Integer> roomObservationCountMap = new HashMap<>();
-//        roomObservationCountMap.put("carma:room:f3bf9779", 14);
-//        roomObservationCountMap.put("carma:room:03473522", 6);
-
         if (virtualPosition.isPresent()) {
             // We are using a virtual position, so the only room we have observed is
             // the virtual position.
-            Logger.verbose("We are using a virtual position: " + virtualPosition.value.identifier);
             roomObservationCountMap.put(virtualPosition.value.identifier, 1);
         } else {
             for (final String uniqueRoomId : uniqueRoomIds) {
@@ -226,9 +255,10 @@ public class PositionContextualInformationProvider implements ContextualInformat
             }
         }
 
-        // Log observation counts.
-        for (Map.Entry<String, Integer> entry : roomObservationCountMap.entrySet()) {
-            Logger.verbose("User was observed in room " + entry.getKey() + " " + entry.getValue() + " time(s)");
+        // Count total observations.
+        int totalObservationsCount = 0;
+        for (Integer roomObservationCount : roomObservationCountMap.values()) {
+            totalObservationsCount += roomObservationCount;
         }
 
         // Sort room IDs to ensure uniformity.
@@ -270,6 +300,7 @@ public class PositionContextualInformationProvider implements ContextualInformat
         // Add states to room node.
         BayesNode roomNode = net.createNode("room");
         for (String uniqueRoomId : uniqueRoomIds) {
+            Logger.verbose("[PositionContextualInformationProvider] Add state " + uniqueRoomId + " to room node.");
             roomNode.addOutcome(uniqueRoomId);
         }
 
@@ -277,6 +308,7 @@ public class PositionContextualInformationProvider implements ContextualInformat
         double[] rawRoomProbabilities = new double[uniqueRoomIds.size()];
         int roomCount = uniqueRoomIds.size();
         for (int r = 0; r < roomCount; r++) {
+            Logger.verbose("[PositionContextualInformationProvider] P(room=" + uniqueRoomIds.get(r) + ") = " + (1.0 / (double)roomCount) + ".");
             rawRoomProbabilities[r] = 1.0 / (double)roomCount;
         }
         roomNode.setProbabilities(rawRoomProbabilities);
@@ -300,26 +332,20 @@ public class PositionContextualInformationProvider implements ContextualInformat
                 int probabilityIdx = r * uniqueActionIds.size() + a;
                 if (actionIdsForRoom.size() == 0) {
                     // No actions can be triggered in this room. Use same probability.
-                    Logger.verbose("No actions can be triggered in room " + roomId + ". Use same probability: 1.0 / " + (double)uniqueActionIds.size() + " = " + 1.0 / (double)uniqueActionIds.size());
+                    Logger.verbose("[PositionContextualInformationProvider] P(room_action=" + actionId + "|room=" + roomId + ") = " + (1.0 / (double)uniqueActionIds.size()) + ", same as others because no action can be triggered in the room.");
                     rawRoomActionProbabilities[probabilityIdx] = 1.0 / (double)uniqueActionIds.size();
                 } else if (actionIdsForRoom.contains(actionId)) {
                     // The action can be triggered in the room.
-                    Logger.verbose(actionId + " CAN be triggered in " + roomId + ": 1.0 / " + (double)actionIdsForRoom.size() + " = " + 1.0 / (double)actionIdsForRoom.size());
+                    Logger.verbose("[PositionContextualInformationProvider] P(room_action=" + actionId + "|room=" + roomId + ") = " + (1.0 / (double)actionIdsForRoom.size()) + ".");
                     rawRoomActionProbabilities[probabilityIdx] = 1.0 / (double)actionIdsForRoom.size();
                 } else {
                     // The action cannot be triggered in the room.
-                    Logger.verbose(actionId + " CANNOT be triggered in " + roomId);
+                    Logger.verbose("[PositionContextualInformationProvider] P(room_action=" + actionId + "|room=" + roomId + ") = 0 because the action cannot be triggered in the room.");
                     rawRoomActionProbabilities[probabilityIdx] = 0.0;
                 }
             }
         }
         roomActionNode.setProbabilities(rawRoomActionProbabilities);
-
-        // Count total observations.
-        int totalObservationsCount = 0;
-        for (Integer roomObservationCount : roomObservationCountMap.values()) {
-            totalObservationsCount += roomObservationCount;
-        }
 
         // Add soft evidence to the room node.
         double[] softEvidence = new double[uniqueRoomIds.size()];
@@ -328,18 +354,21 @@ public class PositionContextualInformationProvider implements ContextualInformat
             int observationCount = roomObservationCountMap.get(roomId);
             if (totalObservationsCount == 0) {
                 // We have not observed any rooms. Evidence should be equal.
-                Logger.verbose("We have not observed any rooms. Add evidence to room node: 1.0 / " + (double) uniqueRoomIds.size() + " = " + 1.0 / (double) uniqueRoomIds.size());
+                Logger.verbose("[PositionContextualInformationProvider] Propose evidence " + (1.0 / (double) uniqueRoomIds.size()) + " to state " + roomId + " of room node. This is the same as all others because we have not observed any rooms.");
                 softEvidence[r] = 1.0 / (double) uniqueRoomIds.size();
             } else if (observationCount == 0) {
                 // We have not observed the user in this room, but we have observed him in other rooms.
                 // There's no probability that he his here.
+                Logger.verbose("[PositionContextualInformationProvider] Propose evidence 0 to state " + roomId + " of room node because we have not observed the user in this room.");
                 softEvidence[r] = 0.0;
             } else {
                 // We have observed the user in rooms.
-                Logger.verbose("Add evidence to room node: " + (double)observationCount + "/" + (double)totalObservationsCount + " = " + (double)observationCount / (double)totalObservationsCount);
+                Logger.verbose("[PositionContextualInformationProvider] Propose evidence " + ((double)observationCount / (double)totalObservationsCount) + " to state " + roomId + " of room node.");
                 softEvidence[r] = (double) observationCount / (double) totalObservationsCount;
             }
         }
+
+        Logger.verbose("[PositionContextualInformationProvider] Did get context.");
 
         ProvidedContextualInformation contextualInformation = new ProvidedContextualInformation(
                 roomActionNode,

@@ -78,6 +78,13 @@ public class GestureContextualInformationProvider implements ContextualInformati
         // A gesture score must be lower than or equal to the threshold in order to be considered.
         Double gestureScoreThreshold = 70.0;
 
+        Logger.verbose("[GestureContextualInformationProvider] Will update probabilities. Accepts gestures with a score of " + gestureScoreThreshold + " or higher.");
+
+        // For debugging purposes.
+        for (ThreeDMatch match : matches) {
+            Logger.verbose("[GestureContextualInformationProvider] Raw gesture match: " + match.getLabel() + " with score " + match.getScore());
+        }
+
         // Group the scores as each gesture appears multiple times,
         // i.e. one per training template.
         // Hash map where keys are the label of gesture templates.
@@ -113,7 +120,7 @@ public class GestureContextualInformationProvider implements ContextualInformati
 
         // Log averaged scores.
         for (Map.Entry<String, Double> entry : averagedScores.entrySet()) {
-            Logger.verbose("Gesture " + entry.getKey() + " has a total score of " + entry.getValue() + " / " + totalScore);
+            Logger.verbose("[GestureContextualInformationProvider] Average gesture: " + entry.getKey() + " has a total score of " + entry.getValue() + " / " + totalScore + " = " + entry.getValue() / totalScore);
         }
 
         // Find all unique configured gestures and actions.
@@ -181,16 +188,12 @@ public class GestureContextualInformationProvider implements ContextualInformati
         }
         this.gestureActionProbabilities = new Optional<>(gestureActionProbabilities);
 
-        for (Map.Entry<String, Double> stringDoubleEntry : averagedScores.entrySet()) {
-            Logger.verbose("Averaged score, " + stringDoubleEntry.getKey() + ": " + stringDoubleEntry.getValue());
-        }
-
         // Create evidence.
         HashMap<String, Double> evidence = new HashMap<>();
         for (String uniqueGestureId : uniqueGestureIds) {
             if (averagedScores.keySet().size() == 0) {
                 // If the averaged scores are empty, we assign an equal evidence to all gestures.
-                Logger.verbose("Gesture, set equal evidence entry: " + uniqueGestureId + " -> " + 1.0 / (double)uniqueGestureId.length());
+                Logger.verbose("[GestureContextualInformationProvider] Gesture " + uniqueGestureId + " has evidence " + (1.0 / (double)uniqueGestureId.length()) + ", same as all others because the the set of observed gestures is empty.");
                 evidence.put(uniqueGestureId, 1.0 / (double)uniqueGestureId.length());
             } else if (averagedScores.keySet().contains(uniqueGestureId)) {
                 // We have observed, i.e. recognized the gesture with some probability.
@@ -200,28 +203,29 @@ public class GestureContextualInformationProvider implements ContextualInformati
                     // If we don't do that, we calculate the score, a total score and
                     // calculate the probability as (1 - score / totalScore) resulting
                     // in a probability of 0.
-                    Logger.verbose("Gesture, set evidence for only entry: " + uniqueGestureId);
+                    Logger.verbose("[GestureContextualInformationProvider] Gesture " + uniqueGestureId + " has evidence 1.0 because it was the only observed gesture in the set of recognized gestures.");
                     evidence.put(uniqueGestureId, 1.0);
                 } else {
                     // Subtract from one. The lower the score, the better.
-                    Logger.verbose("Gesture, set evidence for entry: " + uniqueGestureId + " -> " + (1.0 - (gestureScore / totalScore)));
+                    Logger.verbose("[GestureContextualInformationProvider] Gesture " + uniqueGestureId + " has evidence " + (1.0 - (gestureScore / totalScore)));
                     evidence.put(uniqueGestureId, 1.0 - (gestureScore / totalScore));
                 }
             } else {
                 // We have not observed the gesture.
-                Logger.verbose("Gesture, set evidence for unobserved entry: " + uniqueGestureId);
+                Logger.verbose("[GestureContextualInformationProvider] Gesture " + uniqueGestureId + " has evidence 0, because it was not observed in the set of recognized gestures.");
                 evidence.put(uniqueGestureId, 0.0);
             }
         }
         this.evidence = new Optional<>(evidence);
 
-        Logger.verbose("Gesture provider did update probabilities");
+        Logger.verbose("[GestureContextualInformationProvider] Did update probabilities.");
     }
 
     @Override
     public void getContext(ContextualInformationListener listener, BayesNet net) {
         if (!gestureProbabilities.isPresent() || !gestureActionProbabilities.isPresent() || !evidence.isPresent()) {
             this.listener = new Optional<>();
+            Logger.error("[GestureContextualInformationProvider] Failed getting context. One or more values are not present.");
             listener.onFailure();
             return;
         }
@@ -241,12 +245,14 @@ public class GestureContextualInformationProvider implements ContextualInformati
         BayesNode gestureNode = net.createNode("gesture");
         // Add states to gesture node.
         for (String gestureId : gestureIds) {
+            Logger.verbose("[GestureContextualInformationProvider] Add state " + gestureId + " to gesture node.");
             gestureNode.addOutcome(gestureId);
         }
 
         // Add probabilities to gesture node.
         double[] rawGestureProbabilities = new double[gestureProbabilities.values().size()];
         for (int i = 0; i < rawGestureProbabilities.length; i++) {
+            Logger.verbose("[GestureContextualInformationProvider] Add P(gesture=" + gestureIds.get(i) + ") = " + gestureProbabilities.get(gestureIds.get(i)));
             rawGestureProbabilities[i] = gestureProbabilities.get(gestureIds.get(i));
         }
         gestureNode.setProbabilities(rawGestureProbabilities);
@@ -255,11 +261,9 @@ public class GestureContextualInformationProvider implements ContextualInformati
         ArrayList<String> actionIds;
         // Sanity check to ensure we have probabilities for gesture_action node.
         if (gestureActionProbabilities.value.size() > 0) {
-            Logger.verbose("Set gesture action probabilities");
             String firstGestureId = gestureActionProbabilities.value.keySet().iterator().next();
             actionIds = new ArrayList<>(gestureActionProbabilities.value.get(firstGestureId).keySet());
         } else {
-            Logger.verbose("Gesture action probabilities are empty");
             actionIds = new ArrayList<>();
         }
 
@@ -274,7 +278,7 @@ public class GestureContextualInformationProvider implements ContextualInformati
         BayesNode gestureActionNode = net.createNode("gesture_action");
         // Add states to gesture_action node.
         for (String actionId : actionIds) {
-            Logger.verbose("Add gesture_action state: " + actionId);
+            Logger.verbose("[GestureContextualInformationProvider] Add state " + actionId + " to gesture_action node.");
             gestureActionNode.addOutcome(actionId);
         }
 
@@ -285,10 +289,11 @@ public class GestureContextualInformationProvider implements ContextualInformati
         double[] rawGestureActionProbabilities = new double[gestureIds.size() * actionIds.size()];
         for (int g = 0; g < gestureIds.size(); g++) {
             String gestureId = gestureIds.get(g);
-            HashMap<String, Double> actionsForGesture = gestureActionProbabilities.value.get(gestureId);
+            HashMap<String, Double> actionProbabilitiesForGesture = gestureActionProbabilities.value.get(gestureId);
             for (int a = 0; a < actionIds.size(); a++) {
                 String actionId = actionIds.get(a);
-                rawGestureActionProbabilities[g * actionIds.size() + a] = actionsForGesture.get(actionId);
+                Logger.verbose("[GestureContextualInformationProvider] Add P(gesture_action=" + actionId + "|gesture=" + gestureId + ") = " + actionProbabilitiesForGesture.get(actionId));
+                rawGestureActionProbabilities[g * actionIds.size() + a] = actionProbabilitiesForGesture.get(actionId);
             }
         }
 
@@ -297,9 +302,11 @@ public class GestureContextualInformationProvider implements ContextualInformati
         // Add evidence to gesture node.
         double[] softEvidence = new double[gestureIds.size()];
         for (int g = 0; g < gestureIds.size(); g++) {
-            Logger.verbose("Add evidence to gesture node: " + evidence.value.get(gestureIds.get(g)));
+            Logger.verbose("[GestureContextualInformationProvider] Propose evidence " + evidence.value.get(gestureIds.get(g)) + " to state " + gestureIds.get(g) + " of gesture node.");
             softEvidence[g] = evidence.value.get(gestureIds.get(g));
         }
+
+        Logger.verbose("[GestureContextualInformationProvider] Did get context.");
 
         ProvidedContextualInformation contextualInformation = new ProvidedContextualInformation(
                 gestureActionNode,

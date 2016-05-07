@@ -74,11 +74,11 @@ public class SetupActivity extends Activity {
             @Override
             public void onUpdate(Result<ArrayList<Room>> result) {
                 if (result.isSuccess()) {
-                    Logger.verbose("Retrieved room and beacon configuration from openHAB:");
+                    Logger.verbose("[SetupActivity] Retrieved room and beacon configuration from openHAB:");
                     for (Room room : result.value.value) {
-                        Logger.verbose("- " + room.name);
+                        Logger.verbose("[SetupActivity] - " + room.name);
                         for (Beacon beacon : room.beacons) {
-                            Logger.verbose("  - " + beacon.namespace + " : " + beacon.instance);
+                            Logger.verbose("[SetupActivity]  - " + beacon.namespace + " : " + beacon.instance);
                         }
                     }
 
