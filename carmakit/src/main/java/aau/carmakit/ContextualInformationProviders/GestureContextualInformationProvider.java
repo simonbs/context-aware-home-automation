@@ -193,8 +193,8 @@ public class GestureContextualInformationProvider implements ContextualInformati
         for (String uniqueGestureId : uniqueGestureIds) {
             if (averagedScores.keySet().size() == 0) {
                 // If the averaged scores are empty, we assign an equal evidence to all gestures.
-                Logger.verbose("[GestureContextualInformationProvider] Gesture " + uniqueGestureId + " has evidence " + (1.0 / (double)uniqueGestureId.length()) + ", same as all others because the the set of observed gestures is empty.");
-                evidence.put(uniqueGestureId, 1.0 / (double)uniqueGestureId.length());
+                Logger.verbose("[GestureContextualInformationProvider] Gesture " + uniqueGestureId + " has evidence 1.0 / " + (double)uniqueGesturesCount + " = " + (1.0 / (double)uniqueGesturesCount) + ", same as all others because the the set of observed gestures is empty.");
+                evidence.put(uniqueGestureId, 1.0 / (double)uniqueGesturesCount);
             } else if (averagedScores.keySet().contains(uniqueGestureId)) {
                 // We have observed, i.e. recognized the gesture with some probability.
                 Double gestureScore = averagedScores.get(uniqueGestureId);
