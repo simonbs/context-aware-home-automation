@@ -6,6 +6,7 @@
     <string name="settings_unset_virtual_position">Unset: %s</string>
     <string name="settings_train_gesture">Train gesture</string>
     <string name="settings_configure_action">Configure action</string>
+    <string name="settings_remove_trained_gestures">Remove gestures</string>
     <string name="recognize_gesture_touch_to_start">Touch to start recognition</string>
     <string name="recognize_gesture_touch_to_stop">Touch to stop recognition</string>
     <string name="title_activity_train_gesture">TrainGestureActivity</string>

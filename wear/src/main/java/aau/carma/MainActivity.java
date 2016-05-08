@@ -6,6 +6,8 @@ import android.os.Bundle;
 
 import com.estimote.sdk.SystemRequirementsChecker;
 
+import org.json.JSONException;
+
 import java.util.ArrayList;
 
 import aau.carma.Gateways.ActionsGateway;
@@ -16,9 +18,11 @@ import aau.carma.GridPager.GridFragmentProvider;
 import aau.carma.GridPager.GridRow;
 import aau.carma.GridPager.GridViewPager;
 import aau.carmakit.GestureConfiguration;
+import aau.carmakit.ThreeDOneCentGestureRecognizer.datatype.ThreeDLabeledStroke;
+import aau.carmakit.ThreeDOneCentGestureRecognizer.datatype.ThreeDNNRTemplate;
 import aau.carmakit.ThreeDOneCentGestureRecognizer.datatype.ThreeDPoint;
-import aau.carmakit.ThreeDOneCentGestureRecognizer.datatype.ThreeDStroke;
-import aau.carmakit.ThreeDOneCentGestureRecognizer.recognizer.ThreeDMatch;
+import aau.carmakit.ThreeDOneCentGestureRecognizer.util.ThreeDOneDimensionalRepresentation;
+import aau.carmakit.ThreeDOneCentGestureRecognizer.util.ThreeDTemplatesDataSource;
 import aau.carmakit.Utilities.Action;
 import aau.carmakit.Utilities.Logger;
 import aau.carmakit.Utilities.Optional;
@@ -49,6 +53,31 @@ public class MainActivity extends Activity implements GridFragmentProvider<MainA
 
         gridPager = (GridViewPager) findViewById(R.id.main_pager);
         gridPager.setAdapter(gridAdapter);
+
+        ThreeDTemplatesDataSource dataSource = new ThreeDTemplatesDataSource(App.getContext());
+        dataSource.open();
+//
+//        ThreeDOneDimensionalRepresentation repr1 = new ThreeDOneDimensionalRepresentation(new ArrayList<Double>());
+//        ThreeDLabeledStroke stroke1 = new ThreeDLabeledStroke("Circle");
+//        ThreeDNNRTemplate template1 = new ThreeDNNRTemplate("Circle", repr1, stroke1);
+//
+//        ThreeDOneDimensionalRepresentation repr2 = new ThreeDOneDimensionalRepresentation(new ArrayList<Double>());
+//        ThreeDLabeledStroke stroke2 = new ThreeDLabeledStroke("Horizontal Line");
+//        ThreeDNNRTemplate template2 = new ThreeDNNRTemplate("Horizontal Line", repr2, stroke2);
+//
+//        ThreeDOneDimensionalRepresentation repr3 = new ThreeDOneDimensionalRepresentation(new ArrayList<Double>());
+//        ThreeDLabeledStroke stroke3 = new ThreeDLabeledStroke("V");
+//        ThreeDNNRTemplate template3 = new ThreeDNNRTemplate("V", repr3, stroke3);
+//
+//        try {
+//            dataSource.saveTemplate(template1);
+//            dataSource.saveTemplate(template2);
+//            dataSource.saveTemplate(template3);
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
+//
+//        dataSource.close();
 
         Logger.verbose("[MainActivity] Trained gestures:");
         Optional<ArrayList<String>> gestureNames = GesturesGateway.allUniqueGestureNames();

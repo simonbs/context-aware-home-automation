@@ -55,7 +55,7 @@ public class CARMAContextRecognizer extends ContextRecognizer {
         contextualInformationProvider.monitorRooms(rooms);
         positionContextProviderUUID = addProvider(contextualInformationProvider);
 
-        Logger.verbose("Did configure position contextual information provider");
+        Logger.verbose("[CARMAContextRecognizer] Did configure position contextual information provider");
     }
 
     /**
@@ -76,7 +76,7 @@ public class CARMAContextRecognizer extends ContextRecognizer {
         GestureContextualInformationProvider contextualInformationProvider = new GestureContextualInformationProvider(context);
         gestureContextProviderUUID = addProvider(contextualInformationProvider);
 
-        Logger.verbose("Did configure gesture contextual information provider");
+        Logger.verbose("[CARMAContextRecognizer] Did configure gesture contextual information provider");
     }
 
     /**

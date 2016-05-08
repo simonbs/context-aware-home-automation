@@ -9,7 +9,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import org.json.JSONException;
+
 import java.util.ArrayList;
+import java.util.Set;
 
 import aau.carma.ConfigureAction.ConfigureActionActivity;
 import aau.carma.Picker.PickerFragment;
@@ -17,6 +20,9 @@ import aau.carma.Picker.WearableListItemAdapter;
 import aau.carma.Pickers.RoomPickerActivity;
 import aau.carma.TrainGesture.NameTrainGestureActivity;
 import aau.carmakit.ContextualInformationProviders.PositionContextualInformationProvider;
+import aau.carmakit.ThreeDOneCentGestureRecognizer.datatype.ThreeDNNRTemplate;
+import aau.carmakit.ThreeDOneCentGestureRecognizer.util.ThreeDTemplatesDataSource;
+import aau.carmakit.Utilities.Logger;
 import aau.carmakit.Utilities.Optional;
 import aau.carmakit.Utilities.Room;
 
@@ -42,6 +48,7 @@ public class SettingsFragment extends Fragment implements PickerFragment.OnPickL
         settings.add(Setting.VIRTUAL_POSITION);
         settings.add(Setting.TRAIN_GESTURE);
         settings.add(Setting.CONFIGURE_ACTION);
+        settings.add(Setting.REMOVE_TRAINED_GESTURES);
 
         PickerFragment pickerFragment = (PickerFragment)getChildFragmentManager().findFragmentById(R.id.settings_picker_fragment);
         pickerFragment.setItems(settings);
@@ -66,6 +73,8 @@ public class SettingsFragment extends Fragment implements PickerFragment.OnPickL
                 break;
             case CONFIGURE_ACTION:
                 presentConfigureAction();
+            case REMOVE_TRAINED_GESTURES:
+                removeTrainedGestures();
                 break;
         }
     }
@@ -95,6 +104,18 @@ public class SettingsFragment extends Fragment implements PickerFragment.OnPickL
     }
 
     /**
+     * Removes all trained gestures. Useful for debugging purposes.
+     */
+    private void removeTrainedGestures() {
+        ThreeDTemplatesDataSource dataSource = new ThreeDTemplatesDataSource(App.getContext());
+        dataSource.open();
+        Logger.verbose("[SettingsFragment] Will remove all trained gestured.");
+        dataSource.deleteAllTemplates();
+        Logger.verbose("[SettingsFragment] Did remove all trained gestures.");
+        dataSource.close();
+    }
+
+    /**
      * Reloads the items in the list view.
      */
     private void reloadListView() {
@@ -108,7 +129,8 @@ public class SettingsFragment extends Fragment implements PickerFragment.OnPickL
     private enum Setting implements WearableListItemAdapter.WearableListItem {
         VIRTUAL_POSITION,
         TRAIN_GESTURE,
-        CONFIGURE_ACTION;
+        CONFIGURE_ACTION,
+        REMOVE_TRAINED_GESTURES;
 
         @Override
         public Optional<Integer> getIconResource() {
@@ -116,6 +138,7 @@ public class SettingsFragment extends Fragment implements PickerFragment.OnPickL
                 case VIRTUAL_POSITION: return new Optional<>(R.drawable.room);
                 case TRAIN_GESTURE: return new Optional<>(R.drawable.gesture);
                 case CONFIGURE_ACTION: return new Optional<>(R.drawable.action);
+                case REMOVE_TRAINED_GESTURES: return new Optional<>();
             }
 
             return new Optional<>();
@@ -136,6 +159,9 @@ public class SettingsFragment extends Fragment implements PickerFragment.OnPickL
                     return new Optional<>(App.getContext().getString(R.string.settings_train_gesture));
                 case CONFIGURE_ACTION:
                     return new Optional<>(App.getContext().getString(R.string.settings_configure_action));
+                case REMOVE_TRAINED_GESTURES:
+                    return new Optional<>(App.getContext().getString(R.string.settings_remove_trained_gestures));
+
             }
 
             return new Optional<>();

@@ -44,10 +44,6 @@ public class ThreeDTemplatesDataSource {
         dbHelper.close();
     }
 
-    public ThreeDNNRTemplate saveTemplate(String label, ThreeDOneDimensionalRepresentation odr, ThreeDLabeledStroke labeledStroke) throws JSONException {
-        return saveTemplate(new ThreeDNNRTemplate(label, odr, labeledStroke));
-    }
-
     public ThreeDNNRTemplate saveTemplate(ThreeDNNRTemplate template) throws JSONException {
         ContentValues values = new ContentValues();
         values.put(ThreeDSQLiteHelper.COLUMN_LABEL, template.getLabel());
@@ -114,5 +110,15 @@ public class ThreeDTemplatesDataSource {
         }
         cursor.close();
         return templates;
+    }
+
+    /**
+     * Deletes all trained templates.
+     * @return True if one or more templates were deleted.
+     */
+    public boolean deleteAllTemplates() {
+        int deleteCount = database.delete(ThreeDSQLiteHelper.TABLE_TEMPLATES, null, null);
+        Logger.verbose("DELETE COUNT: " + deleteCount);
+        return deleteCount != 0;
     }
 }
