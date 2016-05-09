@@ -112,15 +112,56 @@ public class GestureContextualInformationProvider implements ContextualInformati
             averagedScores.put(entry.getKey(), pair.second.doubleValue() / pair.first.doubleValue());
         }
 
-        // Compute total score.
+        HashMap<String, Double> translatedScores = new HashMap<>();
+        // Sort the scores descending in preparation of calculating translated scores.
+        ArrayList<Map.Entry<String, Double>> averagedScoreEntries = new ArrayList<>(averagedScores.entrySet());
+        Collections.sort(averagedScoreEntries, new Comparator<Map.Entry<String, Double>>() {
+            @Override
+            public int compare(Map.Entry<String, Double> lhs, Map.Entry<String, Double> rhs) {
+                if (rhs.getValue() > lhs.getValue()) {
+                    return 1;
+                } else if (lhs.getValue() < rhs.getValue()) {
+                    return -1;
+                }
+
+                return 0;
+            }
+        });
+
+        // Convert scores to lowest score being the best,
+        // i.e. we must convert the lowest score to the highest
+        // score in order to correctly compute the probability.
+        // While computing the new scores, we must preserve the
+        // ratio between scores.
+        // We also compute the total score along the way.
         Double totalScore = 0.0;
-        for (Map.Entry<String, Double> entry : averagedScores.entrySet()) {
-            totalScore += entry.getValue();
+        for (int i = 0; i < averagedScoreEntries.size(); i++) {
+            Map.Entry<String, Double> averagedScoreEntry = averagedScoreEntries.get(i);
+            if (averagedScoreEntries.size() == 1) {
+                // There's only one entry. We do not need to perform any translation.
+                translatedScores.put(averagedScoreEntry.getKey(), averagedScoreEntry.getValue());
+                totalScore += averagedScoreEntry.getValue();
+            } else if (i == 0) {
+                // We have more entries and this is the first entry, i.e. the highest. Just add it.
+                translatedScores.put(averagedScoreEntry.getKey(), averagedScoreEntry.getValue());
+                totalScore += averagedScoreEntry.getValue();
+            } else {
+                // We have more entries and this is not the first entry.
+                Map.Entry<String, Double> previousEntry = averagedScoreEntries.get(i - 1);
+                Double ratio = previousEntry.getValue() / averagedScoreEntry.getValue();
+                Double newScore = translatedScores.get(previousEntry.getKey()) * ratio;
+                translatedScores.put(averagedScoreEntry.getKey(), newScore);
+                totalScore += newScore;
+            }
         }
 
-        // Log averaged scores.
+        // Log averaged scores and translated.
         for (Map.Entry<String, Double> entry : averagedScores.entrySet()) {
-            Logger.verbose("[GestureContextualInformationProvider] Average gesture: " + entry.getKey() + " has a total score of " + entry.getValue() + " / " + totalScore + " = " + entry.getValue() / totalScore);
+            Logger.verbose("[GestureContextualInformationProvider] Gesture " + entry.getKey()
+                    + " has a total and average score of "
+                    + entry.getValue() + " / " + totalScore + " = " + entry.getValue() / totalScore
+                    + ", resulting in a translated score of "
+                    + translatedScores.get(entry.getKey()) + ".");
         }
 
         // Find all unique configured gestures and actions.
@@ -191,28 +232,34 @@ public class GestureContextualInformationProvider implements ContextualInformati
         // Create evidence.
         HashMap<String, Double> evidence = new HashMap<>();
         for (String uniqueGestureId : uniqueGestureIds) {
-            if (averagedScores.keySet().size() == 0) {
+            if (translatedScores.keySet().size() == 0) {
                 // If the averaged scores are empty, we assign an equal evidence to all gestures.
-                Logger.verbose("[GestureContextualInformationProvider] Gesture " + uniqueGestureId + " has evidence 1.0 / " + (double)uniqueGesturesCount + " = " + (1.0 / (double)uniqueGesturesCount) + ", same as all others because the the set of observed gestures is empty.");
+                Logger.verbose("[GestureContextualInformationProvider] Gesture " + uniqueGestureId +
+                        " has evidence 1.0 / " + (double)uniqueGesturesCount + " = "
+                        + (1.0 / (double)uniqueGesturesCount)
+                        + ", same as all others because the the set of observed gestures is empty.");
                 evidence.put(uniqueGestureId, 1.0 / (double)uniqueGesturesCount);
-            } else if (averagedScores.keySet().contains(uniqueGestureId)) {
+            } else if (translatedScores.keySet().contains(uniqueGestureId)) {
                 // We have observed, i.e. recognized the gesture with some probability.
-                Double gestureScore = averagedScores.get(uniqueGestureId);
-                if (averagedScores.size() == 1) {
+                if (translatedScores.size() == 1) {
                     // We only have one score, so it must have a probability of 1.
                     // If we don't do that, we calculate the score, a total score and
                     // calculate the probability as (1 - score / totalScore) resulting
                     // in a probability of 0.
-                    Logger.verbose("[GestureContextualInformationProvider] Gesture " + uniqueGestureId + " has evidence 1.0 because it was the only observed gesture in the set of recognized gestures.");
+                    Logger.verbose("[GestureContextualInformationProvider] Gesture " + uniqueGestureId
+                            + " has evidence 1.0 because it was the only observed gesture in the set of recognized gestures.");
                     evidence.put(uniqueGestureId, 1.0);
                 } else {
                     // Subtract from one. The lower the score, the better.
-                    Logger.verbose("[GestureContextualInformationProvider] Gesture " + uniqueGestureId + " has evidence " + (1.0 - (gestureScore / totalScore)));
+                    Double gestureScore = translatedScores.get(uniqueGestureId);
+                    Logger.verbose("[GestureContextualInformationProvider] Gesture " + uniqueGestureId
+                            + " has evidence " + (1.0 - (gestureScore / totalScore)));
                     evidence.put(uniqueGestureId, 1.0 - (gestureScore / totalScore));
                 }
             } else {
                 // We have not observed the gesture.
-                Logger.verbose("[GestureContextualInformationProvider] Gesture " + uniqueGestureId + " has evidence 0, because it was not observed in the set of recognized gestures.");
+                Logger.verbose("[GestureContextualInformationProvider] Gesture " + uniqueGestureId
+                        + " has evidence 0, because it was not observed in the set of recognized gestures.");
                 evidence.put(uniqueGestureId, 0.0);
             }
         }
@@ -252,7 +299,8 @@ public class GestureContextualInformationProvider implements ContextualInformati
         // Add probabilities to gesture node.
         double[] rawGestureProbabilities = new double[gestureProbabilities.values().size()];
         for (int i = 0; i < rawGestureProbabilities.length; i++) {
-            Logger.verbose("[GestureContextualInformationProvider] Add P(gesture=" + gestureIds.get(i) + ") = " + gestureProbabilities.get(gestureIds.get(i)));
+            Logger.verbose("[GestureContextualInformationProvider] Add P(gesture=" + gestureIds.get(i) + ") = "
+                    + gestureProbabilities.get(gestureIds.get(i)));
             rawGestureProbabilities[i] = gestureProbabilities.get(gestureIds.get(i));
         }
         gestureNode.setProbabilities(rawGestureProbabilities);
@@ -302,7 +350,8 @@ public class GestureContextualInformationProvider implements ContextualInformati
         // Add evidence to gesture node.
         double[] softEvidence = new double[gestureIds.size()];
         for (int g = 0; g < gestureIds.size(); g++) {
-            Logger.verbose("[GestureContextualInformationProvider] Propose evidence " + evidence.value.get(gestureIds.get(g)) + " to state " + gestureIds.get(g) + " of gesture node.");
+            Logger.verbose("[GestureContextualInformationProvider] Propose evidence " + evidence.value.get(gestureIds.get(g))
+                    + " to state " + gestureIds.get(g) + " of gesture node.");
             softEvidence[g] = evidence.value.get(gestureIds.get(g));
         }
 
