@@ -281,4 +281,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private int getIntFromColumnName(Cursor cursor, String column) {
         return cursor.getInt(cursor.getColumnIndex(column));
     }
+
+    /**
+     * Deletes all gesture configurations.
+     * @return True, if one or more gesture configurations were deleted.
+     */
+    public boolean deleteAllGestureConfigurations() {
+        int deleteCount = database.delete(TABLE_GESTURE_CONFIGURATIONS, null, null);
+        return deleteCount != 0;
+    }
 }

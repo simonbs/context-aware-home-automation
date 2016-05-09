@@ -20,6 +20,7 @@ import aau.carma.Picker.WearableListItemAdapter;
 import aau.carma.Pickers.RoomPickerActivity;
 import aau.carma.TrainGesture.NameTrainGestureActivity;
 import aau.carmakit.ContextualInformationProviders.PositionContextualInformationProvider;
+import aau.carmakit.Database.DatabaseHelper;
 import aau.carmakit.ThreeDOneCentGestureRecognizer.datatype.ThreeDNNRTemplate;
 import aau.carmakit.ThreeDOneCentGestureRecognizer.util.ThreeDTemplatesDataSource;
 import aau.carmakit.Utilities.Logger;
@@ -49,6 +50,7 @@ public class SettingsFragment extends Fragment implements PickerFragment.OnPickL
         settings.add(Setting.TRAIN_GESTURE);
         settings.add(Setting.CONFIGURE_ACTION);
         settings.add(Setting.REMOVE_TRAINED_GESTURES);
+        settings.add(Setting.REMOVE_GESTURE_CONFIGURATIONS);
 
         PickerFragment pickerFragment = (PickerFragment)getChildFragmentManager().findFragmentById(R.id.settings_picker_fragment);
         pickerFragment.setItems(settings);
@@ -73,8 +75,12 @@ public class SettingsFragment extends Fragment implements PickerFragment.OnPickL
                 break;
             case CONFIGURE_ACTION:
                 presentConfigureAction();
+                break;
             case REMOVE_TRAINED_GESTURES:
                 removeTrainedGestures();
+                break;
+            case REMOVE_GESTURE_CONFIGURATIONS:
+                removeGestureConfigurations();
                 break;
         }
     }
@@ -109,10 +115,19 @@ public class SettingsFragment extends Fragment implements PickerFragment.OnPickL
     private void removeTrainedGestures() {
         ThreeDTemplatesDataSource dataSource = new ThreeDTemplatesDataSource(App.getContext());
         dataSource.open();
-        Logger.verbose("[SettingsFragment] Will remove all trained gestured.");
+        Logger.verbose("[SettingsFragment] Will remove all trained gestures.");
         dataSource.deleteAllTemplates();
         Logger.verbose("[SettingsFragment] Did remove all trained gestures.");
         dataSource.close();
+    }
+
+    /**
+     * Removes all gesture configurations. Useful for debugging purposes.
+     */
+    private void removeGestureConfigurations() {
+        Logger.verbose("[SettingsFragment] Will remove all gesture configurations.");
+        DatabaseHelper.getInstance(App.getContext()).deleteAllGestureConfigurations();
+        Logger.verbose("[SettingsFragment] Did remove all gesture configurations.");
     }
 
     /**
@@ -130,7 +145,8 @@ public class SettingsFragment extends Fragment implements PickerFragment.OnPickL
         VIRTUAL_POSITION,
         TRAIN_GESTURE,
         CONFIGURE_ACTION,
-        REMOVE_TRAINED_GESTURES;
+        REMOVE_TRAINED_GESTURES,
+        REMOVE_GESTURE_CONFIGURATIONS;
 
         @Override
         public Optional<Integer> getIconResource() {
@@ -139,6 +155,7 @@ public class SettingsFragment extends Fragment implements PickerFragment.OnPickL
                 case TRAIN_GESTURE: return new Optional<>(R.drawable.gesture);
                 case CONFIGURE_ACTION: return new Optional<>(R.drawable.action);
                 case REMOVE_TRAINED_GESTURES: return new Optional<>();
+                case REMOVE_GESTURE_CONFIGURATIONS: return new Optional<>();
             }
 
             return new Optional<>();
@@ -161,7 +178,8 @@ public class SettingsFragment extends Fragment implements PickerFragment.OnPickL
                     return new Optional<>(App.getContext().getString(R.string.settings_configure_action));
                 case REMOVE_TRAINED_GESTURES:
                     return new Optional<>(App.getContext().getString(R.string.settings_remove_trained_gestures));
-
+                case REMOVE_GESTURE_CONFIGURATIONS:
+                    return new Optional<>(App.getContext().getString(R.string.settings_remove_gesture_configurations));
             }
 
             return new Optional<>();
@@ -169,7 +187,14 @@ public class SettingsFragment extends Fragment implements PickerFragment.OnPickL
 
         @Override
         public Optional<String> getSubtitle() {
-            return new Optional<>();
+            switch (this) {
+                case REMOVE_TRAINED_GESTURES:
+                    return new Optional<>(App.getContext().getString(R.string.debugging_setting));
+                case REMOVE_GESTURE_CONFIGURATIONS:
+                    return new Optional<>(App.getContext().getString(R.string.debugging_setting));
+                default:
+                    return new Optional<>();
+            }
         }
     }
 

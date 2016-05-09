@@ -118,7 +118,6 @@ public class ThreeDTemplatesDataSource {
      */
     public boolean deleteAllTemplates() {
         int deleteCount = database.delete(ThreeDSQLiteHelper.TABLE_TEMPLATES, null, null);
-        Logger.verbose("DELETE COUNT: " + deleteCount);
         return deleteCount != 0;
     }
 }
