@@ -128,11 +128,9 @@ public class GestureContextualInformationProvider implements ContextualInformati
             }
         });
 
-        // Convert scores to lowest score being the best,
-        // i.e. we must convert the lowest score to the highest
+        // Convert scores to lowest score being the best, i.e. we must convert the lowest score to the highest
         // score in order to correctly compute the probability.
-        // While computing the new scores, we must preserve the
-        // ratio between scores.
+        // While computing the new scores, we must preserve the ratio between scores.
         // We also compute the total score along the way.
         Double totalScore = 0.0;
         for (int i = 0; i < averagedScoreEntries.size(); i++) {
@@ -158,8 +156,8 @@ public class GestureContextualInformationProvider implements ContextualInformati
         // Log averaged scores and translated.
         for (Map.Entry<String, Double> entry : averagedScores.entrySet()) {
             Logger.verbose("[GestureContextualInformationProvider] Gesture " + entry.getKey()
-                    + " has a total and average score of "
-                    + entry.getValue() + " / " + totalScore + " = " + entry.getValue() / totalScore
+                    + " has an average score "
+                    + entry.getValue() + " of a total " + totalScore
                     + ", resulting in a translated score of "
                     + translatedScores.get(entry.getKey()) + ".");
         }
@@ -243,9 +241,6 @@ public class GestureContextualInformationProvider implements ContextualInformati
                 // We have observed, i.e. recognized the gesture with some probability.
                 if (translatedScores.size() == 1) {
                     // We only have one score, so it must have a probability of 1.
-                    // If we don't do that, we calculate the score, a total score and
-                    // calculate the probability as (1 - score / totalScore) resulting
-                    // in a probability of 0.
                     Logger.verbose("[GestureContextualInformationProvider] Gesture " + uniqueGestureId
                             + " has evidence 1.0 because it was the only observed gesture in the set of recognized gestures.");
                     evidence.put(uniqueGestureId, 1.0);
@@ -253,8 +248,8 @@ public class GestureContextualInformationProvider implements ContextualInformati
                     // Subtract from one. The lower the score, the better.
                     Double gestureScore = translatedScores.get(uniqueGestureId);
                     Logger.verbose("[GestureContextualInformationProvider] Gesture " + uniqueGestureId
-                            + " has evidence " + (1.0 - (gestureScore / totalScore)));
-                    evidence.put(uniqueGestureId, 1.0 - (gestureScore / totalScore));
+                            + " has evidence " + (gestureScore / totalScore));
+                    evidence.put(uniqueGestureId, gestureScore / totalScore);
                 }
             } else {
                 // We have not observed the gesture.

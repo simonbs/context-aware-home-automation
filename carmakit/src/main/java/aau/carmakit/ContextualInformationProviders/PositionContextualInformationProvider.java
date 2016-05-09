@@ -237,18 +237,17 @@ public class PositionContextualInformationProvider implements ContextualInformat
 
         // Count observed rooms.
         HashMap<String, Integer> roomObservationCountMap = new HashMap<>();
-        if (virtualPosition.isPresent()) {
-            // We are using a virtual position, so the only room we have observed is
-            // the virtual position.
-            roomObservationCountMap.put(virtualPosition.value.identifier, 1);
-        } else {
-            for (final String uniqueRoomId : uniqueRoomIds) {
+        for (final String uniqueRoomId : uniqueRoomIds) {
+            if (virtualPosition.isPresent()) {
+                // We are using a virtual position, so the only room we have observed is
+                // the virtual position.
+                roomObservationCountMap.put(uniqueRoomId, uniqueRoomId.equals(virtualPosition.value.identifier) ? 1 : 0);
+            } else {
                 Funcable<EnteredRoomObservation> observationWithIdentifier = new Funcable<>(enteredRoomObservations).filter(new Predicate<EnteredRoomObservation>() {
-                    @Override
-                    public boolean apply(EnteredRoomObservation enteredRoomObservation) {
-                        return enteredRoomObservation.room.identifier.equals(uniqueRoomId);
-                    }
-                });
+                        @Override
+                        public boolean apply(EnteredRoomObservation enteredRoomObservation) {return enteredRoomObservation.room.identifier.equals(uniqueRoomId);
+                        }
+                    });
 
                 int observationCount = observationWithIdentifier.getValue().size();
                 roomObservationCountMap.put(uniqueRoomId, observationCount);
