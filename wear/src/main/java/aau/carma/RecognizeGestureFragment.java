@@ -147,12 +147,16 @@ public class RecognizeGestureFragment extends Fragment implements View.OnTouchLi
         }
 
         sensorManager.unregisterListener(this);
-        ArrayList<ThreeDMatch> gestureMatches = gestureRecognizer.getAllMatches(tempStroke);
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+                final ArrayList<ThreeDMatch> gestureMatches = gestureRecognizer.getAllMatches(tempStroke);
+                CARMAContextRecognizer.getInstance().getGestureContextualInformationProvider().updateProbabilities(gestureMatches);
+                recognizeContext();
+//            }
+//        }).start();
 
-        CARMAContextRecognizer.getInstance().getGestureContextualInformationProvider().updateProbabilities(gestureMatches);
         isRecognizing = false;
-
-        recognizeContext();
     }
 
     /**
@@ -231,32 +235,37 @@ public class RecognizeGestureFragment extends Fragment implements View.OnTouchLi
         // Accept outcomes that have almost the same probability as the outcome
         // with the highest probability.
         ContextOutcome mostProbableOutcome = outcomes.get(0);
-        ArrayList<ContextOutcome> acceptedOutcomes = new ArrayList<>();
+        final ArrayList<ContextOutcome> acceptedOutcomes = new ArrayList<>();
         for (ContextOutcome outcome : outcomes) {
             if (mostProbableOutcome.probability - outcome.probability <= ContextOutcomeAcceptanceThreshold) {
                 acceptedOutcomes.add(outcome);
             }
         }
 
-        // Log accepted outcomes for debugging purposes.
-        for (ContextOutcome outcome : acceptedOutcomes) {
-            Logger.verbose("[RecognizeGestureFragment] Accept outcome " + outcome.id + " with probability " + outcome.probability + ".");
-        }
+        getView().post(new Runnable() {
+            @Override
+            public void run() {
+                // Log accepted outcomes for debugging purposes.
+                for (ContextOutcome outcome : acceptedOutcomes) {
+                    Logger.verbose("[RecognizeGestureFragment] Accept outcome " + outcome.id + " with probability " + outcome.probability + ".");
+                }
 
-        if (acceptedOutcomes.size() == 1) {
-            // Choose the only outcome.
-            Logger.verbose("[RecognizeGestureFragment] Only one outcome was accepted. Trigger action " + acceptedOutcomes.get(0).id + ".");
-            triggerActionForContextOutcome(acceptedOutcomes.get(0));
-        } else {
-            // Let the user pick an outcome.
-            Logger.verbose("[RecognizeGestureFragment] Multiple outcomes were accepted. Present a picker with the following outcomes to the user:");
-            for (ContextOutcome acceptedOutcome : acceptedOutcomes) {
-                Logger.verbose("[RecognizeGestureFragment] - " + acceptedOutcome.id + " with probability " + acceptedOutcome.probability + ".");
+                if (acceptedOutcomes.size() == 1) {
+                    // Choose the only outcome.
+                    Logger.verbose("[RecognizeGestureFragment] Only one outcome was accepted. Trigger action " + acceptedOutcomes.get(0).id + ".");
+                    triggerActionForContextOutcome(acceptedOutcomes.get(0));
+                } else {
+                    // Let the user pick an outcome.
+                    Logger.verbose("[RecognizeGestureFragment] Multiple outcomes were accepted. Present a picker with the following outcomes to the user:");
+                    for (ContextOutcome acceptedOutcome : acceptedOutcomes) {
+                        Logger.verbose("[RecognizeGestureFragment] - " + acceptedOutcome.id + " with probability " + acceptedOutcome.probability + ".");
+                    }
+
+                    presentContextOutcomePicker(acceptedOutcomes);
+                    Vibrator.significantEvent();
+                }
             }
-
-            presentContextOutcomePicker(acceptedOutcomes);
-            Vibrator.significantEvent();
-        }
+        });
     }
 
     @Override

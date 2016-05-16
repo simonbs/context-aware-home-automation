@@ -14,6 +14,7 @@ import aau.carmakit.Utilities.Action;
 import aau.carmakit.Utilities.ActionsManager;
 import aau.carmakit.Utilities.Beacon;
 import aau.carmakit.Utilities.Logger;
+import aau.carmakit.Utilities.Optional;
 import aau.carmakit.Utilities.Result;
 import aau.carmakit.Utilities.Room;
 import aau.carmakit.Utilities.RoomsManager;
@@ -40,6 +41,8 @@ public class SetupActivity extends Activity {
 
         View errorView = findViewById(R.id.setup_error);
         errorView.setVisibility(View.GONE);
+
+        CARMAContextRecognizer.getInstance().context = new Optional<>(App.getContext());
 
         try {
             CARMAContextRecognizer.getInstance().addGestureContextProvider(this);

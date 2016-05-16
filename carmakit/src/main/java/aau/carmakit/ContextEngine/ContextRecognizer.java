@@ -1,5 +1,6 @@
 package aau.carmakit.ContextEngine;
 
+import android.content.Context;
 import android.os.Handler;
 
 import java.util.ArrayList;
@@ -13,6 +14,8 @@ import aau.carmakit.ContextEngine.Recommender.jayes.BayesNet;
 import aau.carmakit.ContextEngine.Recommender.jayes.BayesNode;
 import aau.carmakit.ContextEngine.Recommender.jayes.inference.SoftEvidenceInferrer;
 import aau.carmakit.ContextEngine.Recommender.jayes.inference.jtree.JunctionTreeAlgorithm;
+import aau.carmakit.Database.DatabaseHelper;
+import aau.carmakit.Utilities.Action;
 import aau.carmakit.Utilities.Logger;
 import aau.carmakit.Utilities.Optional;
 
@@ -78,6 +81,11 @@ public class ContextRecognizer {
      * Whether or not the recognizer is currently recognizing.
      */
     private boolean recognizing = false;
+
+    /**
+     * Context the recognition takes place in.
+     */
+    public Optional<Context> context = new Optional<>();
 
     /**
      * Reference to the Bayesian network.
@@ -200,15 +208,15 @@ public class ContextRecognizer {
      * Starts timer triggered when the recognition times out.
      */
     private void startTimeoutTimer() {
-        Runnable timeoutRunnable = new Runnable() {
-            @Override
-            public void run() {
-                onTimeout();
-            }
-        };
-
-        timeoutHandler = new Handler();
-        timeoutHandler.postDelayed(timeoutRunnable, (long)(ContextRecognizer.Timeout * 1000));
+//        Runnable timeoutRunnable = new Runnable() {
+//            @Override
+//            public void run() {
+//                onTimeout();
+//            }
+//        };
+//
+//        timeoutHandler = new Handler();
+//        timeoutHandler.postDelayed(timeoutRunnable, (long)(ContextRecognizer.Timeout * 1000));
     }
 
     /**
@@ -353,33 +361,47 @@ public class ContextRecognizer {
 
             listener.onContextReady(contextOutcomes);
 
-            double[] gestureBeliefs = inference.getBeliefs(net.value.getNode("gesture"));
-            Logger.verbose("[ContextRecognizer] Beliefs for the gesture node:");
-            for (int i = 0; i < gestureBeliefs.length; i++) {
-                Logger.verbose("[ContextRecognizer] - " + net.value.getNode("gesture").getOutcomeName(i) + ": " + gestureBeliefs[i] * 100);
-            }
+            // For debugging purposes.
+            if (this.context.isPresent()) {
+                ArrayList<Action> actions = DatabaseHelper.getInstance(context.value).getAllActions();
+                HashMap<String, Action> actionsMap = new HashMap<>();
+                for (Action action : actions) {
+                    actionsMap.put(action.id, action);
+                }
 
-            double[] roomBeliefs = inference.getBeliefs(net.value.getNode("room"));
-            Logger.verbose("[ContextRecognizer] Beliefs for the room node:");
-            for (int i = 0; i < roomBeliefs.length; i++) {
-                Logger.verbose("[ContextRecognizer] - " + net.value.getNode("room").getOutcomeName(i) + ": " + roomBeliefs[i] * 100);
-            }
+                double[] gestureBeliefs = inference.getBeliefs(net.value.getNode("gesture"));
+                Logger.verbose("[ContextRecognizer] Beliefs for the gesture node:");
+                for (int i = 0; i < gestureBeliefs.length; i++) {
+                    String outcomeName = net.value.getNode("gesture").getOutcomeName(i);
+                    Logger.verbose("[ContextRecognizer] - " + outcomeName + ": " + gestureBeliefs[i] * 100);
+                }
 
-            double[] gestureActionBeliefs = inference.getBeliefs(net.value.getNode("gesture_action"));
-            Logger.verbose("[ContextRecognizer] Beliefs for the gesture_action node:");
-            for (int i = 0; i < gestureActionBeliefs.length; i++) {
-                Logger.verbose("[ContextRecognizer] - " + net.value.getNode("gesture_action").getOutcomeName(i) + ": " + gestureActionBeliefs[i] * 100);
-            }
+                double[] roomBeliefs = inference.getBeliefs(net.value.getNode("room"));
+                Logger.verbose("[ContextRecognizer] Beliefs for the room node:");
+                for (int i = 0; i < roomBeliefs.length; i++) {
+                    String outcomeName = net.value.getNode("room").getOutcomeName(i);
+                    Logger.verbose("[ContextRecognizer] - " + outcomeName + ": " + roomBeliefs[i] * 100);
+                }
 
-            double[] roomActionBeliefs = inference.getBeliefs(net.value.getNode("room_action"));
-            Logger.verbose("[ContextRecognizer] Beliefs for the room_action node:");
-            for (int i = 0; i < roomActionBeliefs.length; i++) {
-                Logger.verbose("[ContextRecognizer] - " + net.value.getNode("room_action").getOutcomeName(i) + ": " + roomActionBeliefs[i] * 100);
-            }
+                double[] gestureActionBeliefs = inference.getBeliefs(net.value.getNode("gesture_action"));
+                Logger.verbose("[ContextRecognizer] Beliefs for the gesture_action node:");
+                for (int i = 0; i < gestureActionBeliefs.length; i++) {
+                    String actionId = net.value.getNode("gesture_action").getOutcomeName(i);
+                    Logger.verbose("[ContextRecognizer] - " + actionId + " (" + actionsMap.get(actionId) + "): " + gestureActionBeliefs[i] * 100);
+                }
 
-            Logger.verbose("[ContextRecognizer] Beliefs for the action node:");
-            for (int i = 0; i < actionBeliefs.length; i++) {
-                Logger.verbose("[ContextRecognizer] - " + net.value.getNode("action").getOutcomeName(i) + ": " + actionBeliefs[i] * 100);
+                double[] roomActionBeliefs = inference.getBeliefs(net.value.getNode("room_action"));
+                Logger.verbose("[ContextRecognizer] Beliefs for the room_action node:");
+                for (int i = 0; i < roomActionBeliefs.length; i++) {
+                    String actionId = net.value.getNode("room_action").getOutcomeName(i);
+                    Logger.verbose("[ContextRecognizer] - " + actionId + " (" + actionsMap.get(actionId) + "): " + roomActionBeliefs[i] * 100);
+                }
+
+                Logger.verbose("[ContextRecognizer] Beliefs for the action node:");
+                for (int i = 0; i < actionBeliefs.length; i++) {
+                    String actionId = net.value.getNode("action").getOutcomeName(i);
+                    Logger.verbose("[ContextRecognizer] - " + actionId + " (" + actionsMap.get(actionId) + "): " + actionBeliefs[i] * 100);
+                }
             }
         }
     }
